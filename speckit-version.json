@@ -1,0 +1,14 @@
+{
+  "speckitVersion": "1.0.0",
+  "deployerVersion": "1.0.0",
+  "deployedAt": "2026-03-19T08:25:58.890Z",
+  "profile": "web-app-typescript",
+  "components": {
+    "speckit": "1.0.0",
+    "beads": "1.0.0",
+    "constitution": "3.5.0",
+    "skills": {},
+    "agents": {},
+    "templates": []
+  }
+}

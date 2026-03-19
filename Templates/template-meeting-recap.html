@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Recap — Dev Labs</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-hover: #f5f5f5;
+    --surface-raised: #ffffff;
+    --text-primary: #171717;
+    --text-secondary: #525252;
+    --text-tertiary: #a3a3a3;
+    --text-inverted: #ffffff;
+    --border: #e5e5e5;
+    --border-subtle: #f0f0f0;
+    --violet: #7c3aed;
+    --violet-light: #a78bfa;
+    --violet-bg: #f5f3ff;
+    --violet-border: #ede9fe;
+    --teal: #0d9488;
+    --teal-bg: #f0fdfa;
+    --teal-border: #ccfbf1;
+    --rose: #e11d48;
+    --rose-bg: #fff1f2;
+    --rose-border: #ffe4e6;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --amber-border: #fef3c7;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --blue-border: #dbeafe;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #dcfce7;
+    --sidebar-bg: #171717;
+    --sidebar-hover: #262626;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.08);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0;
+  }
+  .sidebar-header {
+    padding: 28px 22px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .sidebar-header .doc-type {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--violet-light);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sidebar-header .doc-type::before {
+    content: '';
+    width: 16px; height: 2px;
+    background: linear-gradient(90deg, var(--violet), var(--teal));
+    border-radius: 1px;
+  }
+  .sidebar-header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-inverted);
+    letter-spacing: -0.4px;
+    line-height: 1.3;
+  }
+  .sidebar-header .version {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 8px;
+    font-family: 'Space Mono', monospace;
+  }
+  .sidebar-nav {
+    padding: 14px 0;
+  }
+  .sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 22px;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+    border-radius: 0;
+    margin: 0;
+  }
+  .sidebar-nav a:hover {
+    color: rgba(255,255,255,0.8);
+    background: var(--sidebar-hover);
+  }
+  .sidebar-nav a.active {
+    color: var(--text-inverted);
+    background: linear-gradient(90deg, rgba(124,58,237,0.2), transparent);
+    border-right: 2px solid var(--violet);
+  }
+  .sidebar-nav a .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.25);
+    width: 20px;
+    flex-shrink: 0;
+  }
+  .sidebar-nav a.active .num {
+    color: var(--violet-light);
+  }
+  .sidebar-nav .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.05);
+    margin: 10px 22px;
+  }
+  .sidebar-nav .section-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.15);
+    padding: 12px 22px 4px;
+    font-weight: 700;
+  }
+
+  /* ─── MAIN ─── */
+  .main {
+    margin-left: 260px;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0; z-index: 50;
+    background: rgba(250,250,250,0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar-left {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  .topbar-left span { color: var(--text-primary); font-weight: 600; }
+  .topbar-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .topbar-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .topbar-badge.violet {
+    background: var(--violet-bg);
+    color: var(--violet);
+  }
+  .topbar-badge.teal {
+    background: var(--teal-bg);
+    color: var(--teal);
+  }
+  .topbar-badge.amber {
+    background: var(--amber-bg);
+    color: var(--amber);
+  }
+
+  /* ─── COVER ─── */
+  .cover {
+    background: var(--sidebar-bg);
+    padding: 72px 36px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -200px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%);
+  }
+  .cover-content {
+    max-width: 820px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .cover .doc-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--violet-light);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .cover h1 {
+    font-size: 44px;
+    font-weight: 800;
+    color: var(--text-inverted);
+    line-height: 1.1;
+    letter-spacing: -2px;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cover .subtitle {
+    font-size: 17px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 400;
+    margin-bottom: 44px;
+    max-width: 520px;
+    line-height: 1.5;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 40px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .cover-meta dt {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .cover-meta dd {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* ─── CONTENT ─── */
+  .content {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 36px;
+  }
+
+  /* ─── SECTIONS ─── */
+  .section {
+    padding: 40px 0 20px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .section-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--violet);
+    background: var(--violet-bg);
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.8px;
+  }
+
+  /* ─── SUB HEADERS ─── */
+  .sub-header {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 28px 0 12px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.3px;
+  }
+  .sub-header::before {
+    content: '';
+    display: inline-block;
+    width: 3px; height: 18px;
+    background: linear-gradient(180deg, var(--violet), var(--teal));
+    border-radius: 2px;
+  }
+
+  /* ─── BODY TEXT ─── */
+  .body-text {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  /* ─── BULLET LIST ─── */
+  .bullet-list {
+    list-style: none;
+    margin: 8px 0 16px;
+  }
+  .bullet-list li {
+    position: relative;
+    padding: 5px 0 5px 22px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+  .bullet-list li::before {
+    content: '';
+    position: absolute;
+    left: 4px; top: 13px;
+    width: 5px; height: 5px;
+    background: linear-gradient(135deg, var(--violet), var(--teal));
+    border-radius: 50%;
+  }
+
+  /* ─── TABLES ─── */
+  .sop-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 12px 0 20px;
+    font-size: 13.5px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .sop-table thead th {
+    background: var(--surface);
+    color: var(--text-tertiary);
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sop-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+  .sop-table tbody tr:last-child td { border-bottom: none; }
+  .sop-table tbody tr:hover { background: var(--surface-hover); }
+
+  /* ─── INFO BOXES ─── */
+  .info-box {
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    margin: 16px 0;
+    border: 1px solid;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .info-box .info-label {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .info-box.info { background: var(--blue-bg); border-color: var(--blue-border); }
+  .info-box.info .info-label { color: var(--blue); }
+  .info-box.success { background: var(--teal-bg); border-color: var(--teal-border); }
+  .info-box.success .info-label { color: var(--teal); }
+  .info-box.warning { background: var(--amber-bg); border-color: var(--amber-border); }
+  .info-box.warning .info-label { color: var(--amber); }
+  .info-box.danger { background: var(--rose-bg); border-color: var(--rose-border); }
+  .info-box.danger .info-label { color: var(--rose); }
+
+  /* ─── METRIC GRID ─── */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .metric-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+  .metric-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .metric-card .metric-value {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, var(--violet), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .metric-card .metric-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* ─── ATTENDEE GRID ─── */
+  .attendee-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .attendee-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    transition: all 0.15s;
+  }
+  .attendee-card:hover {
+    border-color: var(--violet-border);
+    box-shadow: var(--shadow-sm);
+  }
+  .attendee-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-inverted);
+    flex-shrink: 0;
+  }
+  .attendee-avatar.violet { background: linear-gradient(135deg, var(--violet), #9f67ff); }
+  .attendee-avatar.teal { background: linear-gradient(135deg, var(--teal), #2dd4bf); }
+  .attendee-avatar.blue { background: linear-gradient(135deg, var(--blue), #60a5fa); }
+  .attendee-avatar.rose { background: linear-gradient(135deg, var(--rose), #fb7185); }
+  .attendee-avatar.amber { background: linear-gradient(135deg, var(--amber), #fbbf24); }
+  .attendee-info .attendee-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  .attendee-info .attendee-role {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.3;
+  }
+
+  /* ─── DECISION CARD ─── */
+  .decision-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin: 12px 0;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .decision-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+  .decision-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--violet-border);
+  }
+  .decision-card.approved::before { background: var(--teal); }
+  .decision-card.pending::before { background: var(--amber); }
+  .decision-card.blocked::before { background: var(--rose); }
+  .decision-card .decision-status {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .decision-card.approved .decision-status { color: var(--teal); background: var(--teal-bg); }
+  .decision-card.pending .decision-status { color: var(--amber); background: var(--amber-bg); }
+  .decision-card.blocked .decision-status { color: var(--rose); background: var(--rose-bg); }
+  .decision-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    letter-spacing: -0.2px;
+  }
+  .decision-card p {
+    font-size: 13.5px;
+    color: var(--text-tertiary);
+    line-height: 1.55;
+  }
+  .decision-card .decision-owner {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+  }
+  .decision-card .decision-owner strong {
+    color: var(--text-secondary);
+  }
+
+  /* ─── ACTION ITEM ─── */
+  .action-list {
+    list-style: none;
+    margin: 12px 0 18px;
+  }
+  .action-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    transition: all 0.15s;
+  }
+  .action-item:hover {
+    border-color: var(--violet-border);
+    box-shadow: var(--shadow-sm);
+  }
+  .action-check {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .action-item.completed .action-check {
+    background: linear-gradient(135deg, var(--violet), var(--teal));
+    border-color: transparent;
+  }
+  .action-item.completed .action-check::after {
+    content: '';
+    width: 6px; height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translateY(-1px);
+  }
+  .action-item.completed .action-text {
+    text-decoration: line-through;
+    color: var(--text-tertiary);
+  }
+  .action-content {
+    flex: 1;
+  }
+  .action-text {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .action-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+  .action-meta .owner {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .action-meta .owner::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--violet);
+    display: inline-block;
+  }
+  .action-meta .due {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .action-meta .due::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+    display: inline-block;
+  }
+  .action-meta .priority {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+  .action-meta .priority.high { background: var(--rose-bg); color: var(--rose); }
+  .action-meta .priority.medium { background: var(--amber-bg); color: var(--amber); }
+  .action-meta .priority.low { background: var(--teal-bg); color: var(--teal); }
+
+  /* ─── TOPIC CARD ─── */
+  .topic-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 14px 0;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .topic-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .topic-header h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+  }
+  .topic-header .topic-duration {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .topic-body {
+    padding: 18px 20px;
+  }
+  .topic-body p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+  .topic-body p:last-child { margin-bottom: 0; }
+  .topic-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .topic-tag.discussion { background: var(--violet-bg); color: var(--violet); }
+  .topic-tag.update { background: var(--blue-bg); color: var(--blue); }
+  .topic-tag.decision { background: var(--teal-bg); color: var(--teal); }
+  .topic-tag.blocker { background: var(--rose-bg); color: var(--rose); }
+
+  /* ─── QUOTE BLOCK ─── */
+  .quote-block {
+    background: var(--surface);
+    border-left: 3px solid linear-gradient(180deg, var(--violet), var(--teal));
+    border-left: 3px solid var(--violet);
+    padding: 16px 20px;
+    margin: 12px 0;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  .quote-block p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.6;
+  }
+  .quote-block .quote-attribution {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-style: normal;
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  /* ─── BENTO GRID ─── */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .bento-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+  .bento-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--violet-border);
+  }
+  .bento-card.span-2 { grid-column: span 2; }
+  .bento-card .bento-icon {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+  }
+  .bento-card .bento-icon.violet { background: var(--violet-bg); color: var(--violet); }
+  .bento-card .bento-icon.teal { background: var(--teal-bg); color: var(--teal); }
+  .bento-card .bento-icon.blue { background: var(--blue-bg); color: var(--blue); }
+  .bento-card .bento-icon.rose { background: var(--rose-bg); color: var(--rose); }
+  .bento-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+  .bento-card p {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    line-height: 1.55;
+  }
+
+  /* ─── FLOW STEPS ─── */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 20px 0;
+  }
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .flow-step:hover {
+    border-color: var(--violet-border);
+    box-shadow: var(--shadow-sm);
+  }
+  .flow-step .step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .flow-step .step-dot.violet { background: var(--violet); }
+  .flow-step .step-dot.teal { background: var(--teal); }
+  .flow-step .step-dot.blue { background: var(--blue); }
+  .flow-step .step-dot.amber { background: var(--amber); }
+  .flow-step .step-dot.rose { background: var(--rose); }
+
+  /* ─── TIMELINE ─── */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 16px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px; top: 4px; bottom: 4px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--violet), var(--teal));
+    border-radius: 1px;
+    opacity: 0.3;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+    padding-left: 22px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -25px; top: 5px;
+    width: 10px; height: 10px;
+    background: var(--violet);
+    border-radius: 50%;
+    border: 3px solid var(--violet-bg);
+  }
+  .timeline-item .tl-phase {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--violet);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+  }
+  .timeline-item .tl-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    letter-spacing: -0.2px;
+  }
+  .timeline-item .tl-desc {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    line-height: 1.55;
+  }
+
+  /* ─── NUMBERED STEPS ─── */
+  .steps {
+    list-style: none;
+    margin: 12px 0 16px;
+    counter-reset: step;
+  }
+  .steps li {
+    position: relative;
+    padding: 8px 0 8px 44px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    counter-increment: step;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 6px;
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--violet), var(--teal));
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media print {
+    .sidebar { display: none; }
+    .topbar { display: none; }
+    .main { margin-left: 0; }
+    .content { padding: 20px; }
+    .cover { padding: 40px 20px; }
+    .section { page-break-inside: avoid; }
+    body { background: white; }
+    .action-item, .decision-card, .topic-card { break-inside: avoid; }
+  }
+
+  @media (max-width: 960px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .cover h1 { font-size: 34px; }
+    .content { padding: 24px 16px; }
+    .cover-meta { flex-wrap: wrap; gap: 20px; }
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    .bento-grid { grid-template-columns: 1fr; }
+    .bento-card.span-2 { grid-column: span 1; }
+    .attendee-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="doc-type">Meeting Recap</div>
+    <h1>Weekly Product<br>Sync</h1>
+    <div class="version">MTG-2026-0318 &middot; 55 min</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="section-label">Overview</div>
+    <a href="#summary"><span class="num">01</span> Meeting Summary</a>
+    <a href="#attendees"><span class="num">02</span> Attendees</a>
+    <a href="#agenda"><span class="num">03</span> Agenda Covered</a>
+    <div class="divider"></div>
+    <div class="section-label">Discussion</div>
+    <a href="#topics"><span class="num">04</span> Key Topics</a>
+    <a href="#decisions"><span class="num">05</span> Decisions Made</a>
+    <a href="#blockers"><span class="num">06</span> Blockers & Risks</a>
+    <div class="divider"></div>
+    <div class="section-label">Follow-Up</div>
+    <a href="#actions"><span class="num">07</span> Action Items</a>
+    <a href="#timeline"><span class="num">08</span> Key Dates</a>
+    <a href="#parking-lot"><span class="num">09</span> Parking Lot</a>
+    <a href="#next-meeting"><span class="num">10</span> Next Meeting</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <span>Dev Labs</span> &middot; Meeting Notes
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-badge violet">RECAP</span>
+      <span class="topbar-badge teal">Mar 18, 2026</span>
+    </div>
+  </div>
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-content">
+      <div class="doc-label">Meeting Recap</div>
+      <h1>Weekly Product<br>Sync</h1>
+      <p class="subtitle">Key decisions, action items, and follow-ups from our weekly cross-functional product alignment meeting.</p>
+      <dl class="cover-meta">
+        <div><dt>Date</dt><dd>March 18, 2026</dd></div>
+        <div><dt>Time</dt><dd>10:00 &ndash; 10:55 AM</dd></div>
+        <div><dt>Facilitator</dt><dd>[Name]</dd></div>
+        <div><dt>Note Taker</dt><dd>[Name]</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ═══ SECTION 01: SUMMARY ═══ -->
+    <div class="section" id="summary">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2 class="section-title">Meeting Summary</h2>
+      </div>
+
+      <p class="body-text">This meeting covered <strong>Q2 sprint planning priorities</strong>, the CRM integration timeline, and BDR team onboarding status. Three key decisions were made, and seven action items were assigned across product, engineering, and sales.</p>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">3</div>
+          <div class="metric-label">Decisions Made</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">7</div>
+          <div class="metric-label">Action Items</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">2</div>
+          <div class="metric-label">Open Blockers</div>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="info-label">TLDR</div>
+        CRM sync pushed to May 15 launch (was May 1). BDR hiring on track &mdash; 2 of 3 offers accepted. PLG onboarding v2 approved for April sprint. Parking lot: revisit pricing tiers at next leadership sync.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 02: ATTENDEES ═══ -->
+    <div class="section" id="attendees">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2 class="section-title">Attendees</h2>
+      </div>
+
+      <h3 class="sub-header">Present</h3>
+      <div class="attendee-grid">
+        <div class="attendee-card">
+          <div class="attendee-avatar violet">JD</div>
+          <div class="attendee-info">
+            <div class="attendee-name">Jordan Davis</div>
+            <div class="attendee-role">Head of Product</div>
+          </div>
+        </div>
+        <div class="attendee-card">
+          <div class="attendee-avatar teal">SK</div>
+          <div class="attendee-info">
+            <div class="attendee-name">Sarah Kim</div>
+            <div class="attendee-role">Engineering Lead</div>
+          </div>
+        </div>
+        <div class="attendee-card">
+          <div class="attendee-avatar blue">MR</div>
+          <div class="attendee-info">
+            <div class="attendee-name">Marcus Rivera</div>
+            <div class="attendee-role">VP of Sales</div>
+          </div>
+        </div>
+        <div class="attendee-card">
+          <div class="attendee-avatar rose">AP</div>
+          <div class="attendee-info">
+            <div class="attendee-name">Alex Patel</div>
+            <div class="attendee-role">Sales Operations</div>
+          </div>
+        </div>
+        <div class="attendee-card">
+          <div class="attendee-avatar amber">LW</div>
+          <div class="attendee-info">
+            <div class="attendee-name">Lisa Wong</div>
+            <div class="attendee-role">Growth Lead</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="sub-header">Absent</h3>
+      <div class="attendee-grid">
+        <div class="attendee-card" style="opacity: 0.55;">
+          <div class="attendee-avatar violet" style="background: var(--text-tertiary);">TC</div>
+          <div class="attendee-info">
+            <div class="attendee-name">Tom Chen</div>
+            <div class="attendee-role">CTO &mdash; on PTO</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 03: AGENDA ═══ -->
+    <div class="section" id="agenda">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2 class="section-title">Agenda Covered</h2>
+      </div>
+
+      <table class="sop-table">
+        <thead><tr><th>Item</th><th>Topic</th><th>Owner</th><th>Time</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Sprint planning priorities review</td><td>Jordan</td><td>15 min</td><td><span class="topic-tag discussion">Discussed</span></td></tr>
+          <tr><td><strong>2</strong></td><td>CRM integration timeline update</td><td>Sarah</td><td>10 min</td><td><span class="topic-tag decision">Decided</span></td></tr>
+          <tr><td><strong>3</strong></td><td>BDR hiring & onboarding status</td><td>Marcus</td><td>10 min</td><td><span class="topic-tag update">Updated</span></td></tr>
+          <tr><td><strong>4</strong></td><td>PLG onboarding v2 scope</td><td>Lisa</td><td>10 min</td><td><span class="topic-tag decision">Decided</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Open blockers & risk review</td><td>All</td><td>10 min</td><td><span class="topic-tag blocker">Flagged</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 04: KEY TOPICS ═══ -->
+    <div class="section" id="topics">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2 class="section-title">Key Topics Discussed</h2>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-header">
+          <h4>Sprint Planning Priorities</h4>
+          <span class="topic-duration">15 min</span>
+        </div>
+        <div class="topic-body">
+          <p>Jordan walked through the proposed April sprint backlog. The team agreed to prioritize <strong>PLG onboarding v2</strong> and <strong>HubSpot CRM sync</strong> as the two primary tracks. Email sequence builder MVP was deprioritized to May based on engineering capacity.</p>
+          <p>Discussion around whether to split the CRM sync into two phases &mdash; contacts-only first, then deals/activities. Sarah recommended the phased approach to reduce risk. Team agreed.</p>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-header">
+          <h4>CRM Integration Timeline</h4>
+          <span class="topic-duration">10 min</span>
+        </div>
+        <div class="topic-body">
+          <p>Sarah flagged that the HubSpot API has rate-limiting constraints that were not accounted for in the original estimate. Bulk sync will require a queue-based approach. This adds approximately 2 weeks to the timeline.</p>
+
+          <div class="quote-block">
+            <p>"We can ship contacts sync by May 1, but the full bidirectional sync with deals and activities needs until May 15. I'd rather ship it right than ship it fast."</p>
+            <div class="quote-attribution">&mdash; Sarah Kim, Engineering Lead</div>
+          </div>
+
+          <p>Marcus raised concerns about the delay's impact on BDR onboarding. Alex suggested a workaround using CSV export in the interim. Team agreed to the phased approach.</p>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-header">
+          <h4>BDR Hiring & Onboarding</h4>
+          <span class="topic-duration">10 min</span>
+        </div>
+        <div class="topic-body">
+          <p>Marcus updated: 2 of 3 BDR offers have been accepted, both starting April 7. Third candidate countered &mdash; Marcus is working with HR on a revised package. Onboarding playbook is finalized and ready for Day 1.</p>
+          <p>All three BDRs will go through the 30/60/90 ramp plan. First quota checkpoint at Day 30 targeting 50% of full quota.</p>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-header">
+          <h4>PLG Onboarding v2</h4>
+          <span class="topic-duration">10 min</span>
+        </div>
+        <div class="topic-body">
+          <p>Lisa presented the redesigned onboarding flow. Key changes: interactive product tour, reduced fields in signup (email-only), and a guided first-enrichment experience that triggers within 60 seconds of account creation.</p>
+          <p>Expected impact: reduce time-to-first-enrichment from 8 minutes to under 2 minutes. Free-to-paid conversion target increases from 3.2% to 8%.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 05: DECISIONS ═══ -->
+    <div class="section" id="decisions">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2 class="section-title">Decisions Made</h2>
+      </div>
+
+      <p class="body-text">Three decisions were finalized during this meeting. All decisions were unanimous unless noted otherwise.</p>
+
+      <div class="decision-card approved">
+        <div class="decision-status">Approved</div>
+        <h4>CRM sync launches in two phases</h4>
+        <p>Phase 1 (contacts sync) ships May 1. Phase 2 (bidirectional deals + activities) ships May 15. CSV export serves as interim workaround for BDR team.</p>
+        <div class="decision-owner">
+          <span><strong>Owner:</strong> Sarah Kim</span>
+          <span><strong>Approved by:</strong> All present</span>
+        </div>
+      </div>
+
+      <div class="decision-card approved">
+        <div class="decision-status">Approved</div>
+        <h4>PLG onboarding v2 enters April sprint</h4>
+        <p>Approved as priority track alongside CRM sync. Lisa to finalize designs by March 22. Engineering kickoff March 25.</p>
+        <div class="decision-owner">
+          <span><strong>Owner:</strong> Lisa Wong</span>
+          <span><strong>Approved by:</strong> All present</span>
+        </div>
+      </div>
+
+      <div class="decision-card pending">
+        <div class="decision-status">Pending Final Approval</div>
+        <h4>Email sequence builder deferred to May</h4>
+        <p>Deprioritized due to engineering capacity constraints. Pending Tom Chen's sign-off (absent today). Jordan to confirm async.</p>
+        <div class="decision-owner">
+          <span><strong>Owner:</strong> Jordan Davis</span>
+          <span><strong>Pending:</strong> Tom Chen approval</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 06: BLOCKERS ═══ -->
+    <div class="section" id="blockers">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2 class="section-title">Blockers & Risks</h2>
+      </div>
+
+      <div class="bento-grid">
+        <div class="bento-card">
+          <div class="bento-icon rose">!</div>
+          <h4>HubSpot API Rate Limits</h4>
+          <p>Bulk operations hit rate limits at 100 req/10 sec. Queue-based approach needed. Adds ~2 weeks to timeline. Sarah investigating batch API as potential shortcut.</p>
+        </div>
+        <div class="bento-card">
+          <div class="bento-icon amber">?</div>
+          <h4>Third BDR Offer Pending</h4>
+          <p>Candidate countered $8K above our range. Marcus is working with HR. Decision needed by end of week or we lose the candidate.</p>
+        </div>
+      </div>
+
+      <div class="info-box danger">
+        <div class="info-label">Escalation Needed</div>
+        If the HubSpot batch API doesn't support our use case, the full CRM sync could slip to June. Sarah will have a definitive answer by March 22. Escalation path: Sarah &rarr; Tom (CTO) &rarr; leadership sync.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 07: ACTION ITEMS ═══ -->
+    <div class="section" id="actions">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2 class="section-title">Action Items</h2>
+      </div>
+
+      <p class="body-text">Seven action items were assigned. Each has a single owner and a hard deadline. Items are tracked in our project management tool and reviewed at next week's sync.</p>
+
+      <ul class="action-list">
+        <li class="action-item">
+          <div class="action-check"></div>
+          <div class="action-content">
+            <div class="action-text">Investigate HubSpot batch API for bulk sync operations</div>
+            <div class="action-meta">
+              <span class="owner">Sarah Kim</span>
+              <span class="due">Due Mar 22</span>
+              <span class="priority high">HIGH</span>
+            </div>
+          </div>
+        </li>
+        <li class="action-item">
+          <div class="action-check"></div>
+          <div class="action-content">
+            <div class="action-text">Finalize PLG onboarding v2 designs and share with engineering</div>
+            <div class="action-meta">
+              <span class="owner">Lisa Wong</span>
+              <span class="due">Due Mar 22</span>
+              <span class="priority high">HIGH</span>
+            </div>
+          </div>
+        </li>
+        <li class="action-item">
+          <div class="action-check"></div>
+          <div class="action-content">
+            <div class="action-text">Get Tom's async approval on email builder deferral to May</div>
+            <div class="action-meta">
+              <span class="owner">Jordan Davis</span>
+              <span class="due">Due Mar 20</span>
+              <span class="priority medium">MED</span>
+            </div>
+          </div>
+        </li>
+        <li class="action-item">
+          <div class="action-check"></div>
+          <div class="action-content">
+            <div class="action-text">Submit revised offer package for third BDR candidate</div>
+            <div class="action-meta">
+              <span class="owner">Marcus Rivera</span>
+              <span class="due">Due Mar 20</span>
+              <span class="priority high">HIGH</span>
+            </div>
+          </div>
+        </li>
+        <li class="action-item">
+          <div class="action-check"></div>
+          <div class="action-content">
+            <div class="action-text">Build CSV export workaround for BDR team CRM workflow</div>
+            <div class="action-meta">
+              <span class="owner">Alex Patel</span>
+              <span class="due">Due Mar 25</span>
+              <span class="priority medium">MED</span>
+            </div>
+          </div>
+        </li>
+        <li class="action-item">
+          <div class="action-check"></div>
+          <div class="action-content">
+            <div class="action-text">Set up April sprint board with PLG + CRM sync tracks</div>
+            <div class="action-meta">
+              <span class="owner">Jordan Davis</span>
+              <span class="due">Due Mar 24</span>
+              <span class="priority low">LOW</span>
+            </div>
+          </div>
+        </li>
+        <li class="action-item completed">
+          <div class="action-check"></div>
+          <div class="action-content">
+            <div class="action-text">Distribute BDR onboarding playbook to hiring pipeline</div>
+            <div class="action-meta">
+              <span class="owner">Marcus Rivera</span>
+              <span class="due">Completed</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ═══ SECTION 08: KEY DATES ═══ -->
+    <div class="section" id="timeline">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2 class="section-title">Key Dates</h2>
+      </div>
+
+      <p class="body-text">Important milestones and deadlines discussed or confirmed during this meeting.</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="tl-phase">Mar 20</div>
+          <div class="tl-title">BDR Offer Decision Deadline</div>
+          <div class="tl-desc">Final answer on third BDR candidate. Counter-offer expires EOD.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Mar 22</div>
+          <div class="tl-title">HubSpot API Assessment Due</div>
+          <div class="tl-desc">Sarah confirms batch API viability. Go/no-go on May 15 timeline.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Mar 25</div>
+          <div class="tl-title">April Sprint Kickoff</div>
+          <div class="tl-desc">PLG onboarding v2 + CRM sync Phase 1 development begins.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Apr 7</div>
+          <div class="tl-title">BDR Team Start Date</div>
+          <div class="tl-desc">Two confirmed BDRs begin onboarding. 30/60/90 ramp plan activates.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">May 1</div>
+          <div class="tl-title">CRM Sync Phase 1 Launch</div>
+          <div class="tl-desc">Contacts-only sync goes live for all HubSpot-connected accounts.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">May 15</div>
+          <div class="tl-title">CRM Sync Phase 2 Launch</div>
+          <div class="tl-desc">Full bidirectional sync: contacts, deals, and activities.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 09: PARKING LOT ═══ -->
+    <div class="section" id="parking-lot">
+      <div class="section-header">
+        <div class="section-num">09</div>
+        <h2 class="section-title">Parking Lot</h2>
+      </div>
+
+      <p class="body-text">Topics raised but deferred for future discussion. These will be added to the agenda for the appropriate meeting.</p>
+
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-dot amber"></div>
+          <div><strong>Pricing tier restructure</strong> &mdash; Lisa wants to revisit free vs. paid feature gates. Deferred to next leadership sync.</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-dot blue"></div>
+          <div><strong>Salesforce CRM support</strong> &mdash; Marcus has 3 prospects blocked on Salesforce. Add to Q3 roadmap discussion.</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-dot violet"></div>
+          <div><strong>Analytics dashboard redesign</strong> &mdash; Current reporting is manual. Needs dedicated sprint. Evaluate post-CRM launch.</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-dot teal"></div>
+          <div><strong>Partner API program</strong> &mdash; Two integration partners have asked for API access. Scoping needed before commitment.</div>
+        </div>
+      </div>
+
+      <div class="info-box warning">
+        <div class="info-label">Parking Lot Rule</div>
+        Items stay in the parking lot for a maximum of 3 weeks. If they aren't scheduled for discussion by then, they are either resolved async or removed with a documented reason.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 10: NEXT MEETING ═══ -->
+    <div class="section" id="next-meeting">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2 class="section-title">Next Meeting</h2>
+      </div>
+
+      <div class="bento-grid">
+        <div class="bento-card">
+          <div class="bento-icon violet">&#x2709;</div>
+          <h4>Next Weekly Sync</h4>
+          <p>Tuesday, March 25, 2026<br>10:00 &ndash; 11:00 AM<br>Same Zoom link</p>
+        </div>
+        <div class="bento-card">
+          <div class="bento-icon teal">&#x2713;</div>
+          <h4>Pre-Work Required</h4>
+          <p>All action item owners: update status in project tracker by EOD Monday. Sarah: share HubSpot API findings in Slack before the meeting.</p>
+        </div>
+      </div>
+
+      <h3 class="sub-header">Proposed Agenda for March 25</h3>
+      <ol class="steps">
+        <li><strong>Action item review</strong> &mdash; Status of all 7 items from this week</li>
+        <li><strong>HubSpot API decision</strong> &mdash; Go/no-go on batch API approach for CRM sync</li>
+        <li><strong>Sprint kickoff readiness</strong> &mdash; Confirm PLG designs, sprint board, and team assignments</li>
+        <li><strong>BDR hiring final update</strong> &mdash; Third candidate outcome and onboarding logistics</li>
+        <li><strong>Parking lot triage</strong> &mdash; Schedule or remove pricing tier discussion</li>
+      </ol>
+
+      <div class="info-box success">
+        <div class="info-label">Meeting Effectiveness</div>
+        This recap was distributed within 2 hours of meeting end. All action items have a named owner and deadline. If your name appears as an owner, you are accountable for updating progress by Monday EOD. No silent failures.
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="border-top: 1px solid var(--border); margin-top: 48px; padding-top: 24px; text-align: center;">
+      <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.8;">
+        <strong style="color: var(--text-primary);">Meeting Recap</strong> &middot; MTG-2026-0318 &middot; Weekly Product Sync &middot; March 18, 2026<br>
+        Dev Labs &middot; Internal Distribution &middot; Do Not Forward Externally
+      </p>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Active nav highlighting -->
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>

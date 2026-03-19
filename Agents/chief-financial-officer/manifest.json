@@ -1,0 +1,13 @@
+{
+  "name": "chief-financial-officer",
+  "displayName": "Chief Financial Officer",
+  "version": "1.0.0",
+  "description": "Financial operations agent for budgeting, forecasting, and financial analysis",
+  "files": {},
+  "requiredSkills": [
+    "sheets-analyst",
+    "pipeline-review"
+  ],
+  "requiredMcp": [],
+  "tags": ["finance", "budgeting", "forecasting", "analytics"]
+}

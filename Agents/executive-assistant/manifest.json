@@ -1,0 +1,21 @@
+{
+  "name": "executive-assistant",
+  "displayName": "Executive Assistant",
+  "version": "1.0.0",
+  "description": "High-trust EA agent for calendar, inbox, tasks, meetings, research, and decision support",
+  "files": {
+    "agents": "Agents.md",
+    "claude": "CLAUDE.md",
+    "memory": "MEMORY.md",
+    "skills": "Skills.md"
+  },
+  "requiredSkills": [
+    "calendar-prep",
+    "call-prep",
+    "follow-up-drafter",
+    "sheets-analyst",
+    "slack-summarizer"
+  ],
+  "requiredMcp": [],
+  "tags": ["executive", "productivity", "communication", "calendar", "inbox"]
+}

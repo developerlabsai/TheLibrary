@@ -1,0 +1,33 @@
+{
+  "name": "speckit-deployer",
+  "version": "1.0.0",
+  "description": "SpecKit Deployer - Uniform deployment of SpecKit, Beads, Agents, Skills, MCP Servers, and Templates",
+  "type": "module",
+  "bin": {
+    "speckit": "./dist/bin/speckit.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx bin/speckit.ts",
+    "start": "node dist/bin/speckit.js",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "fs-extra": "^11.2.0",
+    "glob": "^11.0.0",
+    "yaml": "^2.5.0",
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "open": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

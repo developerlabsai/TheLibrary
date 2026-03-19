@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales BDR Playbook - Dev Labs StackGTM</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy: #1a1a2e;
+    --navy-light: #252542;
+    --accent: #4361ee;
+    --accent-light: #6380f5;
+    --accent-bg: #eef0ff;
+    --accent-border: #c7ceff;
+    --white: #ffffff;
+    --light-bg: #f3f4f8;
+    --dark-text: #1e1e32;
+    --mid-text: #50506e;
+    --light-text: #8889a0;
+    --border: #c8cde0;
+    --success: #22c55e;
+    --success-bg: #ecfdf5;
+    --warn: #eab308;
+    --warn-bg: #fefce8;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+    --emerald: #10b981;
+    --emerald-bg: #ecfdf5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--dark-text);
+    background: var(--light-bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--navy);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0;
+  }
+  .sidebar-header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-header .doc-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-light);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .sidebar-header h1 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  .sidebar-header .version {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .sidebar-nav {
+    padding: 16px 0;
+  }
+  .sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-nav a:hover {
+    color: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.04);
+  }
+  .sidebar-nav a.active {
+    color: var(--white);
+    background: rgba(67,97,238,0.12);
+    border-left-color: var(--accent);
+  }
+  .sidebar-nav a .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent-light);
+    background: rgba(67,97,238,0.15);
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .sidebar-nav .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 12px 24px;
+  }
+  .sidebar-nav .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.25);
+    padding: 8px 24px 4px;
+    font-weight: 600;
+  }
+
+  .main {
+    margin-left: 280px;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(12px);
+  }
+  .topbar-left {
+    font-size: 13px;
+    color: var(--mid-text);
+  }
+  .topbar-left span { color: var(--dark-text); font-weight: 600; }
+  .topbar-right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .topbar-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  .cover {
+    background: var(--navy);
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 400px; height: 400px;
+    background: var(--accent);
+    opacity: 0.08;
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 300px; height: 300px;
+    background: var(--emerald);
+    opacity: 0.06;
+    border-radius: 50%;
+  }
+  .cover-content {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .cover .doc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-light);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .cover h1 {
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+  .cover .subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+    margin-bottom: 48px;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 48px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 24px;
+  }
+  .cover-meta dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+  .cover-meta dd {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .section {
+    padding: 48px 0 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--navy);
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    background: var(--accent);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -0.5px;
+  }
+
+  .sub-header {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 28px 0 12px;
+    padding: 8px 16px;
+    background: var(--accent-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+  }
+
+  .body-text {
+    font-size: 14px;
+    color: var(--dark-text);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .bullet-list {
+    list-style: none;
+    margin: 8px 0 16px;
+  }
+  .bullet-list li {
+    position: relative;
+    padding: 5px 0 5px 20px;
+    font-size: 13.5px;
+    color: var(--dark-text);
+    line-height: 1.6;
+  }
+  .bullet-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 12px 0 16px;
+    counter-reset: step;
+  }
+  .steps li {
+    position: relative;
+    padding: 8px 0 8px 44px;
+    font-size: 13.5px;
+    color: var(--dark-text);
+    line-height: 1.6;
+    counter-increment: step;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sop-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 13px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .sop-table thead th {
+    background: var(--navy);
+    color: var(--white);
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .sop-table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .sop-table tbody tr:nth-child(even) { background: var(--light-bg); }
+  .sop-table tbody tr:hover { background: var(--accent-bg); }
+
+  .info-box {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 16px 0;
+    border-left: 4px solid;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .info-box .info-label {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .info-box.info {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+  }
+  .info-box.info .info-label { color: var(--accent); }
+  .info-box.success {
+    background: var(--success-bg);
+    border-color: var(--success);
+  }
+  .info-box.success .info-label { color: var(--success); }
+  .info-box.warning {
+    background: var(--warn-bg);
+    border-color: var(--warn);
+  }
+  .info-box.warning .info-label { color: var(--warn); }
+  .info-box.danger {
+    background: var(--danger-bg);
+    border-color: var(--danger);
+  }
+  .info-box.danger .info-label { color: var(--danger); }
+
+  .code-block {
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--dark-text);
+    margin: 12px 0 16px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .funnel {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 20px 0;
+  }
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .funnel-step .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .funnel-step.step-blue { background: #eef0ff; }
+  .funnel-step.step-blue .step-num { background: var(--accent); color: white; }
+  .funnel-step.step-green { background: #ecfdf5; }
+  .funnel-step.step-green .step-num { background: var(--success); color: white; }
+  .funnel-step.step-yellow { background: #fefce8; }
+  .funnel-step.step-yellow .step-num { background: var(--warn); color: white; }
+  .funnel-step.step-red { background: #fef2f2; }
+  .funnel-step.step-red .step-num { background: var(--danger); color: white; }
+  .funnel-step.step-emerald { background: #f0fdf4; }
+  .funnel-step.step-emerald .step-num { background: #10b981; color: white; }
+
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .metric-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .metric-card .metric-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -1px;
+  }
+  .metric-card .metric-label {
+    font-size: 11px;
+    color: var(--mid-text);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 16px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--accent);
+    opacity: 0.3;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+    padding-left: 20px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: 3px solid var(--accent-bg);
+  }
+  .timeline-item .tl-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+  .timeline-item .tl-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .timeline-item .tl-desc {
+    font-size: 13px;
+    color: var(--mid-text);
+    line-height: 1.5;
+  }
+  .timeline-item .tl-target {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--success);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  .loop-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 16px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .loop-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--accent);
+  }
+  .loop-card .loop-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .loop-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .loop-card p {
+    font-size: 13px;
+    color: var(--mid-text);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .loop-card .highlight-box {
+    background: var(--accent-bg);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .loop-card .highlight-box span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 2px;
+    opacity: 0.7;
+  }
+
+  @media print {
+    .sidebar { display: none; }
+    .topbar { display: none; }
+    .main { margin-left: 0; }
+    .content { padding: 20px; }
+    .cover { padding: 40px 20px; }
+    .section { page-break-inside: avoid; }
+    body { background: white; }
+  }
+
+  @media (max-width: 960px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .cover h1 { font-size: 36px; }
+    .content { padding: 24px 20px; }
+    .cover-meta { flex-wrap: wrap; gap: 24px; }
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="doc-type">Strategic Playbook</div>
+    <h1>BDR Outbound</h1>
+    <div class="version">PB-BDR-2026 &middot; v1.0</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="section-label">Foundation</div>
+    <a href="#mission"><span class="num">01</span> BDR Mission & Role</a>
+    <a href="#icp"><span class="num">02</span> Ideal Customer Profile</a>
+    <a href="#personas"><span class="num">03</span> Buyer Personas</a>
+    <div class="divider"></div>
+    <div class="section-label">Daily Operations</div>
+    <a href="#daily"><span class="num">04</span> Daily Workflow</a>
+    <a href="#sequence"><span class="num">05</span> Outbound Sequence</a>
+    <a href="#cold-call"><span class="num">06</span> Cold Call Framework</a>
+    <a href="#email"><span class="num">07</span> Email Templates</a>
+    <a href="#linkedin"><span class="num">08</span> LinkedIn Prospecting</a>
+    <a href="#objections"><span class="num">09</span> Objection Handling</a>
+    <div class="divider"></div>
+    <div class="section-label">Systems & Performance</div>
+    <a href="#tech-stack"><span class="num">10</span> Tech Stack</a>
+    <a href="#crm"><span class="num">11</span> CRM Standards</a>
+    <a href="#kpis"><span class="num">12</span> KPIs & Metrics</a>
+    <a href="#ramp"><span class="num">13</span> 30/60/90 Ramp</a>
+    <a href="#career"><span class="num">14</span> Career Path</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <span>Dev Labs</span> &middot; StackGTM Sales Development
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-badge">STRATEGIC</span>
+      <span class="topbar-badge">v1.0 &middot; March 2026</span>
+    </div>
+  </div>
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-content">
+      <div class="doc-label">Strategic Playbook</div>
+      <h1>Sales BDR<br>Outbound Playbook</h1>
+      <p class="subtitle">The Complete Outbound Prospecting System &mdash; From First Touch to Qualified Pipeline</p>
+      <dl class="cover-meta">
+        <div><dt>Document ID</dt><dd>PB-BDR-2026</dd></div>
+        <div><dt>Version</dt><dd>1.0</dd></div>
+        <div><dt>Effective Date</dt><dd>March 2026</dd></div>
+        <div><dt>Classification</dt><dd>Strategic</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ═══ SECTION 01: BDR MISSION & ROLE ═══ -->
+    <div class="section" id="mission">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2 class="section-title">BDR Mission & Role Overview</h2>
+      </div>
+
+      <p class="body-text">The Business Development Representative is the <strong>tip of the spear</strong> for StackGTM's revenue engine. Your mission is to generate qualified pipeline by identifying, engaging, and converting cold prospects into booked discovery calls with Account Executives. You are not selling the product &mdash; you are selling the meeting.</p>
+
+      <div class="info-box info">
+        <div class="info-label">The BDR Mandate</div>
+        "Open doors that don't know they need opening. Every qualified meeting you book is a future customer relationship worth $5K-$50K+ in ARR. You are the growth engine."
+      </div>
+
+      <h3 class="sub-header">Role Responsibilities</h3>
+      <ul class="bullet-list">
+        <li><strong>Pipeline generation</strong> &mdash; Source and qualify outbound leads through cold calling, email, and LinkedIn</li>
+        <li><strong>Account research</strong> &mdash; Use StackGTM enrichment tools to build targeted prospect lists with verified contact data</li>
+        <li><strong>Multi-channel outreach</strong> &mdash; Execute structured sequences across phone, email, LinkedIn, and video</li>
+        <li><strong>Meeting qualification</strong> &mdash; Apply BANT/MEDDIC criteria before booking with AEs</li>
+        <li><strong>CRM hygiene</strong> &mdash; Log every touchpoint, update dispositions, and maintain data accuracy in real-time</li>
+        <li><strong>Market intelligence</strong> &mdash; Feed competitive insights, objection trends, and ICP refinements back to leadership</li>
+      </ul>
+
+      <h3 class="sub-header">What Success Looks Like</h3>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">15+</div>
+          <div class="metric-label">Qualified Meetings / Month</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">$75K+</div>
+          <div class="metric-label">Pipeline Generated / Month</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">70%+</div>
+          <div class="metric-label">Meeting Show Rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 02: IDEAL CUSTOMER PROFILE ═══ -->
+    <div class="section" id="icp">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2 class="section-title">Ideal Customer Profile (ICP)</h2>
+      </div>
+
+      <p class="body-text">Not every company is a good fit. StackGTM's enrichment platform delivers the most value to <strong>B2B sales teams that prospect actively</strong> and need better contact data without paying enterprise prices. Targeting the right accounts is the difference between 5% and 25% reply rates.</p>
+
+      <h3 class="sub-header">Tier 1 &mdash; Best Fit (Prioritize)</h3>
+      <table class="sop-table">
+        <thead><tr><th>Attribute</th><th>Criteria</th></tr></thead>
+        <tbody>
+          <tr><td>Company size</td><td>20-500 employees</td></tr>
+          <tr><td>Revenue</td><td>$2M-$50M ARR</td></tr>
+          <tr><td>Industry</td><td>SaaS, Professional Services, Staffing/Recruiting, Marketing Agencies</td></tr>
+          <tr><td>Tech stack</td><td>Uses HubSpot, Salesforce, or Pipedrive CRM</td></tr>
+          <tr><td>Sales team</td><td>3-30 active sellers doing outbound</td></tr>
+          <tr><td>Current tools</td><td>Using Apollo, Lusha, or ZoomInfo (or no enrichment tool)</td></tr>
+          <tr><td>Pain signals</td><td>Job postings for SDRs/BDRs, recent funding, new sales leadership</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Tier 2 &mdash; Good Fit</h3>
+      <table class="sop-table">
+        <thead><tr><th>Attribute</th><th>Criteria</th></tr></thead>
+        <tbody>
+          <tr><td>Company size</td><td>500-2,000 employees</td></tr>
+          <tr><td>Revenue</td><td>$50M-$200M ARR</td></tr>
+          <tr><td>Industry</td><td>FinTech, HealthTech, EdTech, Cybersecurity</td></tr>
+          <tr><td>Sales team</td><td>30-100 sellers with dedicated sales ops</td></tr>
+          <tr><td>Current tools</td><td>Using Clay or enterprise enrichment ($500+/mo spend)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Disqualification Signals</h3>
+      <ul class="bullet-list">
+        <li><strong>No outbound motion</strong> &mdash; purely inbound/PLG companies with no sales team</li>
+        <li><strong>Enterprise-only sales</strong> &mdash; companies selling $500K+ deals through RFPs and relationships</li>
+        <li><strong>Pre-revenue startups</strong> &mdash; fewer than 10 employees, no product-market fit yet</li>
+        <li><strong>Non-B2B</strong> &mdash; consumer brands, retail, restaurants, local services</li>
+      </ul>
+
+      <div class="info-box warning">
+        <div class="info-label">Common Mistake</div>
+        BDRs waste 40% of their time on accounts outside the ICP because "the title looked good." Always verify the company fits Tier 1 or Tier 2 before investing in research and outreach. A VP of Sales at a 5-person pre-revenue startup is not the same as a VP of Sales at a $20M SaaS company.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 03: BUYER PERSONAS ═══ -->
+    <div class="section" id="personas">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2 class="section-title">Buyer Personas</h2>
+      </div>
+
+      <p class="body-text">You'll engage three primary personas. Each has different pain points, priorities, and communication preferences. <strong>Adjust your messaging per persona</strong> &mdash; a one-size-fits-all approach gets ignored.</p>
+
+      <div class="loop-card">
+        <div class="loop-num">Persona 1</div>
+        <h4>VP of Sales / Head of Revenue</h4>
+        <p>The economic buyer. Cares about pipeline velocity, cost per lead, and rep productivity. They approve budgets and sign contracts. Typically 35-50, manages 5-30+ sellers, reports to CRO or CEO.</p>
+        <div class="highlight-box"><span>Pain Point</span>"My team spends more time researching contacts than actually selling. Our data tools are expensive and the data is stale."</div>
+      </div>
+
+      <div class="loop-card">
+        <div class="loop-num">Persona 2</div>
+        <h4>Sales Operations / Revenue Operations Manager</h4>
+        <p>The technical evaluator. Cares about integrations, data quality, deduplication, and CRM hygiene. They build the workflows and influence tool selection. Typically 28-40, manages tech stack and reporting.</p>
+        <div class="highlight-box"><span>Pain Point</span>"We're paying $15K/year for ZoomInfo and half the phone numbers are wrong. I need better data at a lower cost with native CRM integration."</div>
+      </div>
+
+      <div class="loop-card">
+        <div class="loop-num">Persona 3</div>
+        <h4>SDR/BDR Manager / Sales Enablement Lead</h4>
+        <p>The champion. Cares about rep efficiency, onboarding speed, and activity metrics. They feel the pain daily and advocate internally. Typically 28-38, manages 5-15 BDRs, measures time-to-first-meeting.</p>
+        <div class="highlight-box"><span>Pain Point</span>"My reps are toggling between 4 different tools to find one phone number. I need something simple that just works inside Slack where we already live."</div>
+      </div>
+
+      <h3 class="sub-header">Persona Prioritization</h3>
+      <table class="sop-table">
+        <thead><tr><th>Persona</th><th>Outreach Priority</th><th>Best Channel</th><th>Messaging Angle</th></tr></thead>
+        <tbody>
+          <tr><td>VP of Sales</td><td>Primary</td><td>Cold call + LinkedIn</td><td>Pipeline ROI, cost savings</td></tr>
+          <tr><td>Sales/Rev Ops</td><td>Secondary</td><td>Email + LinkedIn</td><td>Data quality, integrations</td></tr>
+          <tr><td>SDR/BDR Manager</td><td>Champion build</td><td>LinkedIn + Email</td><td>Rep productivity, simplicity</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 04: DAILY WORKFLOW ═══ -->
+    <div class="section" id="daily">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2 class="section-title">Daily Workflow & Activity Cadence</h2>
+      </div>
+
+      <p class="body-text">Structure is the BDR's competitive advantage. The reps who consistently hit quota aren't more talented &mdash; they're more disciplined about <strong>time-blocking their high-value activities</strong>. This schedule is optimized for outbound prospecting with peak call windows aligned to prospect availability.</p>
+
+      <h3 class="sub-header">Daily Schedule</h3>
+      <table class="sop-table">
+        <thead><tr><th>Time Block</th><th>Duration</th><th>Activity</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td><strong>8:00 - 8:30</strong></td><td>30 min</td><td>Morning Prep</td><td>Review CRM tasks, check email replies, update prospect research notes</td></tr>
+          <tr><td><strong>8:30 - 10:30</strong></td><td>2 hrs</td><td>Power Call Block 1</td><td>Cold calls + follow-up calls. Target: 30-40 dials. Voicemails count.</td></tr>
+          <tr><td><strong>10:30 - 11:00</strong></td><td>30 min</td><td>Email & LinkedIn</td><td>Send personalized emails, LinkedIn connection requests, engage with content</td></tr>
+          <tr><td><strong>11:00 - 11:30</strong></td><td>30 min</td><td>Account Research</td><td>Use StackGTM enrichment to build next day's call list. Enrich 20-30 contacts.</td></tr>
+          <tr><td><strong>11:30 - 12:00</strong></td><td>30 min</td><td>Admin & CRM</td><td>Log activities, update dispositions, move deals through pipeline stages</td></tr>
+          <tr><td><strong>12:00 - 1:00</strong></td><td>1 hr</td><td>Lunch</td><td>Step away. Mental reset is productive.</td></tr>
+          <tr><td><strong>1:00 - 3:00</strong></td><td>2 hrs</td><td>Power Call Block 2</td><td>Cold calls + follow-ups. Target: 30-40 dials. Best window for West Coast.</td></tr>
+          <tr><td><strong>3:00 - 3:30</strong></td><td>30 min</td><td>LinkedIn Deep Work</td><td>Profile views, InMails, comment on prospect posts, share content</td></tr>
+          <tr><td><strong>3:30 - 4:00</strong></td><td>30 min</td><td>Video Prospecting</td><td>Record 5-8 personalized Loom videos for high-value prospects</td></tr>
+          <tr><td><strong>4:00 - 4:30</strong></td><td>30 min</td><td>End-of-Day Wrap</td><td>Update CRM, prep tomorrow's list, send any pending follow-ups</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Daily Activity Targets</h3>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">60-80</div>
+          <div class="metric-label">Dials Per Day</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">30-40</div>
+          <div class="metric-label">Emails Per Day</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">20-25</div>
+          <div class="metric-label">LinkedIn Touches</div>
+        </div>
+      </div>
+
+      <div class="info-box success">
+        <div class="info-label">Top Performer Insight</div>
+        The #1 predictor of BDR success isn't talent, charisma, or industry experience &mdash; it's <strong>consistent daily activity volume</strong>. BDRs who hit 100+ total touches per day (calls + emails + LinkedIn) consistently outperform by 2-3x. The math is simple: more at-bats = more conversations = more meetings.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 05: OUTBOUND SEQUENCE ═══ -->
+    <div class="section" id="sequence">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2 class="section-title">Multi-Channel Outbound Sequence</h2>
+      </div>
+
+      <p class="body-text">A single touchpoint converts at 2%. A multi-channel sequence across 14 days converts at <strong>12-18%</strong>. The sequence below is designed to create familiarity across channels before the prospect even picks up the phone. Every step builds on the last.</p>
+
+      <h3 class="sub-header">The 14-Day Sequence</h3>
+      <table class="sop-table">
+        <thead><tr><th>Day</th><th>Channel</th><th>Action</th><th>Goal</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Day 1</strong></td><td>LinkedIn</td><td>View profile + connect with personalized note</td><td>Name recognition</td></tr>
+          <tr><td><strong>Day 1</strong></td><td>Email</td><td>Email 1: Pain-based opener (see templates)</td><td>Spark curiosity</td></tr>
+          <tr><td><strong>Day 2</strong></td><td>Phone</td><td>Cold call attempt 1 + voicemail if no answer</td><td>Live conversation</td></tr>
+          <tr><td><strong>Day 3</strong></td><td>LinkedIn</td><td>Engage with their content (like, comment)</td><td>Build familiarity</td></tr>
+          <tr><td><strong>Day 4</strong></td><td>Email</td><td>Email 2: Case study / social proof</td><td>Credibility</td></tr>
+          <tr><td><strong>Day 5</strong></td><td>Phone</td><td>Cold call attempt 2 + voicemail</td><td>Live conversation</td></tr>
+          <tr><td><strong>Day 7</strong></td><td>Email</td><td>Email 3: Insight / value-add (industry data)</td><td>Thought leadership</td></tr>
+          <tr><td><strong>Day 8</strong></td><td>LinkedIn</td><td>Send InMail or DM with personalized video</td><td>Stand out</td></tr>
+          <tr><td><strong>Day 9</strong></td><td>Phone</td><td>Cold call attempt 3</td><td>Live conversation</td></tr>
+          <tr><td><strong>Day 11</strong></td><td>Email</td><td>Email 4: Competitor comparison or ROI calc</td><td>Urgency</td></tr>
+          <tr><td><strong>Day 12</strong></td><td>Phone</td><td>Cold call attempt 4 + voicemail</td><td>Persistence signal</td></tr>
+          <tr><td><strong>Day 14</strong></td><td>Email</td><td>Email 5: Breakup email</td><td>Loss aversion trigger</td></tr>
+        </tbody>
+      </table>
+
+      <div class="funnel">
+        <div class="funnel-step step-blue">
+          <div class="step-num">1</div>
+          <div><strong>Awareness</strong> &mdash; LinkedIn profile view + connection request creates name recognition</div>
+        </div>
+        <div class="funnel-step step-green">
+          <div class="step-num">2</div>
+          <div><strong>Engagement</strong> &mdash; Multi-channel touches build familiarity across email, phone, social</div>
+        </div>
+        <div class="funnel-step step-yellow">
+          <div class="step-num">3</div>
+          <div><strong>Conversation</strong> &mdash; Live call or email reply opens dialogue about pain points</div>
+        </div>
+        <div class="funnel-step step-red">
+          <div class="step-num">4</div>
+          <div><strong>Qualification</strong> &mdash; BANT/MEDDIC criteria confirmed during conversation</div>
+        </div>
+        <div class="funnel-step step-emerald">
+          <div class="step-num">5</div>
+          <div><strong>Meeting Booked</strong> &mdash; Calendar invite sent with discovery call agenda and AE intro</div>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="info-label">Sequence Rules</div>
+        Never skip channels. The compound effect of phone + email + LinkedIn is what makes sequences work. If a prospect replies "not interested" &mdash; remove them. If they reply with a question &mdash; break sequence and enter a real conversation. If no reply after Day 14 &mdash; recycle into a 90-day nurture list.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 06: COLD CALL FRAMEWORK ═══ -->
+    <div class="section" id="cold-call">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2 class="section-title">Cold Call Framework & Scripts</h2>
+      </div>
+
+      <p class="body-text">Cold calling is the <strong>highest-converting outbound channel</strong> when done well. A live conversation in 90 seconds accomplishes what 5 emails over 2 weeks cannot. The framework below is not a script to read verbatim &mdash; it's a structure to internalize.</p>
+
+      <h3 class="sub-header">The 5-Part Call Framework</h3>
+      <ol class="steps">
+        <li><strong>Pattern interrupt opener</strong> &mdash; Break the "telemarketer" pattern in the first 5 seconds. Use their name, acknowledge the cold call, ask for 30 seconds.</li>
+        <li><strong>Permission-based pitch</strong> &mdash; Deliver a 15-second value prop tied to their specific role/industry pain. Ask if it resonates.</li>
+        <li><strong>Discovery question</strong> &mdash; Ask ONE open-ended question about their current process. Let them talk. Listen for pain.</li>
+        <li><strong>Bridge to value</strong> &mdash; Connect their stated pain to how StackGTM solves it. Use a specific example or metric.</li>
+        <li><strong>Soft close</strong> &mdash; Suggest a 15-minute call, not a "demo." Lower the commitment bar.</li>
+      </ol>
+
+      <h3 class="sub-header">Opening Script &mdash; VP of Sales</h3>
+      <div class="code-block">"Hey [Name], this is [Your Name] with StackGTM. I know this is a cold call &mdash;
+want to give me 30 seconds and you can decide if it's worth continuing?"
+
+[Wait for response &mdash; if yes:]
+
+"Thanks. I work with sales leaders at companies like [Similar Company] who
+tell me their reps are spending 30-40% of their time researching contacts
+instead of actually selling. We built an enrichment tool that runs through
+5 data providers in Slack &mdash; reps get verified emails and phones in under
+3 minutes without leaving their workflow.
+
+Quick question &mdash; how are your reps currently finding contact data today?"</div>
+
+      <h3 class="sub-header">Opening Script &mdash; Sales Ops</h3>
+      <div class="code-block">"Hey [Name], this is [Your Name] with StackGTM. Quick cold call &mdash;
+mind if I take 20 seconds to tell you why I'm reaching out?"
+
+[Wait for response &mdash; if yes:]
+
+"I noticed your team is using [Current Tool from enrichment data]. We've been
+hearing from ops teams that they're paying $10-15K/year for data that's
+30-40% stale. We built a waterfall enrichment engine that checks 5 providers
+and only charges for verified results &mdash; most teams cut their data spend
+by 50-60%.
+
+Out of curiosity &mdash; how's your current data quality? Are your reps
+complaining about bad numbers?"</div>
+
+      <h3 class="sub-header">Voicemail Script (Under 20 Seconds)</h3>
+      <div class="code-block">"Hey [Name], [Your Name] from StackGTM. I help sales teams like yours
+cut enrichment costs by 50% while getting better data. Sending you a
+quick email now. Talk soon."</div>
+
+      <div class="info-box danger">
+        <div class="info-label">Never Do This</div>
+        Don't ask "How are you today?" on a cold call. Don't say "I'm reaching out because..." Don't launch into a 60-second monologue. Don't ask "Is now a good time?" (it never is). The prospect decides in 5 seconds whether to hang up &mdash; your opener must break the pattern immediately.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 07: EMAIL TEMPLATES ═══ -->
+    <div class="section" id="email">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2 class="section-title">Email Templates & Sequences</h2>
+      </div>
+
+      <p class="body-text">Outbound email is a <strong>volume + personalization game</strong>. The templates below are starting frameworks &mdash; you must personalize the first 1-2 sentences for every prospect. Generic email = spam folder. Personalized email = reply.</p>
+
+      <h3 class="sub-header">Email 1: Pain-Based Opener</h3>
+      <div class="code-block">Subject: [Company]'s sales data workflow
+
+Hey [First Name],
+
+Noticed [Company] is hiring [X] new SDRs &mdash; congrats on the growth.
+
+Quick question: how much time does your team currently spend
+researching contacts before they can actually start selling?
+
+We built StackGTM specifically for this &mdash; reps upload a target
+list in Slack and get verified emails + phones back in 3 minutes.
+No spreadsheets. No toggling between tools.
+
+[Similar Company] cut their prospecting prep time by 60% in the
+first week.
+
+Worth a 15-min conversation?
+
+[Your Name]</div>
+
+      <h3 class="sub-header">Email 2: Social Proof</h3>
+      <div class="code-block">Subject: How [Similar Company] sources 40% more pipeline
+
+Hey [First Name],
+
+Following up &mdash; wanted to share a quick data point.
+
+[Similar Company]'s BDR team was spending $12K/year on Apollo +
+Lusha and still getting 30% bounce rates on emails. They switched
+to StackGTM's waterfall enrichment (checks 5 providers, returns
+best result) and:
+
+  - Email bounce rate dropped to 4%
+  - Phone connect rate went from 3% to 8%
+  - Pipeline per rep increased 40% in 60 days
+
+Happy to walk through what this could look like for [Company].
+15 minutes &mdash; no pressure.
+
+[Your Name]</div>
+
+      <h3 class="sub-header">Email 5: Breakup Email</h3>
+      <div class="code-block">Subject: Closing the loop
+
+Hey [First Name],
+
+I've reached out a few times and haven't heard back &mdash; totally
+get it, timing might not be right.
+
+I'll close out your file for now. If enrichment costs, data
+quality, or rep productivity come up in a future quarter,
+I'm an easy Google away: stackgtm.com
+
+One last thought: we offer a free tier with BYOK (bring your
+own API keys) &mdash; zero cost to try. Might be worth 5 minutes
+to see if the data quality alone is better than what you have.
+
+Either way &mdash; no hard feelings. Good luck with the Q2 push.
+
+[Your Name]</div>
+
+      <h3 class="sub-header">Subject Line Performance</h3>
+      <table class="sop-table">
+        <thead><tr><th>Pattern</th><th>Example</th><th>Avg Open Rate</th></tr></thead>
+        <tbody>
+          <tr><td>Company name + topic</td><td>"[Company]'s sales data workflow"</td><td><strong>62%</strong></td></tr>
+          <tr><td>Question format</td><td>"Quick question about [Company]'s outbound"</td><td>55%</td></tr>
+          <tr><td>Peer reference</td><td>"How [Similar Co] sources 40% more pipeline"</td><td>51%</td></tr>
+          <tr><td>Direct + short</td><td>"Closing the loop"</td><td>48%</td></tr>
+          <tr><td>Generic/salesy</td><td>"Boost your sales productivity today!"</td><td>12%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 08: LINKEDIN PROSPECTING ═══ -->
+    <div class="section" id="linkedin">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2 class="section-title">LinkedIn Prospecting Playbook</h2>
+      </div>
+
+      <p class="body-text">LinkedIn is a <strong>trust-building channel</strong>, not a spam channel. Your profile is your landing page. Your engagement is your credibility. Your DMs are warm touches &mdash; not cold pitches. The goal is to become a familiar name before you ever ask for a meeting.</p>
+
+      <h3 class="sub-header">Profile Optimization Checklist</h3>
+      <ul class="bullet-list">
+        <li><strong>Headline</strong> &mdash; Lead with value, not title. "Helping B2B sales teams find better contact data in Slack" &gt; "BDR at StackGTM"</li>
+        <li><strong>Banner image</strong> &mdash; Branded StackGTM banner with one-line value prop</li>
+        <li><strong>About section</strong> &mdash; First 3 lines visible without "See more." Include a CTA and your calendar link.</li>
+        <li><strong>Featured section</strong> &mdash; Pin a case study, demo video, or free tool link</li>
+        <li><strong>Activity</strong> &mdash; Post 2-3x per week about sales productivity, data quality, or outbound tips</li>
+      </ul>
+
+      <h3 class="sub-header">Daily LinkedIn Workflow</h3>
+      <ol class="steps">
+        <li>View 20-30 target prospect profiles (they see the notification)</li>
+        <li>Send 10-15 personalized connection requests (reference their content, mutual connections, or company news)</li>
+        <li>Engage with 5-10 prospect posts (thoughtful comments, not "Great post!")</li>
+        <li>Send 5-8 DMs to accepted connections (value-first, not pitch-first)</li>
+        <li>Post or share one piece of content about sales/enrichment</li>
+      </ol>
+
+      <h3 class="sub-header">Connection Request Template</h3>
+      <div class="code-block">"Hey [Name] &mdash; saw your post about [Topic]. Really resonated with
+the point about [Specific Detail]. I work with sales teams on
+contact data quality &mdash; would love to connect and exchange ideas."</div>
+
+      <h3 class="sub-header">DM After Connection Accepted</h3>
+      <div class="code-block">"Thanks for connecting, [Name]. Not going to pitch you &mdash;
+just curious: how's your team currently handling contact
+enrichment? We've been hearing a lot of frustration about
+data quality from sales leaders in [Industry]. Always
+interested to hear different perspectives."</div>
+
+      <div class="info-box warning">
+        <div class="info-label">LinkedIn Limits</div>
+        LinkedIn limits you to ~100 connection requests per week and flags accounts that send templated messages at scale. Quality over quantity. Personalize every request. If your acceptance rate drops below 30%, your messages are too generic.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 09: OBJECTION HANDLING ═══ -->
+    <div class="section" id="objections">
+      <div class="section-header">
+        <div class="section-num">09</div>
+        <h2 class="section-title">Objection Handling Matrix</h2>
+      </div>
+
+      <p class="body-text">Objections are not rejections &mdash; they are <strong>requests for more information</strong>. The best BDRs welcome objections because they signal engagement. A prospect who says "we already have a tool" is more valuable than one who says nothing at all.</p>
+
+      <h3 class="sub-header">Top 10 Objections & Responses</h3>
+      <table class="sop-table">
+        <thead><tr><th>Objection</th><th>Response Framework</th></tr></thead>
+        <tbody>
+          <tr><td><strong>"We already use Apollo/ZoomInfo"</strong></td><td>"Totally get it &mdash; most of our customers were using Apollo when they found us. Quick question: what's your email bounce rate? If it's above 8%, our waterfall across 5 providers typically cuts that in half. Worth seeing the data side by side?"</td></tr>
+          <tr><td><strong>"Not interested"</strong></td><td>"Appreciate the honesty. Just out of curiosity &mdash; is that because contact data isn't a priority right now, or because you're happy with your current setup? Either way, I'll respect your time."</td></tr>
+          <tr><td><strong>"Send me an email"</strong></td><td>"Absolutely, I'll send that over right now. Just so I can make it relevant &mdash; what's the biggest pain with your current enrichment process? I'll tailor the email to that."</td></tr>
+          <tr><td><strong>"We don't have budget"</strong></td><td>"Makes sense. That's actually why a lot of teams start with our free BYOK tier &mdash; you bring your own API keys and pay nothing to us. Zero budget required. Want me to show you how that works in a quick 10-minute call?"</td></tr>
+          <tr><td><strong>"Call me next quarter"</strong></td><td>"Happy to. Just so I'm reaching out at the right time &mdash; what's happening next quarter that would make this a better conversation? Planning a new outbound push, or evaluating tools?"</td></tr>
+          <tr><td><strong>"I need to talk to my team"</strong></td><td>"Of course. Would it help if I sent a one-pager you can share? And would it make sense for me to loop in [their peer persona] directly so they can evaluate the technical side?"</td></tr>
+          <tr><td><strong>"We built something in-house"</strong></td><td>"That's impressive &mdash; not many teams invest in that. Curious: how many data providers does your internal tool check? We run a 5-provider waterfall and most teams tell us maintaining their internal tool costs more than the subscription."</td></tr>
+          <tr><td><strong>"How are you different from Clay?"</strong></td><td>"Clay is great for power users who want 75+ integrations and a spreadsheet UI. We're built for teams that want dead-simple enrichment &mdash; upload in Slack, get results in 3 minutes, zero learning curve. Different use cases. If your team has a dedicated ops person managing Clay, you're probably fine. If your reps need to self-serve, that's where we win."</td></tr>
+          <tr><td><strong>"Your price seems high"</strong></td><td>"What are you comparing it to? Our free tier is completely free with BYOK. Managed credits start at $29/month and most customers see ROI in the first week from time saved alone. What does your current tool cost per contact?"</td></tr>
+          <tr><td><strong>"I'm too busy right now"</strong></td><td>"Totally understand &mdash; end of quarter is brutal. Would a 10-minute call next Tuesday at 8am work? Before the day gets crazy? I'll keep it tight."</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box success">
+        <div class="info-label">The Golden Rule</div>
+        Never argue with an objection. Acknowledge it, ask a follow-up question, and redirect. The formula is: <strong>Acknowledge &rarr; Question &rarr; Reframe</strong>. If the prospect gives you 3 hard "no" signals, thank them and move on. Persistence is good. Pestering is not.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 10: TECH STACK ═══ -->
+    <div class="section" id="tech-stack">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2 class="section-title">Tech Stack & Tool Setup</h2>
+      </div>
+
+      <p class="body-text">Your tools are force multipliers. A BDR with the right stack does the work of three BDRs without one. Every tool in this list has a specific purpose &mdash; learn each one deeply in your first 30 days.</p>
+
+      <h3 class="sub-header">Core Tools</h3>
+      <table class="sop-table">
+        <thead><tr><th>Tool</th><th>Purpose</th><th>Daily Usage</th></tr></thead>
+        <tbody>
+          <tr><td><strong>StackGTM Enrichment</strong></td><td>Contact enrichment via Slack &mdash; waterfall across 5 providers</td><td>Enrich 20-50 contacts/day for next-day calling</td></tr>
+          <tr><td><strong>StackGTM Chrome Extension</strong></td><td>Enrich contacts on LinkedIn, company sites, Google Sheets</td><td>Enrich prospects during research and browsing</td></tr>
+          <tr><td><strong>HubSpot CRM</strong></td><td>Pipeline management, activity logging, contact records</td><td>Log every call, email, meeting. Update dispositions.</td></tr>
+          <tr><td><strong>Slack</strong></td><td>Team communication, enrichment commands, notifications</td><td>Run enrichment jobs, coordinate with AEs</td></tr>
+          <tr><td><strong>Power Dialer (StackGTM)</strong></td><td>Parallel dialing during call blocks</td><td>60-80 dials/day across two 2-hour blocks</td></tr>
+          <tr><td><strong>LinkedIn Sales Navigator</strong></td><td>Advanced search, lead lists, InMail</td><td>Build prospect lists, research accounts, send InMails</td></tr>
+          <tr><td><strong>Loom</strong></td><td>Personalized video prospecting</td><td>Record 5-8 videos/day for high-value targets</td></tr>
+          <tr><td><strong>Calendly</strong></td><td>Meeting scheduling with AE calendar integration</td><td>Send booking links, reduce scheduling friction</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Enrichment Workflow in Slack</h3>
+      <ol class="steps">
+        <li>Export target account list from LinkedIn Sales Navigator as CSV</li>
+        <li>Upload CSV to the StackGTM Slack channel with <code>/enrich</code> command</li>
+        <li>AI intent classifier detects contact columns and enrichment type automatically</li>
+        <li>Waterfall engine runs: Apollo &rarr; Wiza &rarr; AI Ark &rarr; Findymail</li>
+        <li>Results delivered in-thread within 3 minutes with verified emails and direct dials</li>
+        <li>Click "Send to CRM" to push enriched contacts directly into HubSpot</li>
+      </ol>
+
+      <div class="info-box info">
+        <div class="info-label">Pro Tip</div>
+        Enrich tomorrow's call list at the end of each day. When you sit down for your 8:30 AM call block, every contact already has a verified phone number and email. Zero research time. Maximum dial time.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 11: CRM STANDARDS ═══ -->
+    <div class="section" id="crm">
+      <div class="section-header">
+        <div class="section-num">11</div>
+        <h2 class="section-title">CRM & Data Hygiene Standards</h2>
+      </div>
+
+      <p class="body-text">Your CRM is your memory. If it's not logged, it didn't happen. Clean CRM data is the difference between a <strong>predictable pipeline</strong> and a guessing game. These standards are non-negotiable.</p>
+
+      <h3 class="sub-header">Activity Logging Rules</h3>
+      <table class="sop-table">
+        <thead><tr><th>Activity</th><th>When to Log</th><th>Required Fields</th></tr></thead>
+        <tbody>
+          <tr><td>Call (connected)</td><td>Immediately after</td><td>Outcome, next step, notes on pain/interest</td></tr>
+          <tr><td>Call (no answer)</td><td>Immediately after</td><td>Disposition: No Answer, Left VM, Wrong Number</td></tr>
+          <tr><td>Email sent</td><td>Auto-logged via HubSpot</td><td>Sequence step, personalization notes</td></tr>
+          <tr><td>LinkedIn touch</td><td>Within 30 minutes</td><td>Type: Connect, DM, InMail, Comment</td></tr>
+          <tr><td>Meeting booked</td><td>Immediately</td><td>AE assigned, meeting type, qualification notes</td></tr>
+          <tr><td>Meeting held</td><td>Within 1 hour</td><td>Outcome, next steps, opportunity created (Y/N)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Lead Status Definitions</h3>
+      <table class="sop-table">
+        <thead><tr><th>Status</th><th>Definition</th><th>Next Action</th></tr></thead>
+        <tbody>
+          <tr><td><strong>New</strong></td><td>Uncontacted, in sequence</td><td>Start Day 1 outreach</td></tr>
+          <tr><td><strong>Working</strong></td><td>Actively in sequence, some touches made</td><td>Continue sequence cadence</td></tr>
+          <tr><td><strong>Engaged</strong></td><td>Replied or had conversation, not yet qualified</td><td>Follow up within 24 hours</td></tr>
+          <tr><td><strong>Qualified</strong></td><td>BANT confirmed, ready for AE meeting</td><td>Book and hand off to AE</td></tr>
+          <tr><td><strong>Nurture</strong></td><td>Interested but not ready (timing, budget)</td><td>Add to 90-day drip, re-engage next quarter</td></tr>
+          <tr><td><strong>Disqualified</strong></td><td>Not ICP, wrong persona, or hard no</td><td>Log reason, remove from sequence</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box danger">
+        <div class="info-label">Zero Tolerance Policy</div>
+        Unlogged activities will be treated as if they didn't happen. If your CRM shows 20 calls but your dialer shows 60, leadership sees a BDR who made 20 calls. Log everything. No exceptions. Friday CRM audits happen weekly.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 12: KPIs & METRICS ═══ -->
+    <div class="section" id="kpis">
+      <div class="section-header">
+        <div class="section-num">12</div>
+        <h2 class="section-title">KPIs & Performance Metrics</h2>
+      </div>
+
+      <p class="body-text">What gets measured gets managed. These KPIs are tracked <strong>weekly</strong> in the team dashboard and reviewed in every 1:1. Leading indicators (activity) predict lagging indicators (pipeline). If your activities are on target, the results follow.</p>
+
+      <h3 class="sub-header">Leading Indicators (Activity)</h3>
+      <table class="sop-table">
+        <thead><tr><th>Metric</th><th>Daily Target</th><th>Weekly Target</th><th>Monthly Target</th></tr></thead>
+        <tbody>
+          <tr><td>Total dials</td><td>60-80</td><td>300-400</td><td>1,200-1,600</td></tr>
+          <tr><td>Conversations (connects)</td><td>8-12</td><td>40-60</td><td>160-240</td></tr>
+          <tr><td>Emails sent</td><td>30-40</td><td>150-200</td><td>600-800</td></tr>
+          <tr><td>LinkedIn touches</td><td>20-25</td><td>100-125</td><td>400-500</td></tr>
+          <tr><td>New accounts researched</td><td>5-10</td><td>25-50</td><td>100-200</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Lagging Indicators (Results)</h3>
+      <table class="sop-table">
+        <thead><tr><th>Metric</th><th>Monthly Target</th><th>Measurement</th></tr></thead>
+        <tbody>
+          <tr><td>Qualified meetings booked</td><td>15-20</td><td>Calendar + CRM</td></tr>
+          <tr><td>Meeting show rate</td><td>70%+</td><td>Held / Booked</td></tr>
+          <tr><td>SAL (Sales Accepted Lead) rate</td><td>80%+</td><td>AE accepts / Meetings held</td></tr>
+          <tr><td>Pipeline generated</td><td>$75K-$100K</td><td>Opportunity value in CRM</td></tr>
+          <tr><td>Meetings &rarr; Opportunity rate</td><td>40%+</td><td>Opps created / Meetings held</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Conversion Benchmarks</h3>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">12-15%</div>
+          <div class="metric-label">Dial-to-Connect Rate</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">15-20%</div>
+          <div class="metric-label">Connect-to-Meeting Rate</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">3-5%</div>
+          <div class="metric-label">Email Reply Rate</div>
+        </div>
+      </div>
+
+      <div class="info-box success">
+        <div class="info-label">How to Read Your Numbers</div>
+        If your activity is high but meetings are low &mdash; it's a messaging problem. If your meetings are high but SAL rate is low &mdash; it's a qualification problem. If your SAL rate is high but pipeline is low &mdash; you're targeting accounts that are too small. The numbers always tell you where to improve.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 13: 30/60/90 RAMP ═══ -->
+    <div class="section" id="ramp">
+      <div class="section-header">
+        <div class="section-num">13</div>
+        <h2 class="section-title">30/60/90 Day Ramp Plan</h2>
+      </div>
+
+      <p class="body-text">New BDRs are expected to reach <strong>full quota by Day 90</strong>. The ramp plan builds skills progressively &mdash; learn the product and ICP first, practice messaging second, and hit full activity volume third. Rushing to full volume without mastering the fundamentals creates bad habits.</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="tl-phase">Days 1-10</div>
+          <div class="tl-title">Learn: Product, ICP & Tools</div>
+          <div class="tl-desc">Complete product certification. Shadow 10+ AE discovery calls. Master HubSpot, StackGTM enrichment, and LinkedIn Sales Nav. Memorize ICP criteria and buyer personas. Build first 50-account target list.</div>
+          <div class="tl-target">TARGET: Pass product knowledge assessment (80%+)</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Days 11-20</div>
+          <div class="tl-title">Practice: Messaging & Call Blocks</div>
+          <div class="tl-desc">Role-play cold calls with manager daily. Start calling at 50% volume (30-40 dials/day). Send first email sequences. Get first LinkedIn connections accepted. Record and review 3 calls/day with coach.</div>
+          <div class="tl-target">TARGET: 5 qualified meetings booked</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Days 21-30</div>
+          <div class="tl-title">Execute: 75% Volume</div>
+          <div class="tl-desc">Increase to 50-60 dials/day. Full email sequences running. Daily LinkedIn engagement routine. First 1:1 pipeline review with manager. Refine messaging based on objection patterns.</div>
+          <div class="tl-target">TARGET: 8-10 qualified meetings, 50% of full quota</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Days 31-60</div>
+          <div class="tl-title">Scale: Full Activity Volume</div>
+          <div class="tl-desc">60-80 dials/day. Full multi-channel sequences. Own account research and list building end-to-end. Start tracking personal conversion metrics. Weekly 1:1s shift from coaching to performance review.</div>
+          <div class="tl-target">TARGET: 12-15 qualified meetings, 75% of full quota</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Days 61-90</div>
+          <div class="tl-title">Optimize: Full Quota</div>
+          <div class="tl-desc">Full quota expectations. Identify highest-converting channels and double down. Build personal brand on LinkedIn. Mentor newer BDRs. Develop specialty vertical expertise. Prepare for AE promotion track.</div>
+          <div class="tl-target">TARGET: 15-20 qualified meetings, 100% of quota</div>
+        </div>
+      </div>
+
+      <h3 class="sub-header">Ramp Milestones & Checkpoints</h3>
+      <table class="sop-table">
+        <thead><tr><th>Day</th><th>Checkpoint</th><th>Pass Criteria</th><th>If Behind</th></tr></thead>
+        <tbody>
+          <tr><td>Day 10</td><td>Product knowledge test</td><td>80%+ score</td><td>Retake + extra shadowing</td></tr>
+          <tr><td>Day 15</td><td>Live cold call review (3 calls)</td><td>Manager approval on framework</td><td>Daily role-play until approved</td></tr>
+          <tr><td>Day 30</td><td>First quota checkpoint</td><td>50% of monthly target</td><td>Coaching plan + call recording review</td></tr>
+          <tr><td>Day 45</td><td>Mid-ramp review</td><td>60% of monthly target</td><td>PIP consideration if below 40%</td></tr>
+          <tr><td>Day 60</td><td>Second quota checkpoint</td><td>75% of monthly target</td><td>Formal PIP if below 50%</td></tr>
+          <tr><td>Day 90</td><td>Full ramp completion</td><td>100% of monthly target</td><td>Extended ramp or role reassessment</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 14: CAREER PATH ═══ -->
+    <div class="section" id="career">
+      <div class="section-header">
+        <div class="section-num">14</div>
+        <h2 class="section-title">Career Progression Path</h2>
+      </div>
+
+      <p class="body-text">The BDR role is a <strong>launchpad, not a destination</strong>. Top-performing BDRs at Dev Labs are promoted within 12-18 months. The skills you build here &mdash; cold outreach, objection handling, pipeline management, and business acumen &mdash; are the foundation for every revenue role.</p>
+
+      <h3 class="sub-header">Progression Ladder</h3>
+      <div class="funnel">
+        <div class="funnel-step step-blue">
+          <div class="step-num">1</div>
+          <div><strong>BDR I (Months 0-6)</strong> &mdash; Learning the craft. Full ramp, quota attainment, mastering the daily cadence.</div>
+        </div>
+        <div class="funnel-step step-green">
+          <div class="step-num">2</div>
+          <div><strong>BDR II (Months 6-12)</strong> &mdash; Consistent performer. 100%+ quota for 3 consecutive months. Mentoring new hires.</div>
+        </div>
+        <div class="funnel-step step-yellow">
+          <div class="step-num">3</div>
+          <div><strong>Senior BDR (Months 12-18)</strong> &mdash; Top 20% performer. Owns a vertical or enterprise accounts. Trains the team on messaging.</div>
+        </div>
+        <div class="funnel-step step-emerald">
+          <div class="step-num">4</div>
+          <div><strong>Account Executive</strong> &mdash; Promoted to closing role. Manages full sales cycle from discovery to close.</div>
+        </div>
+      </div>
+
+      <h3 class="sub-header">Promotion Criteria</h3>
+      <table class="sop-table">
+        <thead><tr><th>Requirement</th><th>BDR I &rarr; BDR II</th><th>BDR II &rarr; Senior BDR</th><th>Senior BDR &rarr; AE</th></tr></thead>
+        <tbody>
+          <tr><td>Tenure</td><td>6 months minimum</td><td>12 months minimum</td><td>15 months minimum</td></tr>
+          <tr><td>Quota attainment</td><td>100% for 2 of last 3 months</td><td>110%+ for 3 consecutive months</td><td>120%+ for 3 consecutive months</td></tr>
+          <tr><td>SAL acceptance rate</td><td>75%+</td><td>80%+</td><td>85%+</td></tr>
+          <tr><td>CRM compliance</td><td>95%+ logging accuracy</td><td>98%+ logging accuracy</td><td>100% compliance</td></tr>
+          <tr><td>Additional</td><td>Product knowledge cert</td><td>Mentor 1+ new BDR</td><td>Shadow 10+ AE closes, pass AE assessment</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Alternative Career Tracks</h3>
+      <ul class="bullet-list">
+        <li><strong>Sales Operations</strong> &mdash; For BDRs who love systems, data, and process optimization</li>
+        <li><strong>Customer Success</strong> &mdash; For BDRs who thrive on relationship building and retention</li>
+        <li><strong>Sales Enablement</strong> &mdash; For BDRs who excel at coaching and creating playbooks (meta!)</li>
+        <li><strong>Marketing</strong> &mdash; For BDRs who develop strong content and brand-building skills</li>
+      </ul>
+
+      <div class="info-box success">
+        <div class="info-label">The Dev Labs Promise</div>
+        Every BDR who hits quota for 12 consecutive months will be offered a promotion path. We don't hire AEs externally when we have qualified internal candidates. Your success as a BDR is the fastest path to a closing role with uncapped commission.
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="border-top: 2px solid var(--navy); margin-top: 48px; padding-top: 24px; text-align: center;">
+      <p style="font-size: 12px; color: var(--light-text); line-height: 1.8;">
+        <strong style="color: var(--navy);">Sales BDR Outbound Playbook</strong> &middot; PB-BDR-2026 &middot; Version 1.0 &middot; March 2026<br>
+        Dev Labs &middot; StackGTM Sales Development &middot; Strategic &mdash; Internal Use Only
+      </p>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Active nav highlighting -->
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>

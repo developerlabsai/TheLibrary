@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virality Playbook - StackGTM Enrichment</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy: #1a1a2e;
+    --navy-light: #252542;
+    --accent: #4361ee;
+    --accent-light: #6380f5;
+    --accent-bg: #eef0ff;
+    --accent-border: #c7ceff;
+    --white: #ffffff;
+    --light-bg: #f3f4f8;
+    --dark-text: #1e1e32;
+    --mid-text: #50506e;
+    --light-text: #8889a0;
+    --border: #c8cde0;
+    --success: #22c55e;
+    --success-bg: #ecfdf5;
+    --warn: #eab308;
+    --warn-bg: #fefce8;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+    --emerald: #10b981;
+    --emerald-bg: #ecfdf5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--dark-text);
+    background: var(--light-bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* SIDEBAR NAV */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--navy);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0;
+  }
+  .sidebar-header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-header .doc-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-light);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .sidebar-header h1 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  .sidebar-header .version {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .sidebar-nav {
+    padding: 16px 0;
+  }
+  .sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-nav a:hover {
+    color: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.04);
+  }
+  .sidebar-nav a.active {
+    color: var(--white);
+    background: rgba(67,97,238,0.12);
+    border-left-color: var(--accent);
+  }
+  .sidebar-nav a .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent-light);
+    background: rgba(67,97,238,0.15);
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .sidebar-nav .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 12px 24px;
+  }
+  .sidebar-nav .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.25);
+    padding: 8px 24px 4px;
+    font-weight: 600;
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    margin-left: 280px;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(12px);
+  }
+  .topbar-left {
+    font-size: 13px;
+    color: var(--mid-text);
+  }
+  .topbar-left span { color: var(--dark-text); font-weight: 600; }
+  .topbar-right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .topbar-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  /* COVER */
+  .cover {
+    background: var(--navy);
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 400px; height: 400px;
+    background: var(--accent);
+    opacity: 0.08;
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 300px; height: 300px;
+    background: var(--emerald);
+    opacity: 0.06;
+    border-radius: 50%;
+  }
+  .cover-content {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .cover .doc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-light);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .cover h1 {
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+  .cover .subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+    margin-bottom: 48px;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 48px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 24px;
+  }
+  .cover-meta dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+  .cover-meta dd {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  /* SECTIONS */
+  .section {
+    padding: 48px 0 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--navy);
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    background: var(--accent);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -0.5px;
+  }
+
+  .sub-header {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 28px 0 12px;
+    padding: 8px 16px;
+    background: var(--accent-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+  }
+
+  .body-text {
+    font-size: 14px;
+    color: var(--dark-text);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .bullet-list {
+    list-style: none;
+    margin: 8px 0 16px;
+  }
+  .bullet-list li {
+    position: relative;
+    padding: 5px 0 5px 20px;
+    font-size: 13.5px;
+    color: var(--dark-text);
+    line-height: 1.6;
+  }
+  .bullet-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 12px 0 16px;
+    counter-reset: step;
+  }
+  .steps li {
+    position: relative;
+    padding: 8px 0 8px 44px;
+    font-size: 13.5px;
+    color: var(--dark-text);
+    line-height: 1.6;
+    counter-increment: step;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sop-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 13px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .sop-table thead th {
+    background: var(--navy);
+    color: var(--white);
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .sop-table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .sop-table tbody tr:nth-child(even) { background: var(--light-bg); }
+  .sop-table tbody tr:hover { background: var(--accent-bg); }
+
+  .info-box {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 16px 0;
+    border-left: 4px solid;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .info-box .info-label {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .info-box.info {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+  }
+  .info-box.info .info-label { color: var(--accent); }
+  .info-box.success {
+    background: var(--success-bg);
+    border-color: var(--success);
+  }
+  .info-box.success .info-label { color: var(--success); }
+  .info-box.warning {
+    background: var(--warn-bg);
+    border-color: var(--warn);
+  }
+  .info-box.warning .info-label { color: var(--warn); }
+  .info-box.danger {
+    background: var(--danger-bg);
+    border-color: var(--danger);
+  }
+  .info-box.danger .info-label { color: var(--danger); }
+
+  .code-block {
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--dark-text);
+    margin: 12px 0 16px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* Funnel diagram */
+  .funnel {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 20px 0;
+  }
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .funnel-step .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .funnel-step.awareness { background: #eef0ff; }
+  .funnel-step.awareness .step-num { background: var(--accent); color: white; }
+  .funnel-step.activation { background: #ecfdf5; }
+  .funnel-step.activation .step-num { background: var(--success); color: white; }
+  .funnel-step.problem { background: #fefce8; }
+  .funnel-step.problem .step-num { background: var(--warn); color: white; }
+  .funnel-step.conversion { background: #fef2f2; }
+  .funnel-step.conversion .step-num { background: var(--danger); color: white; }
+  .funnel-step.expansion { background: #f0fdf4; }
+  .funnel-step.expansion .step-num { background: #10b981; color: white; }
+
+  /* Metric cards */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .metric-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .metric-card .metric-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -1px;
+  }
+  .metric-card .metric-label {
+    font-size: 11px;
+    color: var(--mid-text);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 16px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--accent);
+    opacity: 0.3;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+    padding-left: 20px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: 3px solid var(--accent-bg);
+  }
+  .timeline-item .tl-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+  .timeline-item .tl-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .timeline-item .tl-desc {
+    font-size: 13px;
+    color: var(--mid-text);
+    line-height: 1.5;
+  }
+  .timeline-item .tl-target {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--success);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* Loop cards */
+  .loop-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 16px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .loop-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--accent);
+  }
+  .loop-card .loop-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .loop-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .loop-card p {
+    font-size: 13px;
+    color: var(--mid-text);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .loop-card .viral-moment {
+    background: var(--accent-bg);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .loop-card .viral-moment span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 2px;
+    opacity: 0.7;
+  }
+
+  /* Print styles */
+  @media print {
+    .sidebar { display: none; }
+    .topbar { display: none; }
+    .main { margin-left: 0; }
+    .content { padding: 20px; }
+    .cover { padding: 40px 20px; }
+    .section { page-break-inside: avoid; }
+    body { background: white; }
+  }
+
+  @media (max-width: 960px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .cover h1 { font-size: 36px; }
+    .content { padding: 24px 20px; }
+    .cover-meta { flex-wrap: wrap; gap: 24px; }
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="doc-type">Strategic Playbook</div>
+    <h1>Virality Engine</h1>
+    <div class="version">PB-VR-2026 &middot; v1.0</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="section-label">Strategy</div>
+    <a href="#vision"><span class="num">01</span> Product Vision</a>
+    <a href="#funnel"><span class="num">02</span> The CRM Funnel</a>
+    <a href="#revenue"><span class="num">03</span> Revenue Model</a>
+    <a href="#features"><span class="num">04</span> Feature Strategy</a>
+    <div class="divider"></div>
+    <div class="section-label">Growth Engine</div>
+    <a href="#extension"><span class="num">05</span> Chrome Extension</a>
+    <a href="#viral-loops"><span class="num">06</span> The 5 Viral Loops</a>
+    <a href="#free-tools"><span class="num">07</span> Free Public Tools</a>
+    <a href="#reports"><span class="num">08</span> Shareable Reports</a>
+    <a href="#referral"><span class="num">09</span> Referral Engine</a>
+    <a href="#watermark"><span class="num">10</span> Data Watermark</a>
+    <div class="divider"></div>
+    <div class="section-label">Execution</div>
+    <a href="#opensource"><span class="num">11</span> Open Source Strategy</a>
+    <a href="#road-15k"><span class="num">12</span> $0 &rarr; $15K MRR</a>
+    <a href="#road-50k"><span class="num">13</span> $15K &rarr; $50K MRR</a>
+    <a href="#ltd"><span class="num">14</span> Lifetime Deal</a>
+    <a href="#metrics"><span class="num">15</span> Success Metrics</a>
+    <a href="#competitive"><span class="num">16</span> Competitive Intel</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <span>Dev Labs</span> &middot; StackGTM Enrichment Platform
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-badge">STRATEGIC</span>
+      <span class="topbar-badge">v1.0 &middot; March 2026</span>
+    </div>
+  </div>
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-content">
+      <div class="doc-label">Strategic Playbook</div>
+      <h1>Virality<br>Engine</h1>
+      <p class="subtitle">Growth Strategy & Execution Plan &mdash; From $0 to $50K MRR</p>
+      <dl class="cover-meta">
+        <div><dt>Document ID</dt><dd>PB-VR-2026</dd></div>
+        <div><dt>Version</dt><dd>1.0</dd></div>
+        <div><dt>Effective Date</dt><dd>March 2026</dd></div>
+        <div><dt>Classification</dt><dd>Strategic</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ═══ SECTION 01: PRODUCT VISION ═══ -->
+    <div class="section" id="vision">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2 class="section-title">Product Vision & Positioning</h2>
+      </div>
+
+      <p class="body-text">A <strong>multi-provider waterfall enrichment engine</strong> accessible via Slack and Chrome Extension. Upload a file or click a button &mdash; get enriched contacts back in minutes. The enrichment tool is intentionally ephemeral: data is processed, delivered to a CRM, and purged. This creates a natural conversion funnel into StackGTM.</p>
+
+      <div class="info-box info">
+        <div class="info-label">The One-Sentence Pitch</div>
+        "Enrich any sales list in Slack or your browser in 3 minutes. When you're ready to work those leads, send them to your CRM with one click."
+      </div>
+
+      <h3 class="sub-header">What We Are</h3>
+      <ul class="bullet-list">
+        <li>A <strong>processing pipeline</strong>, not a database &mdash; 7-30 day data retention, then purge</li>
+        <li>A <strong>waterfall enrichment engine</strong> across 5 providers (Apollo, BuiltWith, Wiza, AI Ark, Findymail)</li>
+        <li>A <strong>zero-friction UX</strong> &mdash; upload a CSV in Slack, get enriched contacts back in the same thread</li>
+        <li>A <strong>customer acquisition funnel</strong> for StackGTM, our CRM</li>
+      </ul>
+
+      <h3 class="sub-header">What We Are NOT</h3>
+      <ul class="bullet-list">
+        <li>NOT a CRM (that's StackGTM)</li>
+        <li>NOT a long-term data store &mdash; data expires and must be sent to a CRM</li>
+        <li>NOT competing with Clay's 75+ providers &mdash; we compete on simplicity</li>
+        <li>NOT a platform for campaigns, sequences, or dialing &mdash; those are StackGTM features</li>
+      </ul>
+
+      <h3 class="sub-header">Competitive Positioning</h3>
+      <table class="sop-table">
+        <thead><tr><th>Dimension</th><th>Clay</th><th>Apollo Ext</th><th>Lusha</th><th>Us</th></tr></thead>
+        <tbody>
+          <tr><td>Interface</td><td>Browser spreadsheet</td><td>Chrome only</td><td>Chrome only</td><td><strong>Slack + Chrome + Browser</strong></td></tr>
+          <tr><td>Learning curve</td><td>High</td><td>Low</td><td>Low</td><td><strong>Near zero</strong></td></tr>
+          <tr><td>Providers</td><td>75+</td><td>Apollo only</td><td>Lusha only</td><td><strong>5 (waterfall)</strong></td></tr>
+          <tr><td>Pricing</td><td>$149-$720/mo</td><td>$49-$99/mo</td><td>$49-$79/mo</td><td><strong>Free (BYOK) or credits</strong></td></tr>
+          <tr><td>Data retention</td><td>Permanent</td><td>Permanent</td><td>Permanent</td><td><strong>Ephemeral &rarr; CRM</strong></td></tr>
+          <tr><td>CRM funnel</td><td>None</td><td>Apollo CRM</td><td>None</td><td><strong>StackGTM</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 02: THE CRM FUNNEL ═══ -->
+    <div class="section" id="funnel">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2 class="section-title">The Enrichment-to-CRM Funnel</h2>
+      </div>
+
+      <p class="body-text">The enrichment tool is a <strong>customer acquisition engine for StackGTM</strong>. It intentionally creates a problem it doesn't solve &mdash; "I have enriched data but nowhere to manage it." That's not a bug. That's the funnel.</p>
+
+      <div class="funnel">
+        <div class="funnel-step awareness">
+          <div class="step-num">1</div>
+          <div><strong>Awareness</strong> &mdash; Chrome Extension on LinkedIn, Slack App Directory, ProductHunt, SEO free tools, referrals</div>
+        </div>
+        <div class="funnel-step activation">
+          <div class="step-num">2</div>
+          <div><strong>Activation</strong> &mdash; First enrichment delivers instant value (10 seconds for extension, 3 minutes for bulk Slack)</div>
+        </div>
+        <div class="funnel-step problem">
+          <div class="step-num">3</div>
+          <div><strong>Retention Problem</strong> &mdash; After 3+ enrichments: CSVs scattered everywhere. No central view. No dedup. No follow-up.</div>
+        </div>
+        <div class="funnel-step conversion">
+          <div class="step-num">4</div>
+          <div><strong>The Prompt</strong> &mdash; "Send results to: [CSV] [HubSpot] [StackGTM] [Email]" &mdash; every enrichment pushes toward CRM</div>
+        </div>
+        <div class="funnel-step expansion">
+          <div class="step-num">5</div>
+          <div><strong>Expansion</strong> &mdash; Team sees enriched data in StackGTM &rarr; installs extension &rarr; more enrichments &rarr; higher CRM tier</div>
+        </div>
+      </div>
+
+      <h3 class="sub-header">Data Expiration &mdash; The Conversion Lever</h3>
+      <p class="body-text">This is honest and earned urgency. Users are told upfront: this is a processing tool, not storage.</p>
+      <table class="sop-table">
+        <thead><tr><th>Day</th><th>Notification</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Day 1</td><td>"Your enriched data is stored for 30 days"</td><td>Informational</td></tr>
+          <tr><td>Day 20</td><td>"Your data expires in 10 days. Send to CRM to keep it."</td><td>Nudge</td></tr>
+          <tr><td>Day 27</td><td>"3 days left. 47 contacts will be permanently deleted."</td><td>Urgency</td></tr>
+          <tr><td>Day 30</td><td>Data purged. Job metadata retained.</td><td>Automatic purge</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box success">
+        <div class="info-label">Strategic Insight</div>
+        Clearbit enriched data for HubSpot's customers so well that HubSpot just bought them for $150M+. If Clearbit had owned the CRM, they'd be a $500M company. We own both the enrichment AND the CRM. That's the vertical integration play.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 03: REVENUE MODEL ═══ -->
+    <div class="section" id="revenue">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2 class="section-title">Revenue Model & Pricing</h2>
+      </div>
+
+      <h3 class="sub-header">BYOK vs. Managed Keys (Hybrid Model)</h3>
+      <p class="body-text">Two options presented during onboarding and in settings. Both have full functionality.</p>
+      <table class="sop-table">
+        <thead><tr><th>Option</th><th>How It Works</th><th>Our Revenue</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BYOK (Free)</strong></td><td>User provides own API keys for Apollo, BuiltWith, Wiza, AI Ark</td><td>$0</td><td>Distribution &amp; adoption</td></tr>
+          <tr><td><strong>Managed Keys</strong></td><td>We provide keys, user buys credit packs. No key management needed.</td><td>55-70% gross margin</td><td>Revenue engine</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Enrichment Margin Economics</h3>
+      <table class="sop-table">
+        <thead><tr><th>Provider</th><th>Our Bulk Cost</th><th>We Charge</th><th>Margin</th></tr></thead>
+        <tbody>
+          <tr><td>Apollo email</td><td>~$0.03/contact</td><td>$0.08-0.10</td><td>60-70%</td></tr>
+          <tr><td>Apollo phone</td><td>~$0.05/contact</td><td>$0.12-0.15</td><td>58-67%</td></tr>
+          <tr><td>BuiltWith</td><td>~$0.05/domain</td><td>$0.10-0.12</td><td>50-58%</td></tr>
+          <tr><td>Wiza email</td><td>~$0.03/contact</td><td>$0.08-0.10</td><td>60-70%</td></tr>
+          <tr><td>AI Ark</td><td>~$0.02/contact</td><td>$0.06-0.08</td><td>66-75%</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Pricing Tiers</h3>
+      <table class="sop-table">
+        <thead><tr><th>Tier</th><th>Price</th><th>Credits/Month</th><th>Key Features</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Free</strong></td><td>$0/mo</td><td>BYOK only</td><td>Slack enrichment, 5 extension/day, single workspace</td></tr>
+          <tr><td><strong>Starter</strong></td><td>$29/mo</td><td>300 managed</td><td>Dashboard, HubSpot sync, 30-day retention</td></tr>
+          <tr><td><strong>Growth</strong></td><td>$79/mo</td><td>1,000 managed</td><td>Waterfall, all CRM connectors, priority support</td></tr>
+          <tr><td><strong>Agency</strong></td><td>$299/mo</td><td>Bulk pricing</td><td>10+ sub-accounts, white-label exports, $0.06/credit</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Revenue Split Target</h3>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">60%</div>
+          <div class="metric-label">Managed Credits</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">30%</div>
+          <div class="metric-label">Subscriptions</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">10%</div>
+          <div class="metric-label">LTD Purchases</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 04: FEATURE STRATEGY ═══ -->
+    <div class="section" id="features">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2 class="section-title">Feature Strategy</h2>
+      </div>
+
+      <p class="body-text">The enrichment tool must be laser-focused: <strong>Upload &rarr; Enrich &rarr; Deliver to CRM &rarr; Done.</strong> Everything else is StackGTM's job. This means removing 60% of what we've built from this product.</p>
+
+      <h3 class="sub-header">What Ships in the Enrichment Product</h3>
+      <table class="sop-table">
+        <thead><tr><th>Feature</th><th>Status</th><th>Why It Stays</th></tr></thead>
+        <tbody>
+          <tr><td>File upload + CSV/XLSX parsing</td><td>KEEP</td><td>Core functionality</td></tr>
+          <tr><td>AI intent classification</td><td>KEEP</td><td>Zero-config UX differentiator</td></tr>
+          <tr><td>BuiltWith technographic enrichment</td><td>KEEP</td><td>Core value</td></tr>
+          <tr><td>Apollo contact enrichment</td><td>KEEP</td><td>Core value</td></tr>
+          <tr><td>Waterfall enrichment (multi-provider)</td><td>KEEP</td><td>Key differentiator vs. competitors</td></tr>
+          <tr><td>Tech spend tiers + cloud detection</td><td>KEEP</td><td>Unique insight no competitor offers</td></tr>
+          <tr><td>Persona classification (14 types)</td><td>KEEP</td><td>Unique insight no competitor offers</td></tr>
+          <tr><td>Account research cache</td><td>KEEP</td><td>Saves users money &mdash; real value</td></tr>
+          <tr><td>Lead quality gating</td><td>KEEP</td><td>Makes enriched data better</td></tr>
+          <tr><td>HubSpot sync</td><td>KEEP</td><td>CRM delivery (first connector)</td></tr>
+          <tr><td>Chrome Extension</td><td>BUILD</td><td>Acquisition engine</td></tr>
+          <tr><td>Free public tools</td><td>BUILD</td><td>SEO + share engine</td></tr>
+          <tr><td>Referral credit system</td><td>BUILD</td><td>Viral loop</td></tr>
+          <tr><td>Shareable reports</td><td>BUILD</td><td>Viral loop</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">What Gets Removed (&rarr; StackGTM)</h3>
+      <table class="sop-table">
+        <thead><tr><th>Feature</th><th>Action</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>Power Dialer</td><td>REMOVE</td><td>Full product &mdash; CRM feature</td></tr>
+          <tr><td>Campaign Management</td><td>REMOVE</td><td>CRM feature</td></tr>
+          <tr><td>Workflow Builder</td><td>REMOVE</td><td>CRM feature</td></tr>
+          <tr><td>BDR Management</td><td>REMOVE</td><td>Internal ops &mdash; CRM feature</td></tr>
+          <tr><td>BDR Onboarding</td><td>REMOVE</td><td>Internal ops &mdash; CRM feature</td></tr>
+          <tr><td>Smart Reply</td><td>REMOVE</td><td>Requires Instantly &mdash; CRM feature</td></tr>
+          <tr><td>Salesfloor / Active Calls</td><td>REMOVE</td><td>CRM feature</td></tr>
+          <tr><td>Recording Library</td><td>REMOVE</td><td>CRM feature</td></tr>
+          <tr><td>Gamification</td><td>REMOVE</td><td>Not built &mdash; CRM feature</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box warning">
+        <div class="info-label">Strategic Decision</div>
+        These features represent months of engineering. They are NOT being deleted &mdash; they are being relocated to StackGTM where they belong. The enrichment tool and the CRM are complementary products, not one monolith.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 05: CHROME EXTENSION ═══ -->
+    <div class="section" id="extension">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2 class="section-title">Chrome Extension Architecture</h2>
+      </div>
+
+      <p class="body-text">The Chrome Extension is our <strong>acquisition engine</strong>. While the Slack bot handles bulk enrichment, the extension handles single-contact and small-batch enrichment directly from LinkedIn, company websites, and Google Sheets.</p>
+
+      <h3 class="sub-header">Supported Surfaces</h3>
+      <table class="sop-table">
+        <thead><tr><th>Surface</th><th>Detection</th><th>User Sees</th></tr></thead>
+        <tbody>
+          <tr><td>LinkedIn profile</td><td>Company + name from DOM</td><td>Email, phone, persona, tech stack in sidebar</td></tr>
+          <tr><td>LinkedIn Sales Nav</td><td>Bulk-select visible contacts</td><td>"Enrich 25 contacts" button overlay</td></tr>
+          <tr><td>Company website</td><td>Domain detection</td><td>Tech stack + decision makers in popup</td></tr>
+          <tr><td>Google Sheets</td><td>Sheet with company column</td><td>Sidebar: "Enrich this sheet"</td></tr>
+          <tr><td>HubSpot record</td><td>Contact/company page</td><td>"Fill gaps" button on record</td></tr>
+          <tr><td>Gmail CSV attachment</td><td>Attachment detection</td><td>"Enrich this file" notification</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Technical Architecture</h3>
+      <div class="code-block">Chrome Extension (Manifest V3)
+    content-scripts/     LinkedIn, HubSpot, Sheets, generic
+    popup/               Credit balance, recent enrichments
+    sidepanel/           Enrichment results display (React)
+    background/          API calls, auth token management
+    shared/              API client, types
+         |
+    POST /api/v2/enrich  (same backend, new frontend)
+         |
+    Existing waterfall engine (Apollo -> Wiza -> AI Ark)
+         |
+    Results -> Extension sidebar / Slack / Email / CRM</div>
+
+      <h3 class="sub-header">Key Differentiator vs. Lusha/Apollo</h3>
+      <p class="body-text">Lusha and Apollo extensions query <strong>one provider</strong>. Ours runs a <strong>waterfall across multiple providers</strong> and returns the best composite result. Apollo found the email but no phone? Wiza found the phone. AI Ark verified both. One click.</p>
+
+      <h3 class="sub-header">Auth Flow</h3>
+      <p class="body-text">Extension &rarr; Opens landing page &rarr; Slack OAuth (existing identity layer) &rarr; Token stored in chrome.storage &rarr; All API calls authenticated. No new auth system needed.</p>
+
+      <div class="info-box success">
+        <div class="info-label">Build Estimate</div>
+        2-3 weeks of focused work. The enrichment API exists, React components exist (admin dashboard), Slack OAuth exists. The extension is a frontend shell calling existing endpoints.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 06: THE 5 VIRAL LOOPS ═══ -->
+    <div class="section" id="viral-loops">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2 class="section-title">The 5 Viral Loops</h2>
+      </div>
+
+      <p class="body-text">No single loop achieves 10/10 virality. Five loops at 6-7/10 each compound into an 8/10 system. These run simultaneously and reinforce each other.</p>
+
+      <div class="loop-card">
+        <div class="loop-num">Loop 1</div>
+        <h4>Free Public Tools (SEO + Share Magnet)</h4>
+        <p>Ungated micro-tools that generate shareable pages and SEO traffic. Company tech stack lookup, free email verifier, "Who Uses [Technology]?" explorer. Every shared link is a branded URL back to us.</p>
+        <div class="viral-moment"><span>Viral Moment</span>Sales reps share tech stack pages in Slack groups, LinkedIn posts, and cold emails. Every share is organic brand exposure.</div>
+      </div>
+
+      <div class="loop-card">
+        <div class="loop-num">Loop 2</div>
+        <h4>Shareable Enrichment Reports</h4>
+        <p>Every enrichment generates a branded interactive report page instead of just a CSV. Manager says "forward me that list" &mdash; rep shares a link. Manager sees a beautiful branded report.</p>
+        <div class="viral-moment"><span>Viral Moment</span>Reports shared internally spread the brand to decision-makers who authorize team-wide purchases.</div>
+      </div>
+
+      <div class="loop-card">
+        <div class="loop-num">Loop 3</div>
+        <h4>Chrome Extension Visual Footprint</h4>
+        <p>The extension injects a branded sidebar visible on LinkedIn. Visible in screen shares, screenshots, standups. "Share this contact" button generates branded card images.</p>
+        <div class="viral-moment"><span>Viral Moment</span>"What tool is that?" &mdash; asked in every sales team meeting when the sidebar appears during screen shares.</div>
+      </div>
+
+      <div class="loop-card">
+        <div class="loop-num">Loop 4</div>
+        <h4>Credit Referral Engine</h4>
+        <p>Share link &rarr; referee completes first enrichment &rarr; both get 50 credits. No cap. Contextual prompt after every job: "This cost 23 credits. Share with a colleague and you'll both get 50 free."</p>
+        <div class="viral-moment"><span>Viral Moment</span>"I got $200 in free enrichment credits this month from referrals" &mdash; a LinkedIn post they write themselves.</div>
+      </div>
+
+      <div class="loop-card">
+        <div class="loop-num">Loop 5</div>
+        <h4>"Powered by" Data Watermark</h4>
+        <p>Every piece of data that leaves the system carries the brand. CSV exports include <code>enrichment_source = StackGTM</code> column. CRM syncs set the same property. Email delivery includes branded footer.</p>
+        <div class="viral-moment"><span>Viral Moment</span>Sales ops sees 500 contacts in HubSpot with "StackGTM" source &rarr; Googles it &rarr; signs up.</div>
+      </div>
+
+      <h3 class="sub-header">Compound Growth Effect</h3>
+      <table class="sop-table">
+        <thead><tr><th>Loop</th><th>Channel</th><th>% of New Signups</th></tr></thead>
+        <tbody>
+          <tr><td>Free tools (SEO)</td><td>Google organic</td><td>~40%</td></tr>
+          <tr><td>Shareable reports</td><td>Internal team expansion</td><td>~15%</td></tr>
+          <tr><td>Extension visual</td><td>Organic discovery</td><td>~20%</td></tr>
+          <tr><td>Referral credits</td><td>Direct sharing</td><td>~15%</td></tr>
+          <tr><td>Data watermark</td><td>Passive discovery</td><td>~10%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 07: FREE PUBLIC TOOLS ═══ -->
+    <div class="section" id="free-tools">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2 class="section-title">Free Public Tools (SEO Engine)</h2>
+      </div>
+
+      <h3 class="sub-header">Tool 1: Company Tech Stack Lookup</h3>
+      <p class="body-text">URL: <code>stackgtm.com/lookup/stripe.com</code></p>
+      <ul class="bullet-list">
+        <li>Anyone types a domain &rarr; sees full tech stack (BuiltWith data)</li>
+        <li>Beautiful branded page with tech categories, spend tier, cloud provider</li>
+        <li>Shareable link, embeddable badge</li>
+        <li>Bottom of page: "Want the decision-makers at this company? <strong>Enrich for free &rarr;</strong>"</li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="info-label">Why This Works</div>
+        BuiltWith's public pages get millions of visits/month but look like they were built in 2004. A modern, clean version gets shared on LinkedIn and sales communities constantly. "Look at Competitor X's tech stack" is irresistible sales content.
+      </div>
+
+      <h3 class="sub-header">Tool 2: Free Email Verifier</h3>
+      <p class="body-text">Paste an email &rarr; verified/invalid/catch-all result. 10 free verifications per day, unlimited with account.</p>
+      <ul class="bullet-list">
+        <li>CTA: "Verify your whole list &rarr; <strong>Install the Slack bot &rarr;</strong>"</li>
+        <li>High-volume SEO keyword: "verify email address" &mdash; 50K+ monthly searches</li>
+      </ul>
+
+      <h3 class="sub-header">Tool 3: "Who Uses [Technology]?" Explorer</h3>
+      <p class="body-text">URL: <code>stackgtm.com/tech/snowflake</code></p>
+      <ul class="bullet-list">
+        <li>Shows companies using a specific technology, filterable by size, industry, region</li>
+        <li>CTA: "Want contacts at these companies? <strong>Enrich &rarr;</strong>"</li>
+        <li>SEO keywords: "companies using Snowflake", "who uses Kubernetes"</li>
+      </ul>
+
+      <h3 class="sub-header">SEO Traffic Projection</h3>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">2K</div>
+          <div class="metric-label">Month 3</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">10K</div>
+          <div class="metric-label">Month 8</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">30K+</div>
+          <div class="metric-label">Month 14</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 08: SHAREABLE REPORTS ═══ -->
+    <div class="section" id="reports">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2 class="section-title">Shareable Enrichment Reports</h2>
+      </div>
+
+      <p class="body-text">Instead of just a CSV, every enrichment generates a branded interactive report page.</p>
+
+      <h3 class="sub-header">Post-Enrichment Screen</h3>
+      <div class="code-block">47 contacts enriched across 23 companies
+
+[Download CSV]  [View Report]  [Send to CRM]</div>
+
+      <p class="body-text">The <strong>"View Report"</strong> link opens: <code>stackgtm.com/report/abc123</code> (auth-gated, shareable within team)</p>
+
+      <h3 class="sub-header">Report Contents</h3>
+      <ul class="bullet-list">
+        <li>Company breakdown with tech stacks (visual cards)</li>
+        <li>Contact cards with persona types and enrichment source badges</li>
+        <li>Tech spend distribution chart</li>
+        <li>Cloud provider breakdown</li>
+        <li><strong>"Generated by StackGTM Enrichment"</strong> branding</li>
+      </ul>
+
+      <h3 class="sub-header">Public Mode (Opt-In)</h3>
+      <p class="body-text">User can make a report public for sharing externally. "Here's the 50 fastest-growing companies using Kubernetes in the Bay Area." That gets shared on LinkedIn.</p>
+
+      <div class="info-box success">
+        <div class="info-label">Viral Mechanic</div>
+        Sales manager says "forward me that list." Instead of emailing a CSV, the rep shares a link. The manager sees a beautiful branded report. The manager installs it for their whole team.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 09: REFERRAL ENGINE ═══ -->
+    <div class="section" id="referral">
+      <div class="section-header">
+        <div class="section-num">09</div>
+        <h2 class="section-title">Credit Referral Engine</h2>
+      </div>
+
+      <h3 class="sub-header">Mechanics</h3>
+      <table class="sop-table">
+        <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Trigger</td><td>Referee completes first enrichment (not just signup)</td></tr>
+          <tr><td>Referrer reward</td><td>50 credits (~$5-10 value)</td></tr>
+          <tr><td>Referee reward</td><td>100 credits (2x normal free amount)</td></tr>
+          <tr><td>Cap</td><td>None &mdash; power referrers become evangelists</td></tr>
+          <tr><td>Leaderboard</td><td>Public, opt-in &mdash; "Top referrers this month"</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Contextual Prompt (After Every Job)</h3>
+      <div class="code-block">This enrichment cost 23 credits.
+Share with a colleague and you'll both get 50 free credits
+- that's 2 more jobs like this one.
+
+Your referral link: stackgtm.com/ref/jane123
+[Copy Link]  [Share on LinkedIn]</div>
+
+      <h3 class="sub-header">Dashboard Widget</h3>
+      <div class="code-block">You have 47 credits remaining
+
+Want free credits?
+Share your link -> get 50 credits for every person
+who enriches their first list
+
+Your link: stackgtm.com/ref/jane123
+You've earned: 350 credits from 7 referrals
+
+[Copy Link]  [Share on LinkedIn]</div>
+
+      <div class="info-box info">
+        <div class="info-label">Why This Works for Enrichment</div>
+        Credits have real dollar value ($5-10 worth per 50 credits). Sales reps are competitive and incentive-driven. "I got $200 in free enrichment credits this month from referrals" is a post they'll write themselves.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 10: DATA WATERMARK ═══ -->
+    <div class="section" id="watermark">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2 class="section-title">"Powered by" Data Watermark</h2>
+      </div>
+
+      <p class="body-text">Every piece of data that leaves the system carries our brand &mdash; subtly, professionally, and usefully.</p>
+
+      <h3 class="sub-header">CSV Export</h3>
+      <ul class="bullet-list">
+        <li>Add column: <code>enrichment_source</code> with value <code>StackGTM</code> on every row</li>
+        <li>Add footer row: <code>"Enriched by StackGTM &mdash; stackgtm.com/start"</code></li>
+        <li>When CSV gets forwarded, imported, or opened by a manager &mdash; brand is there</li>
+      </ul>
+
+      <h3 class="sub-header">CRM Sync</h3>
+      <ul class="bullet-list">
+        <li>Set custom property <code>enrichment_source = StackGTM</code> on every synced contact</li>
+        <li>Set <code>enrichment_date</code> for freshness tracking</li>
+        <li>Other team members viewing contacts in HubSpot see where data came from</li>
+      </ul>
+
+      <h3 class="sub-header">Email Delivery</h3>
+      <div class="code-block">This data was enriched by StackGTM
+47 contacts | 23 companies | Waterfall enrichment across 3 providers
+Start enriching -> stackgtm.com/start</div>
+
+      <div class="info-box info">
+        <div class="info-label">Passive Discovery</div>
+        Sales ops person sees <code>enrichment_source = StackGTM</code> on 500 contacts in their HubSpot. Googles it. Signs up. Zero marketing spend.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 11: OPEN SOURCE ═══ -->
+    <div class="section" id="opensource">
+      <div class="section-header">
+        <div class="section-num">11</div>
+        <h2 class="section-title">Open Source Strategy</h2>
+      </div>
+
+      <h3 class="sub-header">License: AGPLv3</h3>
+      <p class="body-text">Forces competitors to open-source their modifications. Allows self-hosting for personal/small team use. Commercial use requires a license. This is the n8n playbook: OSS core &rarr; managed cloud &rarr; enterprise licenses.</p>
+
+      <h3 class="sub-header">What to Open Source</h3>
+      <ul class="bullet-list">
+        <li>Slack bot + file upload + AI intent classification</li>
+        <li>BuiltWith, Apollo, Wiza, AI Ark API clients</li>
+        <li>Waterfall enrichment orchestration engine</li>
+        <li>BullMQ job queue + workers</li>
+        <li>Prisma schema + migrations</li>
+        <li>Docker setup + deployment guides</li>
+      </ul>
+
+      <h3 class="sub-header">What Stays Proprietary (Cloud Only)</h3>
+      <ul class="bullet-list">
+        <li>Admin dashboard &amp; analytics</li>
+        <li>Chrome Extension</li>
+        <li>CRM integrations (HubSpot, StackGTM)</li>
+        <li>Billing &amp; credit system</li>
+        <li>Multi-tenant licensing</li>
+        <li>Free public tools (SEO engine)</li>
+        <li>Referral system</li>
+        <li>Shareable reports</li>
+      </ul>
+
+      <div class="info-box success">
+        <div class="info-label">Community Benefit</div>
+        Developer community contributes provider integrations. You don't need to build every enrichment provider &mdash; the community does it. GitHub stars &rarr; HackerNews &rarr; ProductHunt &rarr; viral loop.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 12: $0 → $15K MRR ═══ -->
+    <div class="section" id="road-15k">
+      <div class="section-header">
+        <div class="section-num">12</div>
+        <h2 class="section-title">Roadmap: $0 &rarr; $15K MRR</h2>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="tl-phase">Months 1-2</div>
+          <div class="tl-title">Foundation</div>
+          <div class="tl-desc">Strip app to core enrichment. Build Chrome Extension MVP (LinkedIn + company website). Implement BYOK/managed key toggle. Set up Stripe credit packs. Landing page with demo video. Data expiration system.</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Month 3</div>
+          <div class="tl-title">Launch Wave 1</div>
+          <div class="tl-desc">Slack App Directory + Chrome Web Store submission. ProductHunt launch (target #1 Sales). Reddit + LinkedIn content campaign.</div>
+          <div class="tl-target">TARGET: 200 free installs, 15 Pro conversions</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Months 4-5</div>
+          <div class="tl-title">Lifetime Deal + Community</div>
+          <div class="tl-desc">AppSumo launch ($99 LTD). Build LTD buyer community (Discord/Slack). Add Google Sheets extension integration. Collect "what CRM do you use?" data from every user.</div>
+          <div class="tl-target">TARGET: 500 LTD sales ($50K cash), 40 Pro, $2K MRR</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Months 6-7</div>
+          <div class="tl-title">Content + SEO</div>
+          <div class="tl-desc">Free public tools launch (tech stack lookup, email verifier). Blog + YouTube content. LinkedIn outbound: DM 50 sales leaders/week. Affiliate program: 20% recurring.</div>
+          <div class="tl-target">TARGET: 80 Pro, 8 Team, $5K MRR</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Months 8-10</div>
+          <div class="tl-title">Scale</div>
+          <div class="tl-desc">Sales Nav bulk enrichment. Google Sheets add-on. HubSpot App Marketplace. Zapier/Make integration. Cold email to sales agencies.</div>
+          <div class="tl-target">TARGET: 120 Pro, 15 Team, $12-15K MRR</div>
+        </div>
+      </div>
+
+      <h3 class="sub-header">$15K MRR Composition</h3>
+      <table class="sop-table">
+        <thead><tr><th>Segment</th><th>Count</th><th>ARPU</th><th>MRR</th></tr></thead>
+        <tbody>
+          <tr><td>Free (BYOK)</td><td>500</td><td>$0</td><td>$0</td></tr>
+          <tr><td>Free &rarr; credit purchases</td><td>50</td><td>$30/mo avg</td><td>$1,500</td></tr>
+          <tr><td>Starter</td><td>120</td><td>$29 + $40 overage</td><td>$8,280</td></tr>
+          <tr><td>Growth</td><td>15</td><td>$79 + $80 overage</td><td>$2,385</td></tr>
+          <tr><td>Enterprise (early)</td><td>3</td><td>$500</td><td>$1,500</td></tr>
+          <tr><td><strong>Total</strong></td><td><strong>~688</strong></td><td></td><td><strong>$13,665+</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 13: $15K → $50K MRR ═══ -->
+    <div class="section" id="road-50k">
+      <div class="section-header">
+        <div class="section-num">13</div>
+        <h2 class="section-title">Roadmap: $15K &rarr; $50K MRR</h2>
+      </div>
+
+      <p class="body-text">The shift from individual users to <strong>teams and agencies</strong>. Four new revenue levers unlock the path to $50K.</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="tl-phase">Months 10-12</div>
+          <div class="tl-title">Agency + API</div>
+          <div class="tl-desc">Ship Agency plan ($299/mo) with sub-accounts and white-label. Ship public enrichment API with documentation. Partner with 3-5 sales agencies directly.</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Months 12-15</div>
+          <div class="tl-title">Browser App + Expansion</div>
+          <div class="tl-desc">Browser-native upload/enrichment UI (React app). Reactivate power dialer as paid StackGTM add-on ($99/seat). Sales Nav bulk enrichment. LinkedIn ads ($500-1K/mo).</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tl-phase">Months 15-18</div>
+          <div class="tl-title">Enterprise + Scale</div>
+          <div class="tl-desc">SOC 2 Type I. SSO/SAML. Volume pricing for agencies. Annual billing (20% discount). Dedicated CSM for $500+/mo accounts.</div>
+          <div class="tl-target">TARGET: $50K MRR</div>
+        </div>
+      </div>
+
+      <h3 class="sub-header">$50K MRR Composition</h3>
+      <table class="sop-table">
+        <thead><tr><th>Segment</th><th>Count</th><th>ARPU</th><th>MRR</th></tr></thead>
+        <tbody>
+          <tr><td>Free (BYOK)</td><td>2,000</td><td>$0</td><td>$0</td></tr>
+          <tr><td>Free &rarr; credit purchases</td><td>150</td><td>$35/mo</td><td>$5,250</td></tr>
+          <tr><td>Starter</td><td>200</td><td>$29 + $50</td><td>$15,800</td></tr>
+          <tr><td>Growth</td><td>40</td><td>$79 + $100</td><td>$7,160</td></tr>
+          <tr><td>Agency</td><td>12</td><td>$299 + $200</td><td>$5,988</td></tr>
+          <tr><td>Enterprise</td><td>3</td><td>$800</td><td>$2,400</td></tr>
+          <tr><td>API usage</td><td>~20 devs</td><td>$300/mo</td><td>$6,000</td></tr>
+          <tr><td>StackGTM CRM seats</td><td>50</td><td>$49/seat</td><td>$2,450</td></tr>
+          <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>$45,048+</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 14: LIFETIME DEAL ═══ -->
+    <div class="section" id="ltd">
+      <div class="section-header">
+        <div class="section-num">14</div>
+        <h2 class="section-title">Lifetime Deal Strategy</h2>
+      </div>
+
+      <h3 class="sub-header">LTD Structure (AppSumo)</h3>
+      <table class="sop-table">
+        <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Price</td><td>$99 one-time</td></tr>
+          <tr><td>BYOK access</td><td>Unlimited, forever</td></tr>
+          <tr><td>Managed credits included</td><td>500 credits one-time</td></tr>
+          <tr><td>Additional credits</td><td>Standard rates (recurring revenue)</td></tr>
+          <tr><td>Dashboard access</td><td>Full analytics (Starter-level)</td></tr>
+          <tr><td>Workspaces</td><td>Up to 3</td></tr>
+          <tr><td>Support</td><td>Community-only (Discord/Slack)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">LTD Economics</h3>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">$50K</div>
+          <div class="metric-label">500 Sales @ $99</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">~$300</div>
+          <div class="metric-label">Monthly Infra Cost</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">Instant</div>
+          <div class="metric-label">Payback Period</div>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="info-label">BYOK = Zero Marginal Cost</div>
+        LTD buyers using BYOK cost you essentially nothing to serve. Your infrastructure cost is shared across all tenants. The 500 included managed credits cost you ~$15-25. After that, they buy more credits at standard rates &mdash; recurring revenue from LTD users.
+      </div>
+
+      <h3 class="sub-header">LTD as StackGTM Pipeline</h3>
+      <ul class="bullet-list">
+        <li>LTD buyers are small sales teams &mdash; they either use HubSpot Free or no CRM</li>
+        <li>These are your ideal StackGTM customers</li>
+        <li>Every LTD user who connects HubSpot = a future StackGTM prospect</li>
+        <li>Collect "what CRM do you use?" data from every LTD user during onboarding</li>
+        <li>LTD community becomes your beta testing group for StackGTM</li>
+      </ul>
+
+      <div class="info-box warning">
+        <div class="info-label">LTD Risk Mitigation</div>
+        Limit LTD to 500-1,000 sales. LTD buyers are vocal on Twitter/LinkedIn (free marketing) but also demand enterprise support. Community-only support + self-serve docs keep support costs near zero.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 15: SUCCESS METRICS ═══ -->
+    <div class="section" id="metrics">
+      <div class="section-header">
+        <div class="section-num">15</div>
+        <h2 class="section-title">Success Metrics & KPIs</h2>
+      </div>
+
+      <h3 class="sub-header">Product Metrics</h3>
+      <table class="sop-table">
+        <thead><tr><th>Metric</th><th>Target</th><th>Measurement</th></tr></thead>
+        <tbody>
+          <tr><td>Time to first enrichment</td><td>&lt;60s (extension), &lt;5min (Slack)</td><td>Onboarding analytics</td></tr>
+          <tr><td>Extension DAU</td><td>500+ by month 6</td><td>Chrome analytics</td></tr>
+          <tr><td>Free-to-paid conversion</td><td>8-12%</td><td>Billing system</td></tr>
+          <tr><td>Credit purchase frequency</td><td>1.5x/month for paying users</td><td>Stripe</td></tr>
+          <tr><td>CRM delivery rate</td><td>40%+ sent to CRM (not CSV)</td><td>Job completion logs</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Growth Metrics</h3>
+      <table class="sop-table">
+        <thead><tr><th>Metric</th><th>Target</th><th>Measurement</th></tr></thead>
+        <tbody>
+          <tr><td>Free tool SEO traffic</td><td>10K+ monthly by month 8</td><td>Google Analytics</td></tr>
+          <tr><td>Referral rate</td><td>15%+ share referral link</td><td>Referral system</td></tr>
+          <tr><td>Chrome Web Store rating</td><td>4.5+ stars</td><td>CWS dashboard</td></tr>
+          <tr><td>Slack App Directory rating</td><td>4.5+ stars</td><td>Slack dashboard</td></tr>
+          <tr><td>K-factor (viral coefficient)</td><td>&gt;0.3</td><td>New users from referrals</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Revenue Metrics</h3>
+      <table class="sop-table">
+        <thead><tr><th>Metric</th><th>Target</th><th>Measurement</th></tr></thead>
+        <tbody>
+          <tr><td>Gross margin (managed enrichments)</td><td>55-70%</td><td>Provider costs vs. revenue</td></tr>
+          <tr><td>LTV:CAC ratio</td><td>&gt;3:1</td><td>Cohort analysis</td></tr>
+          <tr><td>Monthly churn (paid)</td><td>&lt;5%</td><td>Subscription cancellations</td></tr>
+          <tr><td>Net revenue retention</td><td>&gt;110%</td><td>Expansion revenue tracking</td></tr>
+          <tr><td>Organic signup rate</td><td>40%+ from non-paid channels</td><td>UTM attribution</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Virality Scorecard</h3>
+      <table class="sop-table">
+        <thead><tr><th>Dimension</th><th>Rating</th><th>Reasoning</th></tr></thead>
+        <tbody>
+          <tr><td>Product-market fit</td><td><strong>8/10</strong></td><td>Real pain point, proven internal use, Slack-native differentiation</td></tr>
+          <tr><td>Virality potential</td><td><strong>8/10</strong></td><td>5 concurrent loops compound. Chrome extension + SEO + referrals</td></tr>
+          <tr><td>Revenue ceiling</td><td><strong>9/10</strong></td><td>CRM revenue is 10x enrichment revenue long-term</td></tr>
+          <tr><td>Defensibility</td><td><strong>7/10</strong></td><td>Owning enrichment + CRM = owning the full customer relationship</td></tr>
+          <tr><td>$50K MRR probability</td><td><strong>7/10</strong></td><td>Two revenue streams, proven playbook, existing infrastructure</td></tr>
+          <tr><td>Sustainable business</td><td><strong>8/10</strong></td><td>BYOK = zero marginal cost. Managed keys = 60%+ margin</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 16: COMPETITIVE INTEL ═══ -->
+    <div class="section" id="competitive">
+      <div class="section-header">
+        <div class="section-num">16</div>
+        <h2 class="section-title">Competitive Intelligence</h2>
+      </div>
+
+      <h3 class="sub-header">Direct Competitors</h3>
+      <table class="sop-table">
+        <thead><tr><th>Competitor</th><th>Strength</th><th>Weakness</th><th>Our Advantage</th></tr></thead>
+        <tbody>
+          <tr><td>Clay ($500M+ val)</td><td>75+ data providers</td><td>High learning curve, $149-720/mo</td><td>Zero-friction UX, BYOK free tier</td></tr>
+          <tr><td>Apollo.io</td><td>Massive database, CRM built-in</td><td>Single provider, data quality varies</td><td>Multi-provider waterfall, better data</td></tr>
+          <tr><td>Lusha</td><td>Simple extension, good data</td><td>Single provider, no bulk enrichment</td><td>Waterfall + Slack + bulk processing</td></tr>
+          <tr><td>Clearbit (HubSpot)</td><td>Deep HubSpot integration</td><td>Acquired, pricing opaque</td><td>Independent, BYOK, multi-CRM</td></tr>
+          <tr><td>ZoomInfo</td><td>Largest B2B database</td><td>$15K+/year, enterprise only</td><td>Accessible pricing, self-serve</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Why We Win</h3>
+      <ul class="bullet-list">
+        <li><strong>Multi-provider waterfall</strong>: No other extension or Slack app does this. We composite the best data from 5 providers.</li>
+        <li><strong>BYOK model</strong>: Zero-cost entry. No competitor offers this.</li>
+        <li><strong>Slack-native</strong>: Teams already live in Slack. No context switching.</li>
+        <li><strong>Vertical integration</strong>: We own both enrichment AND the CRM (StackGTM). Clearbit couldn't do this.</li>
+        <li><strong>Ephemeral by design</strong>: Privacy-first, GDPR-friendly. No liability of storing millions of contacts.</li>
+      </ul>
+
+      <h3 class="sub-header">Risk Matrix</h3>
+      <table class="sop-table">
+        <thead><tr><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>Apollo/BuiltWith pricing changes</td><td>Medium</td><td>High</td><td>Waterfall reduces single-provider dependency</td></tr>
+          <tr><td>Chrome extension policy (MV3)</td><td>Low</td><td>High</td><td>Building on MV3, follow Google guidelines</td></tr>
+          <tr><td>Low organic virality</td><td>Medium</td><td>Medium</td><td>5 loops hedge against any single failure</td></tr>
+          <tr><td>CRM funnel conversion too low</td><td>Medium</td><td>High</td><td>A/B test expiration messaging aggressively</td></tr>
+          <tr><td>LTD support burden</td><td>High</td><td>Medium</td><td>Community-only support, self-serve docs</td></tr>
+          <tr><td>Competitor copies waterfall</td><td>Medium</td><td>Low</td><td>Execution speed + StackGTM moat</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box danger">
+        <div class="info-label">The 10/10 Virality Gap</div>
+        True 10/10 virality requires the product's output to be sent to non-users with forced adoption (like Calendly links or DocuSign requests). Enriched CSVs are consumed privately. Our 5-loop system achieves 8/10 &mdash; growing fast with compounding loops. The gap to 10/10 closes in Year 2-3 with platform dynamics (developer marketplace, API ecosystem).
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="border-top: 2px solid var(--navy); margin-top: 48px; padding-top: 24px; text-align: center;">
+      <p style="font-size: 12px; color: var(--light-text); line-height: 1.8;">
+        <strong style="color: var(--navy);">Virality Playbook</strong> &middot; PB-VR-2026 &middot; Version 1.0 &middot; March 2026<br>
+        Dev Labs &middot; StackGTM Enrichment Platform &middot; Strategic &mdash; Internal Use Only
+      </p>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Active nav highlighting -->
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>

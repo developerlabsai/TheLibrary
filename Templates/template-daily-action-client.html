@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Project Update — Client Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-hover: #f5f5f5;
+    --surface-raised: #ffffff;
+    --text-primary: #171717;
+    --text-secondary: #525252;
+    --text-tertiary: #a3a3a3;
+    --text-inverted: #ffffff;
+    --border: #e5e5e5;
+    --border-subtle: #f0f0f0;
+    --violet: #7c3aed;
+    --violet-light: #a78bfa;
+    --violet-bg: #f5f3ff;
+    --violet-border: #ede9fe;
+    --teal: #0d9488;
+    --teal-bg: #f0fdfa;
+    --teal-border: #ccfbf1;
+    --rose: #e11d48;
+    --rose-bg: #fff1f2;
+    --rose-border: #ffe4e6;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --amber-border: #fef3c7;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --blue-border: #dbeafe;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #dcfce7;
+    --sidebar-bg: #171717;
+    --sidebar-hover: #262626;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary); background: var(--bg);
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+    background: var(--sidebar-bg); overflow-y: auto; z-index: 100;
+  }
+  .sidebar-header { padding: 28px 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .sidebar-header .doc-type {
+    font-family: 'Space Mono', monospace; font-size: 9px; color: var(--violet-light);
+    text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-header .doc-type::before {
+    content: ''; width: 16px; height: 2px;
+    background: linear-gradient(90deg, var(--violet), var(--teal)); border-radius: 1px;
+  }
+  .sidebar-header h1 { font-size: 18px; font-weight: 700; color: var(--text-inverted); letter-spacing: -0.4px; line-height: 1.3; }
+  .sidebar-header .version { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 8px; font-family: 'Space Mono', monospace; }
+  .sidebar-nav { padding: 14px 0; }
+  .sidebar-nav a {
+    display: flex; align-items: center; gap: 12px; padding: 9px 22px;
+    color: rgba(255,255,255,0.4); text-decoration: none; font-size: 13px;
+    font-weight: 500; transition: all 0.15s;
+  }
+  .sidebar-nav a:hover { color: rgba(255,255,255,0.8); background: var(--sidebar-hover); }
+  .sidebar-nav a.active {
+    color: var(--text-inverted); background: linear-gradient(90deg, rgba(124,58,237,0.2), transparent);
+    border-right: 2px solid var(--violet);
+  }
+  .sidebar-nav a .num { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.25); width: 20px; flex-shrink: 0; }
+  .sidebar-nav a.active .num { color: var(--violet-light); }
+  .sidebar-nav .divider { height: 1px; background: rgba(255,255,255,0.05); margin: 10px 22px; }
+  .sidebar-nav .section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.15); padding: 12px 22px 4px; font-weight: 700; }
+
+  .main { margin-left: 260px; min-height: 100vh; }
+  .topbar {
+    position: sticky; top: 0; z-index: 50; background: rgba(250,250,250,0.8);
+    backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid var(--border);
+    padding: 12px 36px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-left { font-size: 13px; color: var(--text-tertiary); font-weight: 500; }
+  .topbar-left span { color: var(--text-primary); font-weight: 600; }
+  .topbar-right { display: flex; gap: 8px; align-items: center; }
+  .topbar-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600; letter-spacing: 0.3px; }
+  .topbar-badge.violet { background: var(--violet-bg); color: var(--violet); }
+  .topbar-badge.teal { background: var(--teal-bg); color: var(--teal); }
+
+  .cover { background: var(--sidebar-bg); padding: 64px 36px 56px; position: relative; overflow: hidden; }
+  .cover::before { content: ''; position: absolute; top: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%); }
+  .cover::after { content: ''; position: absolute; bottom: -200px; left: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%); }
+  .cover-content { max-width: 820px; margin: 0 auto; position: relative; z-index: 1; }
+  .cover .doc-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--violet-light); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; }
+  .cover h1 { font-size: 42px; font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 14px; background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .cover .subtitle { font-size: 17px; color: rgba(255,255,255,0.4); font-weight: 400; margin-bottom: 44px; max-width: 520px; line-height: 1.5; }
+  .cover-meta { display: flex; gap: 40px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .cover-meta dt { font-family: 'Space Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+  .cover-meta dd { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+  .content { max-width: 820px; margin: 0 auto; padding: 36px; }
+  .section { padding: 36px 0 20px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-num { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; color: var(--violet); background: var(--violet-bg); width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-title { font-size: 22px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.8px; }
+  .sub-header { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 24px 0 12px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
+  .sub-header::before { content: ''; display: inline-block; width: 3px; height: 18px; background: linear-gradient(180deg, var(--violet), var(--teal)); border-radius: 2px; }
+  .body-text { font-size: 14.5px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px; }
+  .bullet-list { list-style: none; margin: 8px 0 16px; }
+  .bullet-list li { position: relative; padding: 5px 0 5px 22px; font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+  .bullet-list li::before { content: ''; position: absolute; left: 4px; top: 13px; width: 5px; height: 5px; background: linear-gradient(135deg, var(--violet), var(--teal)); border-radius: 50%; }
+
+  .sop-table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 12px 0 20px; font-size: 13.5px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .sop-table thead th { background: var(--surface); color: var(--text-tertiary); font-weight: 600; text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+  .sop-table tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; line-height: 1.55; color: var(--text-secondary); }
+  .sop-table tbody tr:last-child td { border-bottom: none; }
+  .sop-table tbody tr:hover { background: var(--surface-hover); }
+
+  .info-box { padding: 16px 20px; border-radius: var(--radius); margin: 16px 0; border: 1px solid; font-size: 14px; line-height: 1.6; }
+  .info-box .info-label { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .info-box.info { background: var(--blue-bg); border-color: var(--blue-border); }
+  .info-box.info .info-label { color: var(--blue); }
+  .info-box.success { background: var(--teal-bg); border-color: var(--teal-border); }
+  .info-box.success .info-label { color: var(--teal); }
+  .info-box.warning { background: var(--amber-bg); border-color: var(--amber-border); }
+  .info-box.warning .info-label { color: var(--amber); }
+  .info-box.danger { background: var(--rose-bg); border-color: var(--rose-border); }
+  .info-box.danger .info-label { color: var(--rose); }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+  .metric-card { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; text-align: center; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+  .metric-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .metric-card .metric-value { font-size: 28px; font-weight: 800; letter-spacing: -1.5px; background: linear-gradient(135deg, var(--violet), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .metric-card .metric-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 500; }
+
+  /* ─── STATUS BANNER ─── */
+  .status-banner {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 22px; border-radius: var(--radius); margin: 16px 0;
+    border: 1px solid; font-size: 15px; font-weight: 600;
+  }
+  .status-banner .status-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .status-banner.on-track { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+  .status-banner.on-track .status-icon { background: var(--green); color: white; }
+  .status-banner.at-risk { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+  .status-banner.at-risk .status-icon { background: var(--amber); color: white; }
+  .status-banner.delayed { background: var(--rose-bg); border-color: var(--rose-border); color: var(--rose); }
+  .status-banner.delayed .status-icon { background: var(--rose); color: white; }
+
+  /* ─── DELIVERABLE STATUS ─── */
+  .deliverable-row {
+    background: var(--surface-raised); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 10px; padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow-sm); transition: all 0.15s;
+  }
+  .deliverable-row:hover { box-shadow: var(--shadow-md); border-color: var(--violet-border); }
+  .deliverable-info { flex: 1; }
+  .deliverable-info h4 { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+  .deliverable-info p { font-size: 12px; color: var(--text-tertiary); }
+  .deliverable-status {
+    font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+    padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; flex-shrink: 0;
+  }
+  .deliverable-status.complete { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .deliverable-status.in-progress { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+  .deliverable-status.review { background: var(--violet-bg); color: var(--violet); border: 1px solid var(--violet-border); }
+  .deliverable-status.upcoming { background: var(--surface); color: var(--text-tertiary); border: 1px solid var(--border); }
+  .deliverable-status.blocked { background: var(--rose-bg); color: var(--rose); border: 1px solid var(--rose-border); }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-item { margin-bottom: 14px; }
+  .progress-item .progress-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+  .progress-item .progress-label span { color: var(--text-tertiary); font-weight: 500; }
+  .progress-item .progress-track { height: 8px; background: var(--border-subtle); border-radius: 4px; overflow: hidden; }
+  .progress-item .progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--violet), var(--teal)); }
+
+  /* ─── CLIENT ACTION ITEM ─── */
+  .client-action {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 16px 20px; background: var(--violet-bg);
+    border: 1px solid var(--violet-border); border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+  }
+  .client-action-icon {
+    width: 24px; height: 24px; flex-shrink: 0; margin-top: 1px;
+    background: var(--violet); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: white;
+    font-family: 'Space Mono', monospace;
+  }
+  .client-action-content { flex: 1; }
+  .client-action-text { font-size: 14px; color: var(--text-primary); font-weight: 600; line-height: 1.5; }
+  .client-action-detail { font-size: 12px; color: var(--violet); margin-top: 4px; }
+
+  .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 16px 0; }
+  .bento-card { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+  .bento-card:hover { box-shadow: var(--shadow-md); border-color: var(--violet-border); }
+  .bento-card.span-2 { grid-column: span 2; }
+  .bento-card h4 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; letter-spacing: -0.3px; }
+  .bento-card p { font-size: 13px; color: var(--text-tertiary); line-height: 1.55; }
+
+  .timeline { position: relative; padding-left: 28px; margin: 16px 0; }
+  .timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: linear-gradient(180deg, var(--violet), var(--teal)); border-radius: 1px; opacity: 0.3; }
+  .timeline-item { position: relative; margin-bottom: 24px; padding-left: 22px; }
+  .timeline-item::before { content: ''; position: absolute; left: -25px; top: 5px; width: 10px; height: 10px; background: var(--violet); border-radius: 50%; border: 3px solid var(--violet-bg); }
+  .timeline-item .tl-phase { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--violet); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2px; }
+  .timeline-item .tl-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.2px; }
+  .timeline-item .tl-desc { font-size: 13px; color: var(--text-tertiary); line-height: 1.55; }
+
+  @media print { .sidebar { display: none; } .topbar { display: none; } .main { margin-left: 0; } .content { padding: 20px; } .cover { padding: 40px 20px; } body { background: white; } }
+  @media (max-width: 960px) { .sidebar { display: none; } .main { margin-left: 0; } .cover h1 { font-size: 32px; } .content { padding: 24px 16px; } .cover-meta { flex-wrap: wrap; gap: 20px; } .metric-grid { grid-template-columns: repeat(2, 1fr); } .bento-grid { grid-template-columns: 1fr; } .bento-card.span-2 { grid-column: span 1; } }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="doc-type">Client Update</div>
+    <h1>Daily Project<br>Status Report</h1>
+    <div class="version">RPT-2026-0318</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="section-label">Status</div>
+    <a href="#project-status"><span class="num">01</span> Project Status</a>
+    <a href="#yesterday"><span class="num">02</span> Yesterday's Progress</a>
+    <a href="#deliverables"><span class="num">03</span> Deliverable Status</a>
+    <div class="divider"></div>
+    <div class="section-label">Today</div>
+    <a href="#today-plan"><span class="num">04</span> Today's Plan</a>
+    <a href="#milestones"><span class="num">05</span> Upcoming Milestones</a>
+    <div class="divider"></div>
+    <div class="section-label">Attention</div>
+    <a href="#client-actions"><span class="num">06</span> Items Needing You</a>
+    <a href="#risks"><span class="num">07</span> Risks & Issues</a>
+    <a href="#contact"><span class="num">08</span> Your Team</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><span>Dev Labs</span> &middot; Client Project Update</div>
+    <div class="topbar-right">
+      <span class="topbar-badge violet">CLIENT REPORT</span>
+      <span class="topbar-badge teal">Day 22 of 60</span>
+    </div>
+  </div>
+
+  <div class="cover">
+    <div class="cover-content">
+      <div class="doc-label">Daily Project Update</div>
+      <h1>Project Status<br>Report</h1>
+      <p class="subtitle">Your daily progress update with deliverable status, today's plan, and any items requiring your attention.</p>
+      <dl class="cover-meta">
+        <div><dt>Client</dt><dd>[Client Name]</dd></div>
+        <div><dt>Project</dt><dd>[Project Name]</dd></div>
+        <div><dt>Date</dt><dd>March 18, 2026</dd></div>
+        <div><dt>Project Day</dt><dd>22 of 60</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ 01: PROJECT STATUS ═══ -->
+    <div class="section" id="project-status">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2 class="section-title">Project Status</h2>
+      </div>
+
+      <div class="status-banner on-track">
+        <div class="status-icon">&#10003;</div>
+        <div>
+          <strong>On Track</strong> &mdash; Project is progressing according to schedule and budget. No blockers requiring escalation.
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">37%</div>
+          <div class="metric-label">Overall Progress</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">38</div>
+          <div class="metric-label">Days Remaining</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">94%</div>
+          <div class="metric-label">Budget Remaining</div>
+        </div>
+      </div>
+
+      <h3 class="sub-header">Phase Progress</h3>
+      <div class="progress-item">
+        <div class="progress-label">Phase 1: Discovery & Requirements <span>100% Complete</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 100%;"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label">Phase 2: Design & Architecture <span>85% Complete</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 85%;"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label">Phase 3: Development <span>15% Complete</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 15%;"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label">Phase 4: Testing & QA <span>Not Started</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 0%;"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label">Phase 5: Launch & Handover <span>Not Started</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 0%;"></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 02: YESTERDAY ═══ -->
+    <div class="section" id="yesterday">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2 class="section-title">Yesterday's Progress</h2>
+      </div>
+
+      <p class="body-text">Summary of work completed on March 17, 2026. All planned tasks were completed on schedule.</p>
+
+      <ul class="bullet-list">
+        <li><strong>UI mockups finalized</strong> &mdash; All 12 screens reviewed and approved by your design lead (Lisa). Final Figma file shared via Slack.</li>
+        <li><strong>API endpoint design completed</strong> &mdash; 8 of 8 REST endpoints documented with request/response schemas. Ready for development.</li>
+        <li><strong>Database schema migration script</strong> &mdash; Initial migration created and tested on staging environment. 14 tables, all foreign keys validated.</li>
+        <li><strong>Authentication flow implemented</strong> &mdash; OAuth 2.0 integration with your identity provider is functional in dev. SSO login working end-to-end.</li>
+      </ul>
+
+      <div class="info-box success">
+        <div class="info-label">Highlight</div>
+        The authentication integration was estimated at 3 days but completed in 2. This gives us a 1-day buffer heading into the core development sprint.
+      </div>
+    </div>
+
+    <!-- ═══ 03: DELIVERABLES ═══ -->
+    <div class="section" id="deliverables">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2 class="section-title">Deliverable Status</h2>
+      </div>
+
+      <div class="deliverable-row">
+        <div class="deliverable-info">
+          <h4>Requirements Document</h4>
+          <p>Signed off March 8 &mdash; all 47 requirements captured and approved</p>
+        </div>
+        <span class="deliverable-status complete">COMPLETE</span>
+      </div>
+
+      <div class="deliverable-row">
+        <div class="deliverable-info">
+          <h4>UI/UX Design Package</h4>
+          <p>12 screens, component library, interactive prototype &mdash; approved yesterday</p>
+        </div>
+        <span class="deliverable-status complete">COMPLETE</span>
+      </div>
+
+      <div class="deliverable-row">
+        <div class="deliverable-info">
+          <h4>Technical Architecture Document</h4>
+          <p>System diagrams, API contracts, data model &mdash; pending your CTO review</p>
+        </div>
+        <span class="deliverable-status review">IN REVIEW</span>
+      </div>
+
+      <div class="deliverable-row">
+        <div class="deliverable-info">
+          <h4>Core Application (Sprint 1)</h4>
+          <p>Authentication, user management, dashboard framework &mdash; in active development</p>
+        </div>
+        <span class="deliverable-status in-progress">IN PROGRESS</span>
+      </div>
+
+      <div class="deliverable-row">
+        <div class="deliverable-info">
+          <h4>Core Application (Sprint 2)</h4>
+          <p>Data processing engine, reporting module, API integrations</p>
+        </div>
+        <span class="deliverable-status upcoming">UPCOMING</span>
+      </div>
+
+      <div class="deliverable-row">
+        <div class="deliverable-info">
+          <h4>Testing & QA Report</h4>
+          <p>Full test suite, performance benchmarks, security audit</p>
+        </div>
+        <span class="deliverable-status upcoming">UPCOMING</span>
+      </div>
+
+      <div class="deliverable-row">
+        <div class="deliverable-info">
+          <h4>Training Materials & Launch Package</h4>
+          <p>Admin guide, end-user docs, deployment runbook</p>
+        </div>
+        <span class="deliverable-status upcoming">UPCOMING</span>
+      </div>
+    </div>
+
+    <!-- ═══ 04: TODAY'S PLAN ═══ -->
+    <div class="section" id="today-plan">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2 class="section-title">Today's Plan</h2>
+      </div>
+
+      <p class="body-text">What our team is working on today. You don't need to take any action on these items &mdash; this is for your visibility.</p>
+
+      <table class="sop-table">
+        <thead><tr><th>Task</th><th>Assigned To</th><th>Expected Outcome</th></tr></thead>
+        <tbody>
+          <tr><td><strong>User management module</strong></td><td>Senior Developer</td><td>CRUD operations for users, roles, and permissions &mdash; feature complete by EOD</td></tr>
+          <tr><td><strong>Dashboard layout implementation</strong></td><td>Frontend Developer</td><td>Responsive dashboard shell with sidebar navigation and widget framework</td></tr>
+          <tr><td><strong>Data migration script (Phase 1)</strong></td><td>Backend Developer</td><td>Customer data import from legacy system &mdash; 10K records validated on staging</td></tr>
+          <tr><td><strong>CI/CD pipeline setup</strong></td><td>DevOps</td><td>Automated build, test, and deploy pipeline configured for staging environment</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box info">
+        <div class="info-label">Sprint Status</div>
+        We are on Day 3 of Sprint 1 (10-day sprint). 4 of 12 story points completed. Current velocity is on target for sprint completion by March 28.
+      </div>
+    </div>
+
+    <!-- ═══ 05: MILESTONES ═══ -->
+    <div class="section" id="milestones">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2 class="section-title">Upcoming Milestones</h2>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="tl-phase">Mar 20 (2 days)</div>
+          <div class="tl-title">Architecture Review Meeting</div>
+          <div class="tl-desc">30-minute call for your CTO to review and approve the technical architecture document. Calendar invite sent.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Mar 28 (10 days)</div>
+          <div class="tl-title">Sprint 1 Demo</div>
+          <div class="tl-desc">Live demo of authentication, user management, and dashboard framework. Your team is invited to review and provide feedback.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Apr 11 (24 days)</div>
+          <div class="tl-title">Sprint 2 Demo</div>
+          <div class="tl-desc">Data processing, reporting module, and API integrations demo. Marks completion of core application development.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Apr 18 (31 days)</div>
+          <div class="tl-title">UAT Kickoff</div>
+          <div class="tl-desc">Your team begins user acceptance testing. Test scripts and environment access will be provided 2 days prior.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">May 2 (45 days)</div>
+          <div class="tl-title">Go-Live</div>
+          <div class="tl-desc">Production deployment. 2-week hypercare period begins. Training sessions scheduled for your end users.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 06: CLIENT ACTIONS ═══ -->
+    <div class="section" id="client-actions">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2 class="section-title">Items Needing Your Attention</h2>
+      </div>
+
+      <p class="body-text">These items require action from your team. Delays on these items may impact the project timeline.</p>
+
+      <div class="client-action">
+        <div class="client-action-icon">1</div>
+        <div class="client-action-content">
+          <div class="client-action-text">Review and approve Technical Architecture Document</div>
+          <div class="client-action-detail">Sent to your CTO (Tom) on March 15 &mdash; approval needed by March 20. Meeting scheduled for March 20 at 2pm.</div>
+        </div>
+      </div>
+
+      <div class="client-action">
+        <div class="client-action-icon">2</div>
+        <div class="client-action-content">
+          <div class="client-action-text">Provide staging environment credentials for legacy system</div>
+          <div class="client-action-detail">Needed for data migration testing. Requested from your IT team on March 14. Please follow up &mdash; blocking migration testing.</div>
+        </div>
+      </div>
+
+      <div class="client-action">
+        <div class="client-action-icon">3</div>
+        <div class="client-action-content">
+          <div class="client-action-text">Confirm UAT testing team (3-5 people recommended)</div>
+          <div class="client-action-detail">Names and email addresses needed by March 28 so we can provision test accounts and schedule training.</div>
+        </div>
+      </div>
+
+      <div class="info-box warning">
+        <div class="info-label">Time Sensitive</div>
+        Item #2 (legacy system credentials) is on the critical path. If credentials are not received by March 21, data migration testing will slip by 1 week, which compresses the QA phase.
+      </div>
+    </div>
+
+    <!-- ═══ 07: RISKS ═══ -->
+    <div class="section" id="risks">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2 class="section-title">Risks & Issues</h2>
+      </div>
+
+      <table class="sop-table">
+        <thead><tr><th>Item</th><th>Type</th><th>Impact</th><th>Mitigation</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Legacy system credentials</strong></td>
+            <td>Blocker</td>
+            <td>1-week delay to migration testing</td>
+            <td>Escalated to your IT director. Using mock data in the interim.</td>
+            <td><span class="deliverable-status blocked" style="font-size:10px;">OPEN</span></td>
+          </tr>
+          <tr>
+            <td><strong>Third-party API rate limits</strong></td>
+            <td>Risk</td>
+            <td>Could slow bulk data processing</td>
+            <td>Building queue-based approach. Will validate during Sprint 2.</td>
+            <td><span class="deliverable-status in-progress" style="font-size:10px;">MONITORING</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box success">
+        <div class="info-label">Resolved This Week</div>
+        <strong>SSO configuration issue</strong> &mdash; Your identity provider required a custom SAML attribute mapping that wasn't in the original spec. Resolved in collaboration with your IT team. No timeline impact.
+      </div>
+    </div>
+
+    <!-- ═══ 08: YOUR TEAM ═══ -->
+    <div class="section" id="contact">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2 class="section-title">Your Project Team</h2>
+      </div>
+
+      <p class="body-text">Your dedicated team at Dev Labs. For urgent issues, contact the Project Lead directly. For general questions, use the shared Slack channel.</p>
+
+      <div class="bento-grid">
+        <div class="bento-card">
+          <h4>Project Lead</h4>
+          <p><strong>[Name]</strong><br>[email] &middot; [phone]<br>Your primary point of contact for all project matters.</p>
+        </div>
+        <div class="bento-card">
+          <h4>Technical Lead</h4>
+          <p><strong>[Name]</strong><br>[email]<br>For technical questions, architecture decisions, and integration support.</p>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="info-label">Communication Channels</div>
+        <strong>Slack:</strong> #proj-[client-name] (fastest response)<br>
+        <strong>Email:</strong> project-[id]@devlabs.com<br>
+        <strong>Meetings:</strong> Weekly status call every Thursday at 3pm. Next call: March 20.
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="border-top: 1px solid var(--border); margin-top: 40px; padding-top: 20px; text-align: center;">
+      <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.8;">
+        <strong style="color: var(--text-primary);">Daily Project Status Report</strong> &middot; RPT-2026-0318 &middot; March 18, 2026<br>
+        Dev Labs &middot; Prepared for [Client Name] &middot; Confidential
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(section => observer.observe(section));
+</script>
+</body>
+</html>

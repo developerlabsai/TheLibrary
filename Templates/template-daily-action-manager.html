@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Action Plan — Manager</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-hover: #f5f5f5;
+    --surface-raised: #ffffff;
+    --text-primary: #171717;
+    --text-secondary: #525252;
+    --text-tertiary: #a3a3a3;
+    --text-inverted: #ffffff;
+    --border: #e5e5e5;
+    --border-subtle: #f0f0f0;
+    --violet: #7c3aed;
+    --violet-light: #a78bfa;
+    --violet-bg: #f5f3ff;
+    --violet-border: #ede9fe;
+    --teal: #0d9488;
+    --teal-bg: #f0fdfa;
+    --teal-border: #ccfbf1;
+    --rose: #e11d48;
+    --rose-bg: #fff1f2;
+    --rose-border: #ffe4e6;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --amber-border: #fef3c7;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --blue-border: #dbeafe;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #dcfce7;
+    --sidebar-bg: #171717;
+    --sidebar-hover: #262626;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary); background: var(--bg);
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+    background: var(--sidebar-bg); overflow-y: auto; z-index: 100;
+  }
+  .sidebar-header { padding: 28px 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .sidebar-header .doc-type {
+    font-family: 'Space Mono', monospace; font-size: 9px; color: var(--violet-light);
+    text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-header .doc-type::before {
+    content: ''; width: 16px; height: 2px;
+    background: linear-gradient(90deg, var(--violet), var(--teal)); border-radius: 1px;
+  }
+  .sidebar-header h1 { font-size: 18px; font-weight: 700; color: var(--text-inverted); letter-spacing: -0.4px; line-height: 1.3; }
+  .sidebar-header .version { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 8px; font-family: 'Space Mono', monospace; }
+  .sidebar-nav { padding: 14px 0; }
+  .sidebar-nav a {
+    display: flex; align-items: center; gap: 12px; padding: 9px 22px;
+    color: rgba(255,255,255,0.4); text-decoration: none; font-size: 13px;
+    font-weight: 500; transition: all 0.15s;
+  }
+  .sidebar-nav a:hover { color: rgba(255,255,255,0.8); background: var(--sidebar-hover); }
+  .sidebar-nav a.active {
+    color: var(--text-inverted); background: linear-gradient(90deg, rgba(124,58,237,0.2), transparent);
+    border-right: 2px solid var(--violet);
+  }
+  .sidebar-nav a .num { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.25); width: 20px; flex-shrink: 0; }
+  .sidebar-nav a.active .num { color: var(--violet-light); }
+  .sidebar-nav .divider { height: 1px; background: rgba(255,255,255,0.05); margin: 10px 22px; }
+  .sidebar-nav .section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.15); padding: 12px 22px 4px; font-weight: 700; }
+
+  .main { margin-left: 260px; min-height: 100vh; }
+  .topbar {
+    position: sticky; top: 0; z-index: 50; background: rgba(250,250,250,0.8);
+    backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid var(--border);
+    padding: 12px 36px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-left { font-size: 13px; color: var(--text-tertiary); font-weight: 500; }
+  .topbar-left span { color: var(--text-primary); font-weight: 600; }
+  .topbar-right { display: flex; gap: 8px; align-items: center; }
+  .topbar-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600; letter-spacing: 0.3px; }
+  .topbar-badge.violet { background: var(--violet-bg); color: var(--violet); }
+  .topbar-badge.teal { background: var(--teal-bg); color: var(--teal); }
+  .topbar-badge.amber { background: var(--amber-bg); color: var(--amber); }
+
+  .cover { background: var(--sidebar-bg); padding: 64px 36px 56px; position: relative; overflow: hidden; }
+  .cover::before { content: ''; position: absolute; top: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%); }
+  .cover::after { content: ''; position: absolute; bottom: -200px; left: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%); }
+  .cover-content { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+  .cover .doc-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--violet-light); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; }
+  .cover h1 { font-size: 42px; font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 14px; background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .cover .subtitle { font-size: 17px; color: rgba(255,255,255,0.4); font-weight: 400; margin-bottom: 44px; max-width: 540px; line-height: 1.5; }
+  .cover-meta { display: flex; gap: 40px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .cover-meta dt { font-family: 'Space Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+  .cover-meta dd { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+  .content { max-width: 860px; margin: 0 auto; padding: 36px; }
+  .section { padding: 36px 0 20px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-num { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; color: var(--violet); background: var(--violet-bg); width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-title { font-size: 22px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.8px; }
+  .sub-header { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 24px 0 12px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
+  .sub-header::before { content: ''; display: inline-block; width: 3px; height: 18px; background: linear-gradient(180deg, var(--violet), var(--teal)); border-radius: 2px; }
+  .body-text { font-size: 14.5px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px; }
+  .bullet-list { list-style: none; margin: 8px 0 16px; }
+  .bullet-list li { position: relative; padding: 5px 0 5px 22px; font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+  .bullet-list li::before { content: ''; position: absolute; left: 4px; top: 13px; width: 5px; height: 5px; background: linear-gradient(135deg, var(--violet), var(--teal)); border-radius: 50%; }
+
+  .sop-table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 12px 0 20px; font-size: 13.5px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .sop-table thead th { background: var(--surface); color: var(--text-tertiary); font-weight: 600; text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+  .sop-table tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; line-height: 1.55; color: var(--text-secondary); }
+  .sop-table tbody tr:last-child td { border-bottom: none; }
+  .sop-table tbody tr:hover { background: var(--surface-hover); }
+
+  .info-box { padding: 16px 20px; border-radius: var(--radius); margin: 16px 0; border: 1px solid; font-size: 14px; line-height: 1.6; }
+  .info-box .info-label { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .info-box.info { background: var(--blue-bg); border-color: var(--blue-border); }
+  .info-box.info .info-label { color: var(--blue); }
+  .info-box.success { background: var(--teal-bg); border-color: var(--teal-border); }
+  .info-box.success .info-label { color: var(--teal); }
+  .info-box.warning { background: var(--amber-bg); border-color: var(--amber-border); }
+  .info-box.warning .info-label { color: var(--amber); }
+  .info-box.danger { background: var(--rose-bg); border-color: var(--rose-border); }
+  .info-box.danger .info-label { color: var(--rose); }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 16px 0; }
+  .metric-card { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+  .metric-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .metric-card .metric-value { font-size: 26px; font-weight: 800; letter-spacing: -1.5px; background: linear-gradient(135deg, var(--violet), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .metric-card .metric-label { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 500; }
+
+  /* ─── TEAM MEMBER ROW ─── */
+  .team-row {
+    background: var(--surface-raised); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 12px; overflow: hidden;
+    box-shadow: var(--shadow-sm); transition: all 0.15s;
+  }
+  .team-row:hover { box-shadow: var(--shadow-md); border-color: var(--violet-border); }
+  .team-row-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; border-bottom: 1px solid var(--border-subtle);
+  }
+  .team-row-header .member-info { display: flex; align-items: center; gap: 12px; }
+  .member-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .member-avatar.violet { background: linear-gradient(135deg, var(--violet), #9f67ff); }
+  .member-avatar.teal { background: linear-gradient(135deg, var(--teal), #2dd4bf); }
+  .member-avatar.blue { background: linear-gradient(135deg, var(--blue), #60a5fa); }
+  .member-avatar.rose { background: linear-gradient(135deg, var(--rose), #fb7185); }
+  .member-avatar.amber { background: linear-gradient(135deg, var(--amber), #fbbf24); }
+  .member-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .member-role { font-size: 11px; color: var(--text-tertiary); }
+  .team-row-header .status-badge {
+    font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px;
+  }
+  .status-badge.on-track { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .status-badge.at-risk { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+  .status-badge.behind { background: var(--rose-bg); color: var(--rose); border: 1px solid var(--rose-border); }
+  .team-row-body { padding: 14px 20px; }
+  .team-row-body .row-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-tertiary); font-weight: 600; margin-bottom: 4px;
+  }
+  .team-row-body p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 10px; }
+  .team-row-body p:last-child { margin-bottom: 0; }
+  .team-row-stats {
+    display: flex; gap: 20px; padding: 10px 20px;
+    background: var(--bg); border-top: 1px solid var(--border-subtle);
+    font-size: 12px; color: var(--text-tertiary);
+  }
+  .team-row-stats strong { color: var(--text-primary); }
+
+  /* ─── ESCALATION CARD ─── */
+  .escalation-card {
+    background: var(--surface-raised); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px; margin: 10px 0;
+    display: flex; align-items: flex-start; gap: 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .escalation-card.high { border-left: 3px solid var(--rose); }
+  .escalation-card.medium { border-left: 3px solid var(--amber); }
+  .escalation-icon {
+    width: 32px; height: 32px; border-radius: var(--radius-sm); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800;
+  }
+  .escalation-card.high .escalation-icon { background: var(--rose-bg); color: var(--rose); }
+  .escalation-card.medium .escalation-icon { background: var(--amber-bg); color: var(--amber); }
+  .escalation-content { flex: 1; }
+  .escalation-content h4 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .escalation-content p { font-size: 13px; color: var(--text-tertiary); line-height: 1.5; }
+  .escalation-content .escalation-action {
+    font-size: 12px; font-weight: 600; color: var(--violet);
+    margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle);
+  }
+
+  .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 16px 0; }
+  .bento-card { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+  .bento-card:hover { box-shadow: var(--shadow-md); border-color: var(--violet-border); }
+  .bento-card.span-2 { grid-column: span 2; }
+  .bento-card h4 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; letter-spacing: -0.3px; }
+  .bento-card p { font-size: 13px; color: var(--text-tertiary); line-height: 1.55; }
+  .bento-card .bento-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; font-size: 16px; font-weight: 800; font-family: 'Space Mono', monospace; }
+  .bento-card .bento-icon.violet { background: var(--violet-bg); color: var(--violet); }
+  .bento-card .bento-icon.teal { background: var(--teal-bg); color: var(--teal); }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-item { margin-bottom: 14px; }
+  .progress-item .progress-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+  .progress-item .progress-label span { color: var(--text-tertiary); font-weight: 500; }
+  .progress-item .progress-track { height: 6px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; }
+  .progress-item .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--violet), var(--teal)); }
+
+  @media print { .sidebar { display: none; } .topbar { display: none; } .main { margin-left: 0; } .content { padding: 20px; } .cover { padding: 40px 20px; } body { background: white; } }
+  @media (max-width: 960px) { .sidebar { display: none; } .main { margin-left: 0; } .cover h1 { font-size: 32px; } .content { padding: 24px 16px; } .cover-meta { flex-wrap: wrap; gap: 20px; } .metric-grid { grid-template-columns: repeat(2, 1fr); } .bento-grid { grid-template-columns: 1fr; } .bento-card.span-2 { grid-column: span 1; } }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="doc-type">Manager Report</div>
+    <h1>Team Daily<br>Action Plan</h1>
+    <div class="version">DAP-MGR-2026-0318</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="section-label">Yesterday</div>
+    <a href="#team-snapshot"><span class="num">01</span> Team Snapshot</a>
+    <a href="#team-results"><span class="num">02</span> Individual Results</a>
+    <a href="#pipeline"><span class="num">03</span> Pipeline Update</a>
+    <div class="divider"></div>
+    <div class="section-label">Today</div>
+    <a href="#today-priorities"><span class="num">04</span> Team Priorities</a>
+    <a href="#coaching"><span class="num">05</span> Coaching Notes</a>
+    <a href="#my-calendar"><span class="num">06</span> My Calendar</a>
+    <div class="divider"></div>
+    <div class="section-label">Escalations</div>
+    <a href="#escalations"><span class="num">07</span> Escalations</a>
+    <a href="#weekly-goals"><span class="num">08</span> Weekly Tracker</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><span>Dev Labs</span> &middot; Manager Daily Action Plan</div>
+    <div class="topbar-right">
+      <span class="topbar-badge violet">MANAGER</span>
+      <span class="topbar-badge amber">5 Direct Reports</span>
+      <span class="topbar-badge teal">Mar 18, 2026</span>
+    </div>
+  </div>
+
+  <div class="cover">
+    <div class="cover-content">
+      <div class="doc-label">Manager Daily Action Plan</div>
+      <h1>Team Daily<br>Report & Plan</h1>
+      <p class="subtitle">Aggregate team performance from yesterday, today's priorities, coaching focus areas, and escalation items that need attention.</p>
+      <dl class="cover-meta">
+        <div><dt>Manager</dt><dd>[Your Name]</dd></div>
+        <div><dt>Team</dt><dd>BDR Team (5)</dd></div>
+        <div><dt>Date</dt><dd>March 18, 2026</dd></div>
+        <div><dt>Week</dt><dd>Week 12 of Q1</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ 01: TEAM SNAPSHOT ═══ -->
+    <div class="section" id="team-snapshot">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2 class="section-title">Yesterday's Team Snapshot</h2>
+      </div>
+      <p class="body-text">Aggregate performance across 5 BDRs for March 17. Overall strong day &mdash; activity volume on target, 4 meetings booked, one team member needs coaching on connect-to-meeting conversion.</p>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">312</div>
+          <div class="metric-label">Total Dials</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">42</div>
+          <div class="metric-label">Connects</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">4</div>
+          <div class="metric-label">Meetings Booked</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">$22K</div>
+          <div class="metric-label">Pipeline Added</div>
+        </div>
+      </div>
+
+      <h3 class="sub-header">Activity vs. Target</h3>
+      <div class="progress-item">
+        <div class="progress-label">Total Dials (Target: 350) <span>89%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 89%;"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label">Emails Sent (Target: 175) <span>94%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 94%;"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label">Meetings Booked (Target: 4/day) <span>100%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 100%;"></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 02: INDIVIDUAL RESULTS ═══ -->
+    <div class="section" id="team-results">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2 class="section-title">Individual Results</h2>
+      </div>
+
+      <div class="team-row">
+        <div class="team-row-header">
+          <div class="member-info">
+            <div class="member-avatar teal">JR</div>
+            <div><div class="member-name">Jamie Rodriguez</div><div class="member-role">BDR II</div></div>
+          </div>
+          <span class="status-badge on-track">ON TRACK</span>
+        </div>
+        <div class="team-row-body">
+          <div class="row-label">Yesterday</div>
+          <p>72 dials, 12 connects, 2 meetings booked (Acme Corp, TechFlow). Strong opener execution. Highest connect rate on the team.</p>
+        </div>
+        <div class="team-row-stats">
+          <span><strong>62</strong> dials</span>
+          <span><strong>12</strong> connects</span>
+          <span><strong>2</strong> meetings</span>
+          <span><strong>28</strong> emails</span>
+          <span><strong>$12K</strong> pipeline</span>
+        </div>
+      </div>
+
+      <div class="team-row">
+        <div class="team-row-header">
+          <div class="member-info">
+            <div class="member-avatar violet">KL</div>
+            <div><div class="member-name">Kayla Lee</div><div class="member-role">BDR II</div></div>
+          </div>
+          <span class="status-badge on-track">ON TRACK</span>
+        </div>
+        <div class="team-row-body">
+          <div class="row-label">Yesterday</div>
+          <p>68 dials, 9 connects, 1 meeting booked. Email reply rate is the highest on the team (6.2%). Her personalization game is strong.</p>
+        </div>
+        <div class="team-row-stats">
+          <span><strong>68</strong> dials</span>
+          <span><strong>9</strong> connects</span>
+          <span><strong>1</strong> meeting</span>
+          <span><strong>35</strong> emails</span>
+          <span><strong>$5K</strong> pipeline</span>
+        </div>
+      </div>
+
+      <div class="team-row">
+        <div class="team-row-header">
+          <div class="member-info">
+            <div class="member-avatar blue">DP</div>
+            <div><div class="member-name">Derek Park</div><div class="member-role">BDR I</div></div>
+          </div>
+          <span class="status-badge on-track">ON TRACK</span>
+        </div>
+        <div class="team-row-body">
+          <div class="row-label">Yesterday</div>
+          <p>75 dials, 10 connects, 1 meeting booked. Highest dial count on the team. Ramping well &mdash; Day 45. Needs to work on qualifying harder before booking.</p>
+        </div>
+        <div class="team-row-stats">
+          <span><strong>75</strong> dials</span>
+          <span><strong>10</strong> connects</span>
+          <span><strong>1</strong> meeting</span>
+          <span><strong>32</strong> emails</span>
+          <span><strong>$5K</strong> pipeline</span>
+        </div>
+      </div>
+
+      <div class="team-row">
+        <div class="team-row-header">
+          <div class="member-info">
+            <div class="member-avatar rose">MN</div>
+            <div><div class="member-name">Mia Nakamura</div><div class="member-role">BDR I</div></div>
+          </div>
+          <span class="status-badge at-risk">AT RISK</span>
+        </div>
+        <div class="team-row-body">
+          <div class="row-label">Yesterday</div>
+          <p>58 dials, 7 connects, 0 meetings booked. Third consecutive day below dial target. Connected 7 times but couldn't convert. Need to review call recordings together.</p>
+        </div>
+        <div class="team-row-stats">
+          <span><strong>58</strong> dials</span>
+          <span><strong>7</strong> connects</span>
+          <span><strong>0</strong> meetings</span>
+          <span><strong>30</strong> emails</span>
+          <span><strong>$0</strong> pipeline</span>
+        </div>
+      </div>
+
+      <div class="team-row">
+        <div class="team-row-header">
+          <div class="member-info">
+            <div class="member-avatar amber">SB</div>
+            <div><div class="member-name">Sam Brooks</div><div class="member-role">Senior BDR</div></div>
+          </div>
+          <span class="status-badge on-track">ON TRACK</span>
+        </div>
+        <div class="team-row-body">
+          <div class="row-label">Yesterday</div>
+          <p>49 dials (half day &mdash; had 2 prospect meetings in AM), 4 connects, 0 new meetings but held 2 follow-up calls that are moving forward. Strong pipeline management.</p>
+        </div>
+        <div class="team-row-stats">
+          <span><strong>49</strong> dials</span>
+          <span><strong>4</strong> connects</span>
+          <span><strong>0</strong> new</span>
+          <span><strong>40</strong> emails</span>
+          <span><strong>$0</strong> new pipeline</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 03: PIPELINE ═══ -->
+    <div class="section" id="pipeline">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2 class="section-title">Pipeline Update</h2>
+      </div>
+
+      <table class="sop-table">
+        <thead><tr><th>Metric</th><th>MTD Actual</th><th>MTD Target</th><th>Pacing</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Meetings booked</strong></td><td>38</td><td>45</td><td><span class="status-badge at-risk" style="font-size:10px;">84%</span></td></tr>
+          <tr><td><strong>Meeting show rate</strong></td><td>74%</td><td>70%</td><td><span class="status-badge on-track" style="font-size:10px;">Above</span></td></tr>
+          <tr><td><strong>SAL acceptance</strong></td><td>82%</td><td>80%</td><td><span class="status-badge on-track" style="font-size:10px;">Above</span></td></tr>
+          <tr><td><strong>Pipeline generated</strong></td><td>$62K</td><td>$75K</td><td><span class="status-badge at-risk" style="font-size:10px;">83%</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box warning">
+        <div class="info-label">Pacing Gap</div>
+        We're 7 meetings behind target with 9 business days left. Need 4.5 meetings/day vs. current 3.8/day pace. Focus today: dial volume up to 375+ across the team and ensure every connect gets a strong qualifying question.
+      </div>
+    </div>
+
+    <!-- ═══ 04: TODAY'S PRIORITIES ═══ -->
+    <div class="section" id="today-priorities">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2 class="section-title">Today's Team Priorities</h2>
+      </div>
+
+      <div class="info-box info">
+        <div class="info-label">Team Focus for Today</div>
+        <strong>Close the meeting gap.</strong> Every rep aims for 75+ dials today. Morning standup at 8:15 &mdash; brief, action-oriented, 10 minutes max. Mia gets a 1:1 at 11:30 to review call recordings.
+      </div>
+
+      <table class="sop-table">
+        <thead><tr><th>Team Member</th><th>Primary Focus</th><th>Target</th><th>Manager Action</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Jamie R.</strong></td><td>Enterprise accounts &mdash; push for larger deal sizes</td><td>2 meetings</td><td>None needed, running well</td></tr>
+          <tr><td><strong>Kayla L.</strong></td><td>Convert email replies to calls &mdash; 3 warm leads pending</td><td>2 meetings</td><td>Share multi-thread approach</td></tr>
+          <tr><td><strong>Derek P.</strong></td><td>Full volume day &mdash; maintain 75+ dials</td><td>1 meeting</td><td>Spot-check qualification quality</td></tr>
+          <tr><td><strong>Mia N.</strong></td><td>Connect-to-meeting conversion &mdash; focus on bridge & close</td><td>1 meeting</td><td>1:1 coaching at 11:30</td></tr>
+          <tr><td><strong>Sam B.</strong></td><td>Full dial day (no meetings on calendar)</td><td>1 meeting</td><td>Let him run &mdash; no interference</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ 05: COACHING ═══ -->
+    <div class="section" id="coaching">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2 class="section-title">Coaching Notes</h2>
+      </div>
+
+      <div class="bento-grid">
+        <div class="bento-card">
+          <div class="bento-icon rose">MN</div>
+          <h4>Mia Nakamura &mdash; 1:1 at 11:30</h4>
+          <p>Review 3 call recordings from yesterday. Focus on the bridge-to-value step &mdash; she's getting connects but losing momentum after the discovery question. Needs to practice the "connect pain to solution" transition. Role-play 3 scenarios.</p>
+        </div>
+        <div class="bento-card">
+          <div class="bento-icon blue">DP</div>
+          <h4>Derek Park &mdash; Spot Check</h4>
+          <p>Listen to 2 live calls this afternoon. His last 2 booked meetings had low AE satisfaction scores (qualification gaps). Coach on BANT verification before booking. Good energy, needs precision.</p>
+        </div>
+      </div>
+
+      <div class="info-box success">
+        <div class="info-label">Team Win to Highlight</div>
+        Jamie's Acme Corp booking yesterday was a cold call on first attempt to a VP of Sales. Share the recording in team Slack as a "play of the day" &mdash; great example of the pattern-interrupt opener with company-specific research.
+      </div>
+    </div>
+
+    <!-- ═══ 06: MY CALENDAR ═══ -->
+    <div class="section" id="my-calendar">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2 class="section-title">My Calendar Today</h2>
+      </div>
+
+      <table class="sop-table">
+        <thead><tr><th>Time</th><th>Meeting</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>8:15-8:25</strong></td><td>Team standup</td><td>Yesterday's wins, today's focus, quick blockers</td></tr>
+          <tr><td><strong>9:00-9:30</strong></td><td>Sales leadership sync</td><td>MTD pipeline review, hiring update</td></tr>
+          <tr><td><strong>11:30-12:00</strong></td><td>Mia 1:1 coaching</td><td>Call recording review, role-play</td></tr>
+          <tr><td><strong>1:30-2:00</strong></td><td>Floor walk</td><td>Listen to live calls (Derek focus)</td></tr>
+          <tr><td><strong>3:00-3:30</strong></td><td>HR call</td><td>Third BDR offer counter-proposal</td></tr>
+          <tr><td><strong>4:00-4:30</strong></td><td>CRM audit prep</td><td>Friday's weekly CRM compliance review</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ 07: ESCALATIONS ═══ -->
+    <div class="section" id="escalations">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2 class="section-title">Escalations & Decisions Needed</h2>
+      </div>
+
+      <div class="escalation-card high">
+        <div class="escalation-icon">!</div>
+        <div class="escalation-content">
+          <h4>Third BDR offer &mdash; counter-proposal needed by EOD</h4>
+          <p>Candidate wants $8K more than our range. HR says we can go $5K above. Need VP approval for the $5K bump. Candidate has another offer expiring Friday.</p>
+          <div class="escalation-action">Action: Discuss in 3:00 HR call. Decision needed from Marcus by 4pm.</div>
+        </div>
+      </div>
+
+      <div class="escalation-card medium">
+        <div class="escalation-icon">?</div>
+        <div class="escalation-content">
+          <h4>Mia performance trajectory</h4>
+          <p>Day 42 of ramp. If no meetings booked by Friday (5 consecutive days), she'll miss the Day 45 checkpoint target by >50%. Need to decide: extended coaching or formal performance conversation.</p>
+          <div class="escalation-action">Action: Evaluate after today's 1:1 and Thursday's results. Decision by Friday standup.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 08: WEEKLY TRACKER ═══ -->
+    <div class="section" id="weekly-goals">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2 class="section-title">Weekly Goal Tracker</h2>
+      </div>
+      <p class="body-text">Week 12 progress &mdash; through Tuesday. 3 business days remaining.</p>
+
+      <div class="progress-item">
+        <div class="progress-label">Team Meetings Booked (Target: 20/wk) <span>6/20 &mdash; 30%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 30%;"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label">Pipeline Generated (Target: $25K/wk) <span>$9K/$25K &mdash; 36%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 36%;"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label">Team Dials (Target: 1,750/wk) <span>620/1,750 &mdash; 35%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width: 35%;"></div></div>
+      </div>
+
+      <div class="info-box info">
+        <div class="info-label">Weekly Pace Note</div>
+        We're 2 days into a 5-day week. All metrics are tracking at 30-36% (should be at 40% by end of Tuesday). Need a strong Wednesday-Thursday push. Friday is historically lowest-output day so we can't rely on it.
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="border-top: 1px solid var(--border); margin-top: 40px; padding-top: 20px; text-align: center;">
+      <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.8;">
+        <strong style="color: var(--text-primary);">Manager Daily Action Plan</strong> &middot; Team Report &middot; March 18, 2026<br>
+        Dev Labs &middot; Sales Management &middot; Confidential
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(section => observer.observe(section));
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "chief-of-staff",
+  "displayName": "Chief of Staff",
+  "version": "1.0.0",
+  "description": "Strategic chief of staff for prioritization, decisions, stakeholder alignment, and execution",
+  "files": {
+    "agents": "Agents.md"
+  },
+  "requiredSkills": [
+    "account-research",
+    "pipeline-review",
+    "exa-research",
+    "playbook"
+  ],
+  "requiredMcp": [],
+  "tags": ["executive", "strategy", "leadership", "operations"]
+}

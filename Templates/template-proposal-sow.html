@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal & Statement of Work — Dev Labs</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --charcoal: #1c1c1c;
+    --charcoal-light: #2a2a2a;
+    --slate: #3d3d3d;
+    --gold: #c5a255;
+    --gold-light: #d4b978;
+    --gold-muted: #f5f0e3;
+    --gold-border: #e2d5b0;
+    --white: #ffffff;
+    --cream: #faf9f6;
+    --warm-gray: #f2f1ee;
+    --dark-text: #1c1c1c;
+    --body-text: #3d3d3d;
+    --muted-text: #7a7a7a;
+    --light-text: #a0a0a0;
+    --border: #e0ddd6;
+    --border-light: #edeae4;
+    --success: #2d8a56;
+    --success-bg: #eef7f1;
+    --info: #3b6fa0;
+    --info-bg: #edf3f8;
+    --warn: #b8860b;
+    --warn-bg: #fdf6e3;
+    --danger: #b33a3a;
+    --danger-bg: #fdf0f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--body-text);
+    background: var(--warm-gray);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 300px;
+    height: 100vh;
+    background: var(--charcoal);
+    overflow-y: auto;
+    z-index: 100;
+  }
+  .sidebar-header {
+    padding: 36px 28px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .sidebar-header .doc-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+  }
+  .sidebar-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--white);
+    line-height: 1.3;
+  }
+  .sidebar-header .version {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+  .sidebar-nav {
+    padding: 20px 0;
+  }
+  .sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 28px;
+    color: rgba(255,255,255,0.45);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+  }
+  .sidebar-nav a:hover {
+    color: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.03);
+  }
+  .sidebar-nav a.active {
+    color: var(--white);
+    background: rgba(197,162,85,0.08);
+    border-left-color: var(--gold);
+  }
+  .sidebar-nav a .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gold);
+    width: 26px;
+    height: 26px;
+    border: 1px solid rgba(197,162,85,0.25);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .sidebar-nav .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.05);
+    margin: 14px 28px;
+  }
+  .sidebar-nav .section-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.2);
+    padding: 10px 28px 4px;
+    font-weight: 600;
+  }
+
+  /* ─── MAIN AREA ─── */
+  .main {
+    margin-left: 300px;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0; z-index: 50;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar-left {
+    font-size: 13px;
+    color: var(--muted-text);
+  }
+  .topbar-left span { color: var(--dark-text); font-weight: 600; }
+  .topbar-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .topbar-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .topbar-badge.gold {
+    background: var(--gold-muted);
+    color: var(--warn);
+    border: 1px solid var(--gold-border);
+  }
+  .topbar-badge.neutral {
+    background: var(--warm-gray);
+    color: var(--muted-text);
+    border: 1px solid var(--border);
+  }
+
+  /* ─── COVER ─── */
+  .cover {
+    background: var(--charcoal);
+    padding: 100px 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 500px; height: 500px;
+    background: var(--gold);
+    opacity: 0.04;
+    border-radius: 50%;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 50%, transparent 100%);
+  }
+  .cover-content {
+    max-width: 880px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .cover .doc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .cover h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px;
+    font-weight: 400;
+    color: var(--white);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+  .cover .subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 400;
+    margin-bottom: 56px;
+    max-width: 600px;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 28px;
+  }
+  .cover-meta dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .cover-meta dd {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  /* ─── CONTENT ─── */
+  .content {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 48px 80px;
+  }
+
+  /* ─── SECTIONS ─── */
+  .section {
+    padding: 48px 0 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 32px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .section-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 60px; height: 2px;
+    background: var(--gold);
+  }
+  .section-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--gold);
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--charcoal);
+    letter-spacing: -0.3px;
+  }
+
+  /* ─── SUB HEADERS ─── */
+  .sub-header {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin: 32px 0 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+    letter-spacing: -0.2px;
+  }
+  .sub-header::before {
+    content: '';
+    display: inline-block;
+    width: 12px; height: 2px;
+    background: var(--gold);
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  /* ─── BODY TEXT ─── */
+  .body-text {
+    font-size: 14.5px;
+    color: var(--body-text);
+    line-height: 1.75;
+    margin-bottom: 14px;
+  }
+
+  /* ─── BULLET LIST ─── */
+  .bullet-list {
+    list-style: none;
+    margin: 10px 0 18px;
+  }
+  .bullet-list li {
+    position: relative;
+    padding: 6px 0 6px 22px;
+    font-size: 14px;
+    color: var(--body-text);
+    line-height: 1.65;
+  }
+  .bullet-list li::before {
+    content: '';
+    position: absolute;
+    left: 2px; top: 14px;
+    width: 6px; height: 1px;
+    background: var(--gold);
+  }
+
+  /* ─── NUMBERED STEPS ─── */
+  .steps {
+    list-style: none;
+    margin: 14px 0 18px;
+    counter-reset: step;
+  }
+  .steps li {
+    position: relative;
+    padding: 10px 0 10px 48px;
+    font-size: 14px;
+    color: var(--body-text);
+    line-height: 1.65;
+    counter-increment: step;
+    border-left: 1px solid var(--border-light);
+    margin-left: 15px;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: -16px; top: 8px;
+    width: 30px; height: 30px;
+    background: var(--cream);
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ─── TABLES ─── */
+  .sop-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 22px;
+    font-size: 13.5px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .sop-table thead th {
+    background: var(--charcoal);
+    color: var(--white);
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .sop-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  .sop-table tbody tr:last-child td { border-bottom: none; }
+  .sop-table tbody tr:nth-child(even) { background: var(--cream); }
+  .sop-table tbody tr:hover { background: var(--gold-muted); }
+
+  /* ─── PRICING TABLE (SOW-specific) ─── */
+  .pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 22px;
+    font-size: 13.5px;
+    border: 2px solid var(--charcoal);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .pricing-table thead th {
+    background: var(--charcoal);
+    color: var(--white);
+    font-weight: 600;
+    text-align: left;
+    padding: 14px 18px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .pricing-table thead th:last-child { text-align: right; }
+  .pricing-table tbody td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  .pricing-table tbody td:last-child {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--charcoal);
+  }
+  .pricing-table tbody tr:last-child td { border-bottom: none; }
+  .pricing-table tbody tr:nth-child(even) { background: var(--cream); }
+  .pricing-table tfoot td {
+    padding: 16px 18px;
+    background: var(--gold-muted);
+    border-top: 2px solid var(--gold);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--charcoal);
+  }
+  .pricing-table tfoot td:last-child {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--gold);
+  }
+
+  /* ─── INFO BOXES ─── */
+  .info-box {
+    padding: 18px 22px;
+    border-radius: 8px;
+    margin: 18px 0;
+    border-left: 3px solid;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .info-box .info-label {
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+  .info-box.info { background: var(--info-bg); border-color: var(--info); }
+  .info-box.info .info-label { color: var(--info); }
+  .info-box.success { background: var(--success-bg); border-color: var(--success); }
+  .info-box.success .info-label { color: var(--success); }
+  .info-box.warning { background: var(--warn-bg); border-color: var(--warn); }
+  .info-box.warning .info-label { color: var(--warn); }
+  .info-box.danger { background: var(--danger-bg); border-color: var(--danger); }
+  .info-box.danger .info-label { color: var(--danger); }
+
+  /* ─── CALLOUT QUOTE (Proposal-specific) ─── */
+  .callout-quote {
+    background: var(--cream);
+    border-left: 3px solid var(--gold);
+    padding: 24px 28px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+  }
+  .callout-quote p {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--charcoal);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .callout-quote .attribution {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--muted-text);
+    margin-top: 10px;
+    font-style: normal;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ─── METRIC GRID ─── */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 18px 0;
+  }
+  .metric-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+  }
+  .metric-card .metric-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--charcoal);
+    letter-spacing: -1px;
+  }
+  .metric-card .metric-label {
+    font-size: 11px;
+    color: var(--muted-text);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+
+  /* ─── TIMELINE ─── */
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+    margin: 18px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 9px; top: 0; bottom: 0;
+    width: 1px;
+    background: var(--gold);
+    opacity: 0.35;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 28px;
+    padding-left: 22px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -25px; top: 5px;
+    width: 10px; height: 10px;
+    background: var(--gold);
+    border-radius: 50%;
+    border: 3px solid var(--cream);
+  }
+  .timeline-item .tl-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .timeline-item .tl-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+  .timeline-item .tl-desc {
+    font-size: 13px;
+    color: var(--muted-text);
+    line-height: 1.6;
+  }
+
+  /* ─── SIGNATURE BLOCK (SOW-specific) ─── */
+  .signature-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    margin: 40px 0;
+    padding: 36px 0;
+    border-top: 1px solid var(--border);
+  }
+  .signature-party h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted-text);
+    margin-bottom: 40px;
+  }
+  .signature-line {
+    border-bottom: 1px solid var(--charcoal);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    min-height: 32px;
+  }
+  .signature-label {
+    font-size: 11px;
+    color: var(--muted-text);
+    margin-bottom: 24px;
+  }
+
+  /* ─── DELIVERABLE CARD ─── */
+  .deliverable-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 14px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .deliverable-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--gold);
+  }
+  .deliverable-card .del-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .deliverable-card h4 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    color: var(--charcoal);
+    margin-bottom: 8px;
+  }
+  .deliverable-card p {
+    font-size: 13.5px;
+    color: var(--muted-text);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .deliverable-card .del-meta {
+    display: flex;
+    gap: 24px;
+    font-size: 12px;
+    color: var(--muted-text);
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+  }
+  .deliverable-card .del-meta strong {
+    color: var(--charcoal);
+  }
+
+  /* ─── CODE / TERMS BLOCK ─── */
+  .terms-block {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--body-text);
+    margin: 14px 0 18px;
+  }
+  .terms-block .term-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin-right: 4px;
+  }
+
+  /* ─── FUNNEL / PROCESS STEPS ─── */
+  .process-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 20px 0;
+  }
+  .process-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--cream);
+    border: 1px solid var(--border-light);
+    transition: all 0.2s;
+  }
+  .process-step:hover {
+    background: var(--gold-muted);
+    border-color: var(--gold-border);
+  }
+  .process-step .step-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    width: 30px; height: 30px;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  @media print {
+    .sidebar { display: none; }
+    .topbar { display: none; }
+    .main { margin-left: 0; }
+    .content { padding: 20px; }
+    .cover { padding: 60px 20px; }
+    .section { page-break-inside: avoid; }
+    body { background: white; }
+    .signature-block { page-break-inside: avoid; }
+  }
+
+  @media (max-width: 960px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .cover h1 { font-size: 36px; }
+    .content { padding: 24px 20px; }
+    .cover-meta { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    .signature-block { grid-template-columns: 1fr; gap: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="doc-type">Proposal &amp; SOW</div>
+    <h1>Project Proposal</h1>
+    <div class="version">PRO-2026-001 &middot; v1.0</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="section-label">Overview</div>
+    <a href="#executive-summary"><span class="num">01</span> Executive Summary</a>
+    <a href="#objectives"><span class="num">02</span> Objectives & Goals</a>
+    <a href="#scope"><span class="num">03</span> Scope of Work</a>
+    <div class="divider"></div>
+    <div class="section-label">Deliverables</div>
+    <a href="#deliverables"><span class="num">04</span> Deliverables</a>
+    <a href="#timeline"><span class="num">05</span> Project Timeline</a>
+    <a href="#approach"><span class="num">06</span> Approach & Methodology</a>
+    <div class="divider"></div>
+    <div class="section-label">Commercial</div>
+    <a href="#team"><span class="num">07</span> Project Team</a>
+    <a href="#investment"><span class="num">08</span> Investment & Pricing</a>
+    <a href="#terms"><span class="num">09</span> Terms & Conditions</a>
+    <a href="#acceptance"><span class="num">10</span> Acceptance & Signatures</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <span>Dev Labs</span> &middot; Professional Services
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-badge gold">PROPOSAL</span>
+      <span class="topbar-badge neutral">v1.0 &middot; March 2026</span>
+    </div>
+  </div>
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-content">
+      <div class="doc-label">Proposal &amp; Statement of Work</div>
+      <h1>Project Title<br>Goes Here</h1>
+      <p class="subtitle">A comprehensive proposal for delivering strategic value through expert execution and measurable outcomes.</p>
+      <dl class="cover-meta">
+        <div><dt>Document ID</dt><dd>PRO-2026-001</dd></div>
+        <div><dt>Prepared For</dt><dd>Client Name</dd></div>
+        <div><dt>Date</dt><dd>March 18, 2026</dd></div>
+        <div><dt>Valid Until</dt><dd>April 18, 2026</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ═══ SECTION 01: EXECUTIVE SUMMARY ═══ -->
+    <div class="section" id="executive-summary">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2 class="section-title">Executive Summary</h2>
+      </div>
+
+      <p class="body-text">This proposal outlines our recommended approach to <strong>[project description]</strong>. Based on our discovery conversations and analysis of your current operations, we have identified key opportunities to drive measurable impact across your organization.</p>
+
+      <div class="callout-quote">
+        <p>"The best proposals don't just describe what will be done — they articulate why it matters and what success looks like."</p>
+        <div class="attribution">— Guiding Principle</div>
+      </div>
+
+      <p class="body-text">Our approach combines proven methodology with deep domain expertise to deliver results within your timeline and budget constraints. The following sections detail our complete plan of execution.</p>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">40%</div>
+          <div class="metric-label">Projected Efficiency Gain</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">12 wk</div>
+          <div class="metric-label">Delivery Timeline</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">3.2x</div>
+          <div class="metric-label">Expected ROI</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 02: OBJECTIVES ═══ -->
+    <div class="section" id="objectives">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2 class="section-title">Objectives & Success Criteria</h2>
+      </div>
+
+      <p class="body-text">Clear objectives ensure alignment between all stakeholders. Each objective below is tied to a measurable success criterion that will be validated during the project closeout phase.</p>
+
+      <h3 class="sub-header">Primary Objectives</h3>
+      <ol class="steps">
+        <li><strong>Streamline core workflow</strong> — Reduce manual processing time by 40% through automation of key business processes identified during discovery.</li>
+        <li><strong>Improve data accuracy</strong> — Establish a single source of truth with 99.5%+ data integrity across integrated systems.</li>
+        <li><strong>Enable self-service reporting</strong> — Deliver executive dashboards that eliminate the need for manual report generation.</li>
+      </ol>
+
+      <h3 class="sub-header">Success Criteria</h3>
+      <table class="sop-table">
+        <thead><tr><th>Objective</th><th>KPI</th><th>Target</th><th>Measurement</th></tr></thead>
+        <tbody>
+          <tr><td>Workflow streamlining</td><td>Processing time reduction</td><td>40%+ reduction</td><td>Time study: before vs. after</td></tr>
+          <tr><td>Data accuracy</td><td>Error rate</td><td>&lt;0.5%</td><td>Monthly data audit</td></tr>
+          <tr><td>Self-service reporting</td><td>Manual report requests</td><td>80% reduction</td><td>Support ticket volume</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ SECTION 03: SCOPE ═══ -->
+    <div class="section" id="scope">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2 class="section-title">Scope of Work</h2>
+      </div>
+
+      <p class="body-text">This section defines the boundaries of the engagement. Items listed under <strong>"In Scope"</strong> are included in the pricing and timeline. Items under "Out of Scope" are excluded but can be addressed via a change order.</p>
+
+      <h3 class="sub-header">In Scope</h3>
+      <ul class="bullet-list">
+        <li><strong>Discovery & requirements gathering</strong> — Stakeholder interviews, process mapping, technical assessment</li>
+        <li><strong>Solution design</strong> — Architecture, data model, integration blueprint, UI/UX wireframes</li>
+        <li><strong>Development & configuration</strong> — Core platform build, API integrations, data migration</li>
+        <li><strong>Testing & QA</strong> — Unit testing, integration testing, UAT support, performance validation</li>
+        <li><strong>Training & documentation</strong> — Admin training, end-user guides, knowledge transfer sessions</li>
+        <li><strong>Go-live support</strong> — 2-week hypercare period with dedicated support channel</li>
+      </ul>
+
+      <h3 class="sub-header">Out of Scope</h3>
+      <ul class="bullet-list">
+        <li>Third-party license fees (client responsibility)</li>
+        <li>Legacy data cleanup prior to migration</li>
+        <li>Ongoing managed services post-hypercare</li>
+        <li>Custom hardware procurement or infrastructure changes</li>
+      </ul>
+
+      <div class="info-box warning">
+        <div class="info-label">Change Management</div>
+        Any scope additions or changes after contract execution will be documented via a formal Change Order with associated impact to timeline and investment.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 04: DELIVERABLES ═══ -->
+    <div class="section" id="deliverables">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2 class="section-title">Deliverables</h2>
+      </div>
+
+      <p class="body-text">Each deliverable below represents a tangible output with defined acceptance criteria. Deliverables are sequenced to build upon each other progressively.</p>
+
+      <div class="deliverable-card">
+        <div class="del-phase">Phase 1 — Discovery</div>
+        <h4>Requirements Document & Technical Assessment</h4>
+        <p>Comprehensive requirements specification including business rules, data flows, integration points, and technical constraints. Delivered as a living document with stakeholder sign-off.</p>
+        <div class="del-meta">
+          <div><strong>Format:</strong> PDF + Editable</div>
+          <div><strong>Timeline:</strong> Weeks 1-2</div>
+          <div><strong>Approver:</strong> Project Sponsor</div>
+        </div>
+      </div>
+
+      <div class="deliverable-card">
+        <div class="del-phase">Phase 2 — Design</div>
+        <h4>Solution Architecture & Design Specifications</h4>
+        <p>Complete technical architecture including system diagrams, API contracts, data models, and UI mockups. Serves as the blueprint for development execution.</p>
+        <div class="del-meta">
+          <div><strong>Format:</strong> Figma + Technical Docs</div>
+          <div><strong>Timeline:</strong> Weeks 3-4</div>
+          <div><strong>Approver:</strong> Technical Lead</div>
+        </div>
+      </div>
+
+      <div class="deliverable-card">
+        <div class="del-phase">Phase 3 — Build</div>
+        <h4>Production-Ready Application</h4>
+        <p>Fully functional application deployed to staging environment, including all integrations, data migration, and configuration. Ready for user acceptance testing.</p>
+        <div class="del-meta">
+          <div><strong>Format:</strong> Deployed Application</div>
+          <div><strong>Timeline:</strong> Weeks 5-10</div>
+          <div><strong>Approver:</strong> QA Lead + Sponsor</div>
+        </div>
+      </div>
+
+      <div class="deliverable-card">
+        <div class="del-phase">Phase 4 — Launch</div>
+        <h4>Go-Live Package & Training Materials</h4>
+        <p>Production deployment, end-user training sessions, administrator documentation, and runbook for ongoing operations. Includes 2-week hypercare support.</p>
+        <div class="del-meta">
+          <div><strong>Format:</strong> Live System + Docs</div>
+          <div><strong>Timeline:</strong> Weeks 11-12</div>
+          <div><strong>Approver:</strong> Project Sponsor</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 05: TIMELINE ═══ -->
+    <div class="section" id="timeline">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2 class="section-title">Project Timeline</h2>
+      </div>
+
+      <p class="body-text">The project follows a phased approach over <strong>12 weeks</strong>. Each phase has defined entry/exit criteria to ensure quality gates are met before progressing.</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="tl-phase">Weeks 1–2</div>
+          <div class="tl-title">Discovery & Requirements</div>
+          <div class="tl-desc">Stakeholder interviews, process mapping, technical assessment, requirements sign-off.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Weeks 3–4</div>
+          <div class="tl-title">Solution Design</div>
+          <div class="tl-desc">Architecture, data modeling, UI/UX design, integration planning, design review.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Weeks 5–8</div>
+          <div class="tl-title">Development Sprint</div>
+          <div class="tl-desc">Iterative build cycles with weekly demos. Core platform, integrations, data migration.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Weeks 9–10</div>
+          <div class="tl-title">Testing & QA</div>
+          <div class="tl-desc">Integration testing, performance testing, UAT cycles, bug remediation.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-phase">Weeks 11–12</div>
+          <div class="tl-title">Launch & Hypercare</div>
+          <div class="tl-desc">Production deployment, training delivery, hypercare support, project closeout.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 06: APPROACH ═══ -->
+    <div class="section" id="approach">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2 class="section-title">Approach & Methodology</h2>
+      </div>
+
+      <p class="body-text">We follow an agile delivery methodology with structured phase gates. This approach balances flexibility with predictability — allowing us to adapt to new insights while maintaining accountability to the agreed timeline and budget.</p>
+
+      <div class="process-flow">
+        <div class="process-step">
+          <div class="step-icon">01</div>
+          <div><strong>Discover</strong> — Deep dive into business context, constraints, and opportunities</div>
+        </div>
+        <div class="process-step">
+          <div class="step-icon">02</div>
+          <div><strong>Design</strong> — Architect the solution, validate with stakeholders, finalize blueprint</div>
+        </div>
+        <div class="process-step">
+          <div class="step-icon">03</div>
+          <div><strong>Develop</strong> — Build iteratively in sprints with weekly progress reviews</div>
+        </div>
+        <div class="process-step">
+          <div class="step-icon">04</div>
+          <div><strong>Validate</strong> — Rigorous QA, UAT, and performance testing</div>
+        </div>
+        <div class="process-step">
+          <div class="step-icon">05</div>
+          <div><strong>Launch</strong> — Production deployment with training and hypercare support</div>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="info-label">Communication Cadence</div>
+        Weekly status reports (written), bi-weekly steering committee meetings, daily standups during active development sprints. A shared project channel in Slack for real-time coordination.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 07: TEAM ═══ -->
+    <div class="section" id="team">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2 class="section-title">Project Team</h2>
+      </div>
+
+      <p class="body-text">A dedicated cross-functional team will be assigned for the duration of the engagement. Key personnel are named below and will not be substituted without prior written approval.</p>
+
+      <table class="sop-table">
+        <thead><tr><th>Role</th><th>Name</th><th>Allocation</th><th>Responsibility</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Project Lead</strong></td><td>[Name]</td><td>100%</td><td>Day-to-day delivery, stakeholder communication, risk management</td></tr>
+          <tr><td><strong>Solutions Architect</strong></td><td>[Name]</td><td>50%</td><td>Technical design, architecture decisions, code review</td></tr>
+          <tr><td><strong>Senior Developer</strong></td><td>[Name]</td><td>100%</td><td>Core development, integrations, data migration</td></tr>
+          <tr><td><strong>UI/UX Designer</strong></td><td>[Name]</td><td>50%</td><td>Interface design, prototyping, usability testing</td></tr>
+          <tr><td><strong>QA Engineer</strong></td><td>[Name]</td><td>75%</td><td>Test planning, automation, regression testing</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-header">Client Responsibilities</h3>
+      <ul class="bullet-list">
+        <li><strong>Project Sponsor</strong> — Provide executive alignment, approve deliverables, remove blockers</li>
+        <li><strong>Subject Matter Experts</strong> — Available for requirements validation and UAT testing</li>
+        <li><strong>IT Administrator</strong> — Provide system access, credentials, and infrastructure support</li>
+      </ul>
+    </div>
+
+    <!-- ═══ SECTION 08: INVESTMENT ═══ -->
+    <div class="section" id="investment">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2 class="section-title">Investment & Pricing</h2>
+      </div>
+
+      <p class="body-text">The following investment reflects a fixed-fee engagement for the scope defined in this proposal. This pricing is valid for <strong>30 days</strong> from the date of this document.</p>
+
+      <table class="pricing-table">
+        <thead><tr><th>Phase</th><th>Description</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Phase 1</strong></td><td>Discovery & Requirements</td><td>$12,500</td></tr>
+          <tr><td><strong>Phase 2</strong></td><td>Solution Design & Architecture</td><td>$15,000</td></tr>
+          <tr><td><strong>Phase 3</strong></td><td>Development & Integration</td><td>$45,000</td></tr>
+          <tr><td><strong>Phase 4</strong></td><td>Testing & Quality Assurance</td><td>$12,500</td></tr>
+          <tr><td><strong>Phase 5</strong></td><td>Launch, Training & Hypercare</td><td>$10,000</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="2">Total Project Investment</td><td>$95,000</td></tr>
+        </tfoot>
+      </table>
+
+      <h3 class="sub-header">Payment Schedule</h3>
+      <table class="sop-table">
+        <thead><tr><th>Milestone</th><th>Trigger</th><th>Amount</th><th>Due</th></tr></thead>
+        <tbody>
+          <tr><td>Deposit</td><td>Contract execution</td><td>$23,750 (25%)</td><td>Upon signing</td></tr>
+          <tr><td>Milestone 1</td><td>Design approval</td><td>$23,750 (25%)</td><td>End of Week 4</td></tr>
+          <tr><td>Milestone 2</td><td>UAT complete</td><td>$23,750 (25%)</td><td>End of Week 10</td></tr>
+          <tr><td>Final</td><td>Go-live + acceptance</td><td>$23,750 (25%)</td><td>End of Week 12</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box success">
+        <div class="info-label">What's Included</div>
+        All professional services, project management, testing, training, documentation, and 2-week hypercare. Third-party software licenses, hosting costs, and ongoing support contracts are not included.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 09: TERMS ═══ -->
+    <div class="section" id="terms">
+      <div class="section-header">
+        <div class="section-num">09</div>
+        <h2 class="section-title">Terms & Conditions</h2>
+      </div>
+
+      <div class="terms-block">
+        <p><span class="term-num">1.</span> <strong>Payment Terms.</strong> Invoices are due Net 30 from date of issuance. Late payments accrue interest at 1.5% per month.</p>
+        <br>
+        <p><span class="term-num">2.</span> <strong>Intellectual Property.</strong> All deliverables created under this SOW become the exclusive property of the Client upon final payment. Pre-existing IP and reusable frameworks remain the property of Dev Labs.</p>
+        <br>
+        <p><span class="term-num">3.</span> <strong>Confidentiality.</strong> Both parties agree to treat all project-related information as confidential and will not disclose to third parties without written consent.</p>
+        <br>
+        <p><span class="term-num">4.</span> <strong>Change Orders.</strong> Changes to scope, timeline, or deliverables require a written Change Order signed by both parties. Change Orders may impact the project investment.</p>
+        <br>
+        <p><span class="term-num">5.</span> <strong>Termination.</strong> Either party may terminate this agreement with 30 days written notice. In the event of termination, Client is responsible for payment of all work completed to date.</p>
+        <br>
+        <p><span class="term-num">6.</span> <strong>Warranty.</strong> Dev Labs warrants all deliverables for 30 days post-acceptance against defects in workmanship. This warranty does not cover issues arising from Client modifications or third-party changes.</p>
+        <br>
+        <p><span class="term-num">7.</span> <strong>Limitation of Liability.</strong> Dev Labs' total liability under this agreement shall not exceed the total project investment amount.</p>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 10: ACCEPTANCE ═══ -->
+    <div class="section" id="acceptance">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2 class="section-title">Acceptance & Signatures</h2>
+      </div>
+
+      <p class="body-text">By signing below, both parties agree to the scope, timeline, investment, and terms outlined in this Proposal and Statement of Work. This document becomes a binding agreement upon execution by authorized representatives of both parties.</p>
+
+      <div class="info-box info">
+        <div class="info-label">Proposal Validity</div>
+        This proposal and associated pricing are valid for 30 calendar days from the date shown on the cover page. After this period, terms may be subject to revision.
+      </div>
+
+      <div class="signature-block">
+        <div class="signature-party">
+          <h4>Client — [Company Name]</h4>
+          <div class="signature-line"></div>
+          <div class="signature-label">Authorized Signature</div>
+          <div class="signature-line"></div>
+          <div class="signature-label">Printed Name & Title</div>
+          <div class="signature-line"></div>
+          <div class="signature-label">Date</div>
+        </div>
+        <div class="signature-party">
+          <h4>Provider — Dev Labs</h4>
+          <div class="signature-line"></div>
+          <div class="signature-label">Authorized Signature</div>
+          <div class="signature-line"></div>
+          <div class="signature-label">Printed Name & Title</div>
+          <div class="signature-line"></div>
+          <div class="signature-label">Date</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="border-top: 1px solid var(--border); margin-top: 48px; padding-top: 24px; text-align: center;">
+      <p style="font-size: 12px; color: var(--light-text); line-height: 1.8;">
+        <strong style="color: var(--charcoal);">Proposal & Statement of Work</strong> &middot; PRO-2026-001 &middot; Version 1.0 &middot; March 2026<br>
+        Dev Labs &middot; Professional Services &middot; Confidential
+      </p>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Active nav highlighting -->
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>

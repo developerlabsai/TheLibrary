@@ -1,0 +1,29 @@
+{
+  "name": "bdr-team",
+  "description": "Complete BDR team workforce for sales development - agents, skills, and templates",
+  "version": "1.0.0",
+  "agents": [
+    "executive-assistant",
+    "chief-of-staff"
+  ],
+  "skills": [
+    "account-research",
+    "call-prep",
+    "outbound-personalization",
+    "follow-up-drafter",
+    "campaign-content",
+    "pipeline-review",
+    "playbook",
+    "proposal-writer",
+    "crm-research",
+    "exa-research"
+  ],
+  "templates": [
+    "sales-bdr-playbook.html",
+    "template-proposal-sow.html",
+    "template-meeting-recap.html"
+  ],
+  "mcpServers": [],
+  "constitutionProfile": "web-app-typescript",
+  "security": true
+}

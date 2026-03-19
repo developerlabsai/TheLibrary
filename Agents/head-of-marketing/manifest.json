@@ -1,0 +1,15 @@
+{
+  "name": "head-of-marketing",
+  "displayName": "Head of Marketing",
+  "version": "1.0.0",
+  "description": "Marketing leadership agent for campaigns, content strategy, and brand management",
+  "files": {},
+  "requiredSkills": [
+    "campaign-content",
+    "outbound-personalization",
+    "deck-generator",
+    "exa-research"
+  ],
+  "requiredMcp": [],
+  "tags": ["marketing", "campaigns", "content", "brand"]
+}
