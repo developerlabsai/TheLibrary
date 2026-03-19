@@ -105,7 +105,7 @@ export async function executeDeploy(options: DeployOptions): Promise<void> {
       printResult('Specialties (local)', specialtiesResult.deployed, specialtiesResult.skipped, specialtiesResult.warnings);
     }
     for (const name of remote) {
-      await deployRemoteAsset(name, 'skill', options, dryRun);
+      await deployRemoteAsset(name, 'specialty', options, dryRun);
     }
   }
 

@@ -194,12 +194,12 @@ async function detectCicd(targetPath: string): Promise<string | null> {
 }
 
 async function detectExistingSpecialties(targetPath: string): Promise<string[]> {
-  const skillsDir = path.join(targetPath, '.claude', 'skills');
-  if (!(await exists(skillsDir))) return [];
+  const specialtiesDir = path.join(targetPath, '.claude', 'specialties');
+  if (!(await exists(specialtiesDir))) return [];
 
   try {
     const { readdir } = await import('fs/promises');
-    const entries = await readdir(skillsDir, { withFileTypes: true });
+    const entries = await readdir(specialtiesDir, { withFileTypes: true });
     return entries
       .filter((e) => e.isDirectory() || e.name.endsWith('.md'))
       .map((e) => e.name.replace('.md', ''));

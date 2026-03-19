@@ -201,7 +201,7 @@ export interface EntitlementCheckResult {
 /** Catalog entry from the registry API. */
 export interface CatalogEntry {
   name: string;
-  type: 'agent' | 'skill' | 'template' | 'package';
+  type: 'agent' | 'specialty' | 'template' | 'team';
   tier: LicenseTier;
   description: string;
   current_version: string;
@@ -211,7 +211,7 @@ export interface CatalogEntry {
 /** Asset metadata from the registry API. */
 export interface AssetMetadata {
   name: string;
-  type: 'agent' | 'skill' | 'template' | 'package';
+  type: 'agent' | 'specialty' | 'template' | 'team';
   tier: LicenseTier;
   description: string;
   current_version: string;

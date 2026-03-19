@@ -1,6 +1,6 @@
 /**
  * Specialty deployer - deploys specialties from the library into target project's
- * .claude/skills/ directory.
+ * .claude/specialties/ directory.
  */
 
 import path from 'path';
@@ -29,14 +29,14 @@ export async function deploySpecialties(
   const result: SpecialtyDeployResult = { deployed: [], skipped: [], warnings: [] };
   const projectRoot = getProjectRoot();
   const specialtiesLibrary = path.join(projectRoot, 'Specialties');
-  const targetSkillsDir = path.join(options.targetPath, '.claude', 'skills');
+  const targetSpecialtiesDir = path.join(options.targetPath, '.claude', 'specialties');
 
   if (options.dryRun) {
-    result.deployed = specialtyNames.map((s) => `.claude/skills/${s}/`);
+    result.deployed = specialtyNames.map((s) => `.claude/specialties/${s}/`);
     return result;
   }
 
-  await ensureDir(targetSkillsDir);
+  await ensureDir(targetSpecialtiesDir);
 
   // Map specialty names to their directory names in the library
   const availableSpecialties = await getAvailableSpecialtyDirs(specialtiesLibrary);
@@ -58,7 +58,7 @@ export async function deploySpecialties(
     }
 
     const srcDir = path.join(specialtiesLibrary, matchedDir);
-    const destDir = path.join(targetSkillsDir, normalizedName);
+    const destDir = path.join(targetSpecialtiesDir, normalizedName);
 
     if (await exists(destDir)) {
       if (options.force) {

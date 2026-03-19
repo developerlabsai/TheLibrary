@@ -97,7 +97,7 @@ function generateContextContent(profile: ProjectProfile): string {
   sections.push('- `.specify/` - SpecKit configuration and templates');
   sections.push('- `.specify/memory/constitution.md` - Project governance');
   sections.push('- `.beads/` - Task tracking');
-  sections.push('- `.claude/skills/` - Available agent specialties');
+  sections.push('- `.claude/specialties/` - Available agent specialties');
 
   return sections.join('\n');
 }
