@@ -118,6 +118,9 @@ A product manager wants to define a feature specification (spec.md + plan.md) in
 - **FR-014**: System MUST bundle agents, skills, and templates into workforce packages that can be deployed in a single command.
 - **FR-015**: System MUST stamp deployed projects with version information (speckit-version.json) tracking deployer version, profile, and deployed components.
 - **FR-016**: System MUST never overwrite existing constitution.md, specs, or beads configurations. Existing content must be preserved.
+- **FR-017**: System MUST provide a `scaffold` command that creates a new project directory with git initialization, a language-appropriate package manifest (package.json, requirements.txt, go.mod, Cargo.toml), a recommended source directory structure, and a pre-installed SpecKit deployment using the detected or user-specified constitution profile.
+- **FR-018**: System MUST deploy a QA framework consisting of qa-areas.yml (functional area-to-spec mapping template), qa-parse-spec.sh and qa-run-tests.sh scripts (already included in the 9 bash scripts), enabling spec-driven test discovery and grouped test execution via `/qa.run --spec`, `/qa.run --area`, `/qa.run --all`, and `/qa.run --failed` modes.
+- **FR-019**: System MUST generate technical documentation after every SpecKit workflow completion, producing both an HTML file (using Templates/template-technical-docs.html as the design reference) and a companion .md file with a table of contents including line number references, enabling Claude Code to locate and navigate documentation sections efficiently.
 
 ### Key Entities
 

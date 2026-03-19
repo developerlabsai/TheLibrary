@@ -107,7 +107,19 @@ export async function deploySpeckit(
     result.created.push(...refsResult.copied.map((f) => path.relative(targetPath, f)));
   }
 
-  // 6. Create specs/ directory
+  // 6. Deploy qa-areas.yml from library template
+  const qaAreasSource = path.join(libraryRoot, 'speckit', 'qa-areas-template.yml');
+  const qaAreasDest = path.join(specifyDir, 'qa-areas.yml');
+  if (await exists(qaAreasSource)) {
+    const qaCreated = await copyIfNotExists(qaAreasSource, qaAreasDest);
+    if (qaCreated) {
+      result.created.push('.specify/qa-areas.yml');
+    } else {
+      result.skipped.push('.specify/qa-areas.yml');
+    }
+  }
+
+  // 7. Create specs/ directory
   const specsDir = path.join(targetPath, 'specs');
   if (!(await exists(specsDir))) {
     await ensureDir(specsDir);

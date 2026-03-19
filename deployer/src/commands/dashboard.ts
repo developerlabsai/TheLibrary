@@ -152,11 +152,27 @@ export async function startDashboard(port: number = 3847): Promise<void> {
     }
   });
 
+  // ── Validation Helpers ──────────────────────────────────────────
+
+  /**
+   * Validates that required fields are present in the request body.
+   * Returns an error message string if validation fails, null if valid.
+   */
+  function validateRequired(body: Record<string, unknown>, fields: string[]): string | null {
+    const missing = fields.filter((f) => !body[f] || (typeof body[f] === 'string' && !(body[f] as string).trim()));
+    if (missing.length > 0) {
+      return `Missing required fields: ${missing.join(', ')}`;
+    }
+    return null;
+  }
+
   // ── Wizard API Routes ───────────────────────────────────────────
 
   /** Create an agent via wizard input */
   app.post('/api/wizards/agent', async (req, res) => {
     try {
+      const error = validateRequired(req.body, ['name', 'displayName', 'purpose', 'tone']);
+      if (error) { res.status(400).json({ error }); return; }
       const { generateAgent } = await import('../wizards/agent-wizard.js');
       const outputDir = await generateAgent(req.body);
       res.json({ success: true, outputDir });
@@ -168,6 +184,8 @@ export async function startDashboard(port: number = 3847): Promise<void> {
   /** Create a skill via wizard input */
   app.post('/api/wizards/skill', async (req, res) => {
     try {
+      const error = validateRequired(req.body, ['name', 'displayName', 'description', 'invocationCommand']);
+      if (error) { res.status(400).json({ error }); return; }
       const { generateSkill } = await import('../wizards/skill-wizard.js');
       const outputDir = await generateSkill(req.body);
       res.json({ success: true, outputDir });
@@ -179,6 +197,16 @@ export async function startDashboard(port: number = 3847): Promise<void> {
   /** Create an MCP server via wizard input */
   app.post('/api/wizards/mcp', async (req, res) => {
     try {
+      const error = validateRequired(req.body, ['name', 'displayName', 'apiBaseUrl', 'authType']);
+      if (error) { res.status(400).json({ error }); return; }
+      // Validate burstLimit <= requestsPerMinute if rate limits provided
+      const rl = req.body.rateLimits;
+      if (rl && typeof rl === 'object' && 'burstLimit' in rl && 'maxRequests' in rl) {
+        if (Number(rl.burstLimit) > Number(rl.maxRequests)) {
+          res.status(400).json({ error: 'burstLimit must be <= maxRequests (requestsPerMinute)' });
+          return;
+        }
+      }
       const { generateMcpServer } = await import('../wizards/mcp-wizard.js');
       const outputDir = await generateMcpServer(req.body);
       res.json({ success: true, outputDir });
@@ -190,6 +218,8 @@ export async function startDashboard(port: number = 3847): Promise<void> {
   /** Create a feature spec via wizard input */
   app.post('/api/wizards/feature', async (req, res) => {
     try {
+      const error = validateRequired(req.body, ['name', 'description']);
+      if (error) { res.status(400).json({ error }); return; }
       const { generateFeatureSpec } = await import('../wizards/feature-wizard.js');
       const outputDir = await generateFeatureSpec(req.body);
       res.json({ success: true, outputDir });
@@ -201,6 +231,8 @@ export async function startDashboard(port: number = 3847): Promise<void> {
   /** Create a workforce package via wizard input */
   app.post('/api/wizards/package', async (req, res) => {
     try {
+      const error = validateRequired(req.body, ['name', 'description']);
+      if (error) { res.status(400).json({ error }); return; }
       const { generatePackage } = await import('../wizards/package-wizard.js');
       const outputDir = await generatePackage(req.body);
       res.json({ success: true, outputDir });

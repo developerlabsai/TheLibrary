@@ -39,6 +39,7 @@ program
   .option('--skills <skills>', 'Comma-separated list of skills to deploy')
   .option('--agents <agents>', 'Comma-separated list of agents to deploy')
   .option('--templates <templates>', 'Comma-separated list of templates to deploy')
+  .option('--features <features>', 'Comma-separated list of feature specs to deploy')
   .option('--security', 'Deploy security baseline module')
   .option('--dry-run', 'Preview what would be deployed without making changes')
   .option('--force', 'Force overwrite existing files')
@@ -48,6 +49,7 @@ program
     skills?: string;
     agents?: string;
     templates?: string;
+    features?: string;
     security?: boolean;
     dryRun?: boolean;
     force?: boolean;
@@ -59,6 +61,7 @@ program
       skills: opts.skills?.split(',').map((s) => s.trim()),
       agents: opts.agents?.split(',').map((s) => s.trim()),
       templates: opts.templates?.split(',').map((s) => s.trim()),
+      features: opts.features?.split(',').map((s) => s.trim()),
       security: opts.security,
       dryRun: opts.dryRun,
       force: opts.force,
@@ -71,17 +74,13 @@ program
 
 program
   .command('scaffold <target-path>')
-  .description('Scaffold a fresh project with full SpecKit installation')
+  .description('Scaffold a fresh project with language-appropriate structure and SpecKit')
+  .option('--language <language>', 'Project language (typescript, python, go, rust)', 'typescript')
   .option('--profile <profile>', 'Constitution profile')
   .option('--security', 'Include security baseline')
-  .action(async (targetPath: string, opts: { profile?: string; security?: boolean }) => {
-    const options: DeployOptions = {
-      targetPath,
-      profile: opts.profile as ConstitutionProfile | undefined,
-      security: opts.security ?? true,
-      scaffold: true,
-    };
-    await executeDeploy(options);
+  .action(async (targetPath: string, opts: { language?: string; profile?: string; security?: boolean }) => {
+    const { executeScaffold } = await import('../src/commands/scaffold.js');
+    await executeScaffold(targetPath, opts);
   });
 
 // ── bundle ───────────────────────────────────────────────────────────
@@ -210,6 +209,36 @@ program
   .action(async () => {
     const { runPackageWizardCli } = await import('../src/wizards/package-wizard.js');
     await runPackageWizardCli();
+  });
+
+// ── generate-docs ───────────────────────────────────────────────────
+
+program
+  .command('generate-docs <feature-dir>')
+  .description('Generate technical documentation (HTML + Markdown) for a feature')
+  .option('--output <dir>', 'Output directory (defaults to current directory)', '.')
+  .option('--format <format>', 'Output format: html, md, or both', 'both')
+  .action(async (featureDir: string, opts: { output: string; format: string }) => {
+    const path = await import('path');
+    const resolvedFeatureDir = path.resolve(featureDir);
+    const resolvedOutput = path.resolve(opts.output);
+    const results: string[] = [];
+
+    if (opts.format === 'md' || opts.format === 'both') {
+      const { generateTechnicalDocsMd } = await import('../src/generators/technical-docs-md-generator.js');
+      const mdPath = await generateTechnicalDocsMd(resolvedFeatureDir, resolvedOutput);
+      results.push(`Markdown: ${mdPath}`);
+    }
+
+    if (opts.format === 'html' || opts.format === 'both') {
+      const { generateTechnicalDocsHtml } = await import('../src/generators/technical-docs-generator.js');
+      const htmlPath = await generateTechnicalDocsHtml(resolvedFeatureDir, resolvedOutput);
+      results.push(`HTML: ${htmlPath}`);
+    }
+
+    for (const r of results) {
+      console.log(`  Generated: ${r}`);
+    }
   });
 
 // ── dashboard ────────────────────────────────────────────────────────

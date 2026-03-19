@@ -1,0 +1,27 @@
+{
+  "name": "api-service",
+  "displayName": "API Service",
+  "description": "REST/GraphQL API services and microservices",
+  "principles": {
+    "I-crm-first": { "status": "N/A", "justification": "API service, not a CRM" },
+    "II-plugin-ecosystem": { "status": "N/A", "justification": "API service, not a plugin platform" },
+    "III-api-first": { "status": "PASS", "justification": "API-first by definition" },
+    "IV-client-isolation": { "status": "PASS", "justification": "Multi-tenant data isolation enforced" },
+    "V-soc2-audit": { "status": "PASS", "justification": "Audit logging for all mutations" },
+    "VI-cost-tracking": { "status": "PASS", "justification": "API call and resource cost tracking" },
+    "VII-deviation-prevention": { "status": "PASS", "justification": "Constitution compliance enforced" },
+    "VIII-token-conservation": { "status": "PASS", "justification": "Step-by-step AI interactions" },
+    "IX-structured-tools": { "status": "PASS", "justification": "Use Read/Edit/Write over shell commands" },
+    "X-code-quality": { "status": "PASS", "justification": "Type annotations, docstrings, tests" },
+    "XI-context-first": { "status": "PASS", "justification": "Research before implementation" },
+    "XII-confirmation-points": { "status": "PASS", "justification": "Confirm before destructive actions" },
+    "XIII-bounded-loops": { "status": "PASS", "justification": "Max iterations and token budgets" },
+    "XIV-ui-ux-first": { "status": "N/A", "justification": "No UI - API service only" },
+    "XV-aws-only": { "status": "N/A", "justification": "Infrastructure decisions are project-specific" },
+    "XVI-mcp-first": { "status": "PASS", "justification": "MCP tools for documentation lookup" },
+    "XVII-research-phase": { "status": "PASS", "justification": "Research before implementation" },
+    "XVIII-validation-phase": { "status": "PASS", "justification": "Validate approach before coding" },
+    "XIX-implementation-phase": { "status": "PASS", "justification": "Apply researched patterns" },
+    "XX-automation-patterns": { "status": "PASS", "justification": "Canonical automation patterns" }
+  }
+}

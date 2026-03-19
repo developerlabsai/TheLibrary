@@ -1,0 +1,27 @@
+# QA Functional Areas Configuration
+# Maps functional areas to their associated spec numbers for grouped test execution
+# Usage: /qa.run --area <area-name>
+#
+# Commands:
+#   /qa.run --spec <number>    Run tests for a specific spec
+#   /qa.run --area <name>      Run tests for all specs in a functional area
+#   /qa.run --all              Run all tests
+#   /qa.run --failed           Run previously failed tests
+
+areas:
+  deployer:
+    description: CLI deployer commands and deployment logic
+    specs:
+      - 1   # speckit-deployer-platform
+
+  # Add more functional areas as features are added:
+  # dashboard:
+  #   description: Web dashboard pages and API
+  #   specs: []
+  # wizards:
+  #   description: Creation wizards (agent, skill, MCP, feature, package)
+  #   specs: []
+
+# Default test execution order (by priority)
+priority_order:
+  - deployer    # P1: Core deployment

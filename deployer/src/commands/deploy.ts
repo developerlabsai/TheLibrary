@@ -110,7 +110,15 @@ export async function executeDeploy(options: DeployOptions): Promise<void> {
     printResult('Templates', templatesResult.deployed, templatesResult.skipped, templatesResult.warnings);
   }
 
-  // Step 11: Stamp version
+  // Step 11: Deploy feature specs (if specified)
+  if (options.features && options.features.length > 0) {
+    console.log(chalk.blue('\n  Step 11: Deploying feature specs...'));
+    const { deployFeatureSpecs } = await import('../deployers/feature-deployer.js');
+    const featuresResult = await deployFeatureSpecs(options.features, options);
+    printResult('Features', featuresResult.deployed, featuresResult.skipped, featuresResult.warnings);
+  }
+
+  // Step 12: Stamp version
   if (!dryRun) {
     console.log(chalk.blue('\n  Stamping version...'));
     const stamp = createVersionStamp(

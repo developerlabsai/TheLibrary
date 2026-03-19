@@ -1,0 +1,27 @@
+{
+  "name": "minimal",
+  "displayName": "Minimal",
+  "description": "Lightweight profile for any project type with only core governance principles",
+  "principles": {
+    "I-crm-first": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "II-plugin-ecosystem": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "III-api-first": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "IV-client-isolation": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "V-soc2-audit": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "VI-cost-tracking": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "VII-deviation-prevention": { "status": "PASS", "justification": "Core principle - always enforced" },
+    "VIII-token-conservation": { "status": "PASS", "justification": "Core principle - always enforced" },
+    "IX-structured-tools": { "status": "PASS", "justification": "Core principle - always enforced" },
+    "X-code-quality": { "status": "PASS", "justification": "Core principle - always enforced" },
+    "XI-context-first": { "status": "PASS", "justification": "Core principle - always enforced" },
+    "XII-confirmation-points": { "status": "PASS", "justification": "Core principle - always enforced" },
+    "XIII-bounded-loops": { "status": "PASS", "justification": "Core principle - always enforced" },
+    "XIV-ui-ux-first": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "XV-aws-only": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "XVI-mcp-first": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "XVII-research-phase": { "status": "PASS", "justification": "Core principle - always enforced" },
+    "XVIII-validation-phase": { "status": "N/A", "justification": "Not applicable in minimal profile" },
+    "XIX-implementation-phase": { "status": "PASS", "justification": "Core principle - always enforced" },
+    "XX-automation-patterns": { "status": "N/A", "justification": "Not applicable in minimal profile" }
+  }
+}

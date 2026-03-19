@@ -1,0 +1,32 @@
+# QA Functional Areas Configuration
+# Maps functional areas to their associated spec numbers for grouped test execution
+#
+# Usage:
+#   /qa.run --spec <number>    Run tests for a specific spec
+#   /qa.run --area <name>      Run tests for all specs in a functional area
+#   /qa.run --all              Run all tests
+#   /qa.run --failed           Run previously failed tests
+#
+# How to configure:
+#   1. Add a functional area with a descriptive name
+#   2. List the spec numbers that belong to that area
+#   3. Set priority_order to control default test execution sequence
+#
+# Example:
+#   areas:
+#     auth:
+#       description: Authentication, permissions, and access control
+#       specs:
+#         - 3   # User authentication
+#         - 5   # Role-based access control
+
+areas:
+  # Add your functional areas here:
+  # example-area:
+  #   description: Description of what this area covers
+  #   specs:
+  #     - 1   # Feature spec number
+
+# Default test execution order (by priority)
+# List areas in the order they should be tested
+priority_order: []

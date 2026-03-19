@@ -1,0 +1,27 @@
+{
+  "name": "cli-tool",
+  "displayName": "CLI Tool",
+  "description": "Command-line utilities and developer tools",
+  "principles": {
+    "I-crm-first": { "status": "N/A", "justification": "CLI tool, not a CRM" },
+    "II-plugin-ecosystem": { "status": "N/A", "justification": "CLI tool, not a plugin platform" },
+    "III-api-first": { "status": "PASS", "justification": "Programmatic API alongside CLI" },
+    "IV-client-isolation": { "status": "N/A", "justification": "Single-user local tool" },
+    "V-soc2-audit": { "status": "N/A", "justification": "Local tool, no audit requirements" },
+    "VI-cost-tracking": { "status": "N/A", "justification": "No external API costs to track" },
+    "VII-deviation-prevention": { "status": "PASS", "justification": "Constitution compliance enforced" },
+    "VIII-token-conservation": { "status": "PASS", "justification": "Step-by-step AI interactions" },
+    "IX-structured-tools": { "status": "PASS", "justification": "Use Read/Edit/Write over shell commands" },
+    "X-code-quality": { "status": "PASS", "justification": "Type annotations, docstrings, tests" },
+    "XI-context-first": { "status": "PASS", "justification": "Research before implementation" },
+    "XII-confirmation-points": { "status": "PASS", "justification": "Confirm before destructive actions" },
+    "XIII-bounded-loops": { "status": "PASS", "justification": "Max iterations and token budgets" },
+    "XIV-ui-ux-first": { "status": "N/A", "justification": "CLI interface, not graphical UI" },
+    "XV-aws-only": { "status": "N/A", "justification": "Local tool, no cloud infrastructure" },
+    "XVI-mcp-first": { "status": "PASS", "justification": "MCP tools for documentation lookup" },
+    "XVII-research-phase": { "status": "PASS", "justification": "Research before implementation" },
+    "XVIII-validation-phase": { "status": "PASS", "justification": "Validate approach before coding" },
+    "XIX-implementation-phase": { "status": "PASS", "justification": "Apply researched patterns" },
+    "XX-automation-patterns": { "status": "N/A", "justification": "No workflow automation needed" }
+  }
+}

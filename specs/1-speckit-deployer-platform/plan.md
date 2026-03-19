@@ -130,9 +130,10 @@ dashboard/                             # Web frontend
 
 library/                               # Canonical source files
 ├── speckit/
-│   ├── scripts/bash/                  # 9 bash scripts (from SLACK reference)
+│   ├── scripts/bash/                  # 9 bash scripts (incl. qa-parse-spec.sh, qa-run-tests.sh)
 │   ├── templates/                     # 5 markdown templates
 │   ├── memory/constitution-base.md    # 20-principle constitution (v3.5.0)
+│   ├── qa-areas-template.yml          # QA functional area-to-spec mapping template
 │   └── references/                    # UX reference
 ├── constitutions/                     # 6 profile JSONs
 └── security/                          # Security baseline docs
@@ -143,6 +144,9 @@ Templates/                             # 10 HTML templates (Dev Labs design syst
 Packages/                              # 3 workforce packages (package.json each)
 MCP-Servers/                           # Wizard-created MCP servers
 Features/                              # Wizard-created feature specs
+references/
+├── technical docs/                    # HTML technical docs (per feature, Dev Labs design system)
+└── knowledgebase/                     # .md docs with line-number TOC (for Claude Code navigation)
 ```
 
 **Structure Decision**: Web application pattern (deployer/ backend + dashboard/ frontend) with a shared library/ directory. The CLI and API share the same source modules in deployer/src/ - the dashboard API (Express) imports the same generators and deployers that the CLI commands use.

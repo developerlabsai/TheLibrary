@@ -34,6 +34,56 @@ export interface ProjectProfile {
   principleAdaptations: Record<string, PrincipleStatus>;
 }
 
+/** OpenClaw-compatible workspace file set */
+export interface WorkspaceFiles {
+  soul: string;        // SOUL.md - persona, tone, values, boundaries
+  agents: string;      // AGENTS.md - operating manual, workflows
+  user: string;        // USER.md - human user profile template
+  tools: string;       // TOOLS.md - environment-specific tool notes
+  identity: string;    // IDENTITY.md - name, emoji, avatar
+  bootstrap: string;   // BOOTSTRAP.md - first-run onboarding ritual
+  heartbeat: string;   // HEARTBEAT.md - periodic task instructions
+  memory: string;      // MEMORY.md - curated long-term memory
+  boot?: string;       // BOOT.md - optional startup checklist
+}
+
+/** Heartbeat configuration */
+export interface HeartbeatConfig {
+  enabled: boolean;
+  tasks: string[];
+  interval?: string;   // e.g. "hourly", "daily", "15m"
+}
+
+/** Agent runtime loop configuration */
+export interface RuntimeConfig {
+  maxSteps: number;
+  verifierEnabled: boolean;
+  successCriteria: string[];
+  allowedTools: string[];
+  escalationRule: string;
+}
+
+/** Agent security boundaries (NemoClaw-inspired) */
+export interface AgentSecurityConfig {
+  allowedPaths: string[];
+  deniedPaths: string[];
+  allowedDomains: string[];
+  maxIterations: number;
+  requireHumanApproval: string[];
+}
+
+/** MCP server manifest */
+export interface McpServerManifest {
+  name: string;
+  displayName: string;
+  version: string;
+  description: string;
+  transport: 'stdio' | 'http';
+  apiBaseUrl: string;
+  authType: string;
+  tools: { name: string; description: string; method: string; path: string }[];
+}
+
 /** Agent manifest stored alongside each agent definition */
 export interface AgentManifest {
   name: string;
@@ -44,6 +94,9 @@ export interface AgentManifest {
   requiredSkills: string[];
   requiredMcp: string[];
   tags: string[];
+  runtimeConfig?: RuntimeConfig;
+  heartbeatConfig?: HeartbeatConfig;
+  securityConfig?: AgentSecurityConfig;
 }
 
 /** Skill manifest (derived from SKILL.md front matter) */
@@ -94,6 +147,7 @@ export interface DeployOptions {
   skills?: string[];
   agents?: string[];
   templates?: string[];
+  features?: string[];
   security?: boolean;
   dryRun?: boolean;
   force?: boolean;
