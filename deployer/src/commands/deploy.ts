@@ -209,6 +209,7 @@ async function partitionAssets(
 
 /**
  * Deploys a single remote asset from the registry.
+ * For enterprise-tier assets (or when --stub is set), deploys a thin stub.
  * Handles entitlement checking and error messages per US3 acceptance scenarios.
  */
 async function deployRemoteAsset(
@@ -225,10 +226,30 @@ async function deployRemoteAsset(
   }
 
   if (dryRun) {
-    console.log(chalk.dim(`    ${name}: would fetch from registry (dry run)`));
+    const mode = options.stub ? 'stub' : 'full';
+    console.log(chalk.dim(`    ${name}: would deploy as ${mode} from registry (dry run)`));
     return;
   }
 
+  // Enterprise-tier or --stub flag: deploy as thin stub
+  if (options.stub || entitlement.current_tier === 'enterprise') {
+    try {
+      const { deployStub } = await import('../stubs/stub-deployer.js');
+      const stubPath = await deployStub(
+        name,
+        options.version,
+        options.targetPath,
+        undefined,
+        options.ttl
+      );
+      console.log(chalk.green(`    ${name}: deployed as stub → ${stubPath}`));
+    } catch {
+      console.log(chalk.red(`    ${name}: Failed to deploy stub`));
+    }
+    return;
+  }
+
+  // Pro-tier: fetch full content
   try {
     const result = await fetchAsset(name, options.version);
     console.log(chalk.green(`    ${name}: fetched v${result.version} from registry`));
@@ -237,7 +258,7 @@ async function deployRemoteAsset(
     if (err instanceof RegistryClientError) {
       console.log(chalk.red(`    ${name}: ${err.userMessage}`));
     } else {
-      console.log(chalk.red(`    ${name}: Failed to fetch from registry`));
+      console.log(chalk.red(`    ${name}: Failed to fetch from registry — check your network connection`));
     }
   }
 }

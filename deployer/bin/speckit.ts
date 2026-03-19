@@ -45,6 +45,8 @@ program
   .option('--force', 'Force overwrite existing files')
   .option('--scaffold', 'Scaffold a fresh project (equivalent to deploy into empty directory)')
   .option('--version <version>', 'Pin registry assets to a specific version')
+  .option('--stub', 'Force stub deployment for premium assets')
+  .option('--ttl <seconds>', 'TTL for stub cache in seconds (default: 86400)')
   .action(async (targetPath: string, opts: {
     profile?: string;
     specialties?: string;
@@ -56,6 +58,8 @@ program
     force?: boolean;
     scaffold?: boolean;
     version?: string;
+    stub?: boolean;
+    ttl?: string;
   }) => {
     const options: DeployOptions = {
       targetPath,
@@ -69,6 +73,8 @@ program
       force: opts.force,
       scaffold: opts.scaffold,
       version: opts.version,
+      stub: opts.stub,
+      ttl: opts.ttl ? parseInt(opts.ttl, 10) : undefined,
     };
     await executeDeploy(options);
   });
@@ -247,6 +253,43 @@ licenseCmd
   .action(async () => {
     const { executeLicenseStatus } = await import('../src/commands/license-status.js');
     await executeLicenseStatus();
+  });
+
+// ── audit ───────────────────────────────────────────────────────────
+
+program
+  .command('audit [target-path]')
+  .description('Audit deployed SpecKit assets in a project — shows license tier and status')
+  .option('--json', 'Output as JSON')
+  .action(async (targetPath: string = '.', opts: { json?: boolean }) => {
+    const { executeAudit } = await import('../src/commands/audit.js');
+    await executeAudit(targetPath, opts.json);
+  });
+
+// ── resolve ─────────────────────────────────────────────────────────
+
+program
+  .command('resolve <stub-path>')
+  .description('Resolve a SpecKit stub file by fetching content from the registry')
+  .action(async (stubPath: string) => {
+    const path = await import('path');
+    const chalk = (await import('chalk')).default;
+    const { resolveStub } = await import('../src/stubs/stub-resolver.js');
+
+    const resolved = path.resolve(stubPath);
+    console.log(chalk.blue(`\n  Resolving stub: ${resolved}\n`));
+
+    const result = await resolveStub(resolved);
+    if (result.success) {
+      const source = result.from_cache ? 'cache' : 'registry';
+      console.log(chalk.green(`  Resolved v${result.version} from ${source}`));
+      if (result.files) {
+        console.log(chalk.dim(`  Files: ${Object.keys(result.files).join(', ')}`));
+      }
+    } else {
+      console.log(chalk.red(`  Failed: ${result.error}`));
+    }
+    console.log('');
   });
 
 // ── generate-docs ───────────────────────────────────────────────────

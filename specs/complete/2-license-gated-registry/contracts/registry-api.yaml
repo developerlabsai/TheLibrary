@@ -1,0 +1,289 @@
+openapi: 3.1.0
+info:
+  title: SpecKit Registry API
+  description: CLI-facing API for fetching licensed asset content. Authenticated via license key.
+  version: 1.0.0
+
+servers:
+  - url: https://registry.speckit.dev/api/v1
+    description: Production
+  - url: http://localhost:3848/api/v1
+    description: Local development (same server as license-server)
+
+paths:
+  # ── Asset Content ─────────────────────────────────────────────────────
+
+  /registry/assets/{assetName}:
+    get:
+      summary: Fetch asset content
+      description: >
+        Returns the content archive for a licensed asset. The CLI calls this
+        endpoint during `speckit deploy` for premium assets. Validates the
+        license key, checks tier and per-asset entitlements, then streams
+        the content archive. Defaults to latest version unless `version`
+        query parameter is specified.
+      tags: [Registry]
+      security:
+        - LicenseKey: []
+      parameters:
+        - name: assetName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Asset identifier (e.g., 'premium-research-agent')
+        - name: version
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Specific semver version to fetch (defaults to latest)
+      responses:
+        '200':
+          description: Asset content archive
+          content:
+            application/gzip:
+              schema:
+                type: string
+                format: binary
+          headers:
+            X-Asset-Version:
+              schema:
+                type: string
+              description: The version being served
+            X-Asset-Checksum:
+              schema:
+                type: string
+              description: SHA-256 checksum of the archive
+            X-Asset-Tier:
+              schema:
+                type: string
+                enum: [free, pro, enterprise]
+              description: Required tier for this asset
+        '401':
+          description: License key missing, invalid, expired, or revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistryError'
+              examples:
+                missing_key:
+                  value:
+                    error: auth_required
+                    message: 'License key required. Run `speckit login` to authenticate.'
+                invalid_key:
+                  value:
+                    error: invalid_key
+                    message: 'License key is invalid.'
+                expired_key:
+                  value:
+                    error: key_expired
+                    message: 'License key has expired. Contact sales for renewal.'
+                revoked_key:
+                  value:
+                    error: key_revoked
+                    message: 'License key has been revoked. Contact sales.'
+        '403':
+          description: Key valid but insufficient tier or asset not in entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistryError'
+              examples:
+                tier_insufficient:
+                  value:
+                    error: tier_insufficient
+                    message: 'This asset requires an Enterprise subscription. Contact sales to upgrade.'
+                    required_tier: enterprise
+                    current_tier: pro
+                not_entitled:
+                  value:
+                    error: not_entitled
+                    message: 'This asset is not included in your subscription. Contact sales to add it.'
+                    asset: premium-research-agent
+        '404':
+          description: Asset not found or version does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistryError'
+              examples:
+                not_found:
+                  value:
+                    error: asset_not_found
+                    message: 'Asset "nonexistent-agent" not found in the registry.'
+                version_not_found:
+                  value:
+                    error: version_not_found
+                    message: 'Version 2.0.0 not found for asset "research-agent". Latest is 1.3.0.'
+
+  /registry/assets/{assetName}/metadata:
+    get:
+      summary: Get asset metadata
+      description: Returns metadata about an asset without downloading content. Used by `speckit list` and `speckit audit`.
+      tags: [Registry]
+      security:
+        - LicenseKey: []
+      parameters:
+        - name: assetName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Asset metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetMetadata'
+        '401':
+          description: License key invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistryError'
+        '404':
+          description: Asset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistryError'
+
+  # ── Asset Catalog ─────────────────────────────────────────────────────
+
+  /registry/catalog:
+    get:
+      summary: List available assets for the authenticated key
+      description: >
+        Returns all assets the authenticated key has access to (based on tier
+        and entitlements). Used by `speckit list` to show available premium assets.
+      tags: [Registry]
+      security:
+        - LicenseKey: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [agent, skill, template, package]
+      responses:
+        '200':
+          description: Catalog of accessible assets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CatalogEntry'
+                  tier:
+                    type: string
+                    description: Authenticated key's tier
+                  total:
+                    type: integer
+        '401':
+          description: License key invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistryError'
+
+  # ── Health ────────────────────────────────────────────────────────────
+
+  /registry/health:
+    get:
+      summary: Registry health check
+      description: Returns registry status. No authentication required.
+      tags: [Registry]
+      responses:
+        '200':
+          description: Registry is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  version:
+                    type: string
+
+# ── Components ────────────────────────────────────────────────────────
+
+components:
+  securitySchemes:
+    LicenseKey:
+      type: apiKey
+      in: header
+      name: X-License-Key
+      description: License key value (sk_live_... or sk_test_...)
+
+  schemas:
+    AssetMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [agent, skill, template, package]
+        tier:
+          type: string
+          enum: [free, pro, enterprise]
+        description:
+          type: string
+        current_version:
+          type: string
+        available_versions:
+          type: array
+          items:
+            type: string
+        file_manifest:
+          type: array
+          items:
+            type: string
+          description: List of files in the asset
+
+    CatalogEntry:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [agent, skill, template, package]
+        tier:
+          type: string
+          enum: [free, pro, enterprise]
+        description:
+          type: string
+        current_version:
+          type: string
+        entitled:
+          type: boolean
+          description: Whether the authenticated key has access to this asset
+
+    RegistryError:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          description: Machine-readable error code
+        message:
+          type: string
+          description: Human-readable error message for CLI display
+        required_tier:
+          type: string
+          description: Present on tier_insufficient errors
+        current_tier:
+          type: string
+          description: Present on tier_insufficient errors
+        asset:
+          type: string
+          description: Present on not_entitled errors

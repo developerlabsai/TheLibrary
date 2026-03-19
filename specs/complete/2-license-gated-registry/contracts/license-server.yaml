@@ -1,0 +1,745 @@
+openapi: 3.1.0
+info:
+  title: SpecKit License Server API
+  description: Admin-facing API for managing license keys, organizations, and admin accounts.
+  version: 1.0.0
+
+servers:
+  - url: https://license.speckit.dev/api/v1
+    description: Production
+  - url: http://localhost:3848/api/v1
+    description: Local development
+
+paths:
+  # ── Admin Authentication ──────────────────────────────────────────────
+
+  /admin/login:
+    post:
+      summary: Admin login
+      description: Authenticate an admin with email and password. Returns a session token.
+      tags: [Admin Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Session bearer token
+                  admin:
+                    $ref: '#/components/schemas/AdminAccount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /admin/logout:
+    post:
+      summary: Admin logout
+      description: Invalidate the current admin session.
+      tags: [Admin Auth]
+      security:
+        - AdminBearer: []
+      responses:
+        '200':
+          description: Logout successful
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Organizations ─────────────────────────────────────────────────────
+
+  /organizations:
+    get:
+      summary: List all organizations
+      tags: [Organizations]
+      security:
+        - AdminBearer: []
+      parameters:
+        - name: tier
+          in: query
+          schema:
+            $ref: '#/components/schemas/Tier'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/BillingStatus'
+      responses:
+        '200':
+          description: List of organizations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Organization'
+
+    post:
+      summary: Create a new organization
+      tags: [Organizations]
+      security:
+        - AdminBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, contact_email, tier]
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                contact_email:
+                  type: string
+                  format: email
+                tier:
+                  $ref: '#/components/schemas/Tier'
+      responses:
+        '201':
+          description: Organization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '409':
+          description: Organization name already exists
+
+  /organizations/{orgId}:
+    get:
+      summary: Get organization details
+      tags: [Organizations]
+      security:
+        - AdminBearer: []
+      parameters:
+        - $ref: '#/components/parameters/OrgId'
+      responses:
+        '200':
+          description: Organization details with keys summary
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Organization'
+                  - type: object
+                    properties:
+                      keys:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/LicenseKeySummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Update organization
+      tags: [Organizations]
+      security:
+        - AdminBearer: []
+      parameters:
+        - $ref: '#/components/parameters/OrgId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                contact_email:
+                  type: string
+                  format: email
+                tier:
+                  $ref: '#/components/schemas/Tier'
+                billing_status:
+                  $ref: '#/components/schemas/BillingStatus'
+      responses:
+        '200':
+          description: Organization updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+
+  # ── License Keys ──────────────────────────────────────────────────────
+
+  /keys:
+    get:
+      summary: List license keys
+      tags: [License Keys]
+      security:
+        - AdminBearer: []
+      parameters:
+        - name: org_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, expired, revoked]
+      responses:
+        '200':
+          description: List of license keys
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LicenseKey'
+
+    post:
+      summary: Issue a new license key
+      tags: [License Keys]
+      security:
+        - AdminBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [org_id, tier, entitled_assets]
+              properties:
+                org_id:
+                  type: string
+                  format: uuid
+                tier:
+                  $ref: '#/components/schemas/Tier'
+                entitled_assets:
+                  type: array
+                  items:
+                    type: string
+                  description: List of asset names this key can access
+                expires_at:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: Expiration timestamp (null = never expires)
+      responses:
+        '201':
+          description: Key created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseKeyFull'
+        '404':
+          description: Organization not found
+
+  /keys/{keyId}:
+    get:
+      summary: Get license key details
+      tags: [License Keys]
+      security:
+        - AdminBearer: []
+      parameters:
+        - $ref: '#/components/parameters/KeyId'
+      responses:
+        '200':
+          description: Key details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseKey'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /keys/{keyId}/revoke:
+    post:
+      summary: Revoke a license key
+      description: Permanently revokes a license key. Cannot be undone.
+      tags: [License Keys]
+      security:
+        - AdminBearer: []
+      parameters:
+        - $ref: '#/components/parameters/KeyId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Reason for revocation (stored in audit log)
+      responses:
+        '200':
+          description: Key revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseKey'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Key already revoked
+
+  /keys/{keyId}/entitlements:
+    put:
+      summary: Update entitled assets for a key
+      tags: [License Keys]
+      security:
+        - AdminBearer: []
+      parameters:
+        - $ref: '#/components/parameters/KeyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [entitled_assets]
+              properties:
+                entitled_assets:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Entitlements updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseKey'
+
+  # ── License Validation (CLI-facing) ───────────────────────────────────
+
+  /validate:
+    post:
+      summary: Validate a license key
+      description: Called by the CLI on `speckit login` to verify a key is valid. Also used for periodic re-validation.
+      tags: [License Validation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [key]
+              properties:
+                key:
+                  type: string
+                  description: The license key value (sk_live_...)
+      responses:
+        '200':
+          description: Key is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseStatus'
+        '401':
+          description: Key is invalid, expired, or revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ── Audit Log ─────────────────────────────────────────────────────────
+
+  /audit-log:
+    get:
+      summary: Query admin audit log
+      tags: [Audit]
+      security:
+        - AdminBearer: []
+      parameters:
+        - name: admin_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: since
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+      responses:
+        '200':
+          description: Audit log entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLogEntry'
+
+  # ── Assets Management ─────────────────────────────────────────────────
+
+  /assets:
+    get:
+      summary: List all registered assets
+      tags: [Assets]
+      security:
+        - AdminBearer: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/AssetType'
+        - name: tier
+          in: query
+          schema:
+            $ref: '#/components/schemas/Tier'
+      responses:
+        '200':
+          description: List of assets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Asset'
+
+    post:
+      summary: Register a new asset
+      tags: [Assets]
+      security:
+        - AdminBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, type, tier, description]
+              properties:
+                name:
+                  type: string
+                  pattern: '^[a-z0-9][a-z0-9-]*[a-z0-9]$'
+                type:
+                  $ref: '#/components/schemas/AssetType'
+                tier:
+                  $ref: '#/components/schemas/Tier'
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Asset registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '409':
+          description: Asset name already exists
+
+  /assets/{assetName}/versions:
+    post:
+      summary: Publish a new version of an asset
+      tags: [Assets]
+      security:
+        - AdminBearer: []
+      parameters:
+        - name: assetName
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [version, content]
+              properties:
+                version:
+                  type: string
+                  description: Semver version string
+                content:
+                  type: string
+                  format: binary
+                  description: tar.gz archive of asset files
+      responses:
+        '201':
+          description: Version published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetVersion'
+        '409':
+          description: Version already exists
+
+# ── Components ────────────────────────────────────────────────────────
+
+components:
+  securitySchemes:
+    AdminBearer:
+      type: http
+      scheme: bearer
+      description: Admin session token from /admin/login
+
+  parameters:
+    OrgId:
+      name: orgId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    KeyId:
+      name: keyId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    Tier:
+      type: string
+      enum: [free, pro, enterprise]
+
+    BillingStatus:
+      type: string
+      enum: [active, suspended, cancelled]
+
+    AssetType:
+      type: string
+      enum: [agent, skill, template, package]
+
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        contact_email:
+          type: string
+        tier:
+          $ref: '#/components/schemas/Tier'
+        billing_status:
+          $ref: '#/components/schemas/BillingStatus'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LicenseKey:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        key_prefix:
+          type: string
+          description: First 8 characters of key for identification (e.g., sk_live_a)
+        org_id:
+          type: string
+          format: uuid
+        org_name:
+          type: string
+        tier:
+          $ref: '#/components/schemas/Tier'
+        entitled_assets:
+          type: array
+          items:
+            type: string
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        revoked_at:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [active, expired, revoked]
+          description: Computed status
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+        deploy_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    LicenseKeySummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        key_prefix:
+          type: string
+        tier:
+          $ref: '#/components/schemas/Tier'
+        status:
+          type: string
+          enum: [active, expired, revoked]
+        deploy_count:
+          type: integer
+
+    LicenseKeyFull:
+      description: Returned only on key creation. Includes the full key value (only time it is shown).
+      allOf:
+        - $ref: '#/components/schemas/LicenseKey'
+        - type: object
+          properties:
+            key_value:
+              type: string
+              description: Full key value — only returned on creation
+
+    LicenseStatus:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        org_name:
+          type: string
+        tier:
+          $ref: '#/components/schemas/Tier'
+        entitled_assets:
+          type: array
+          items:
+            type: string
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    AdminAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        role:
+          type: string
+          enum: [admin, super_admin]
+        last_login_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    Asset:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/AssetType'
+        tier:
+          $ref: '#/components/schemas/Tier'
+        description:
+          type: string
+        current_version:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    AssetVersion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        asset_id:
+          type: string
+          format: uuid
+        version:
+          type: string
+        checksum:
+          type: string
+        published_at:
+          type: string
+          format: date-time
+
+    AuditLogEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        admin_id:
+          type: string
+          format: uuid
+        admin_username:
+          type: string
+        action:
+          type: string
+        target_type:
+          type: string
+        target_id:
+          type: string
+          format: uuid
+          nullable: true
+        details:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+
+  responses:
+    Unauthorized:
+      description: Authentication required or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

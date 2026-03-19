@@ -153,6 +153,8 @@ export interface DeployOptions {
   force?: boolean;
   scaffold?: boolean;
   version?: string;
+  stub?: boolean;
+  ttl?: number;
 }
 
 /** MCP creation options */
