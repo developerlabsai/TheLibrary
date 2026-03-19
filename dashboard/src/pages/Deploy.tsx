@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api, type Agent, type Skill, type ProjectProfile } from '../services/api';
+import { api, type Agent, type Specialty, type ProjectProfile } from '../services/api';
 
 export default function Deploy() {
   const [targetPath, setTargetPath] = useState('');
@@ -8,16 +8,16 @@ export default function Deploy() {
   const [deploying, setDeploying] = useState(false);
   const [deployLogs, setDeployLogs] = useState<string[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [skills, setSkills] = useState<Skill[]>([]);
+  const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
   const [includeSecurity, setIncludeSecurity] = useState(true);
   const [profiles, setProfiles] = useState<{ name: string; description: string }[]>([]);
   const [selectedProfile, setSelectedProfile] = useState('');
 
   useEffect(() => {
-    Promise.all([api.getAgents(), api.getSkills(), api.getProfiles()])
-      .then(([a, s, p]) => { setAgents(a); setSkills(s); setProfiles(p); })
+    Promise.all([api.getAgents(), api.getSpecialties(), api.getProfiles()])
+      .then(([a, s, p]) => { setAgents(a); setSpecialties(s); setProfiles(p); })
       .catch(console.error);
   }, []);
 
@@ -44,7 +44,7 @@ export default function Deploy() {
       const result = await api.deploy({
         targetPath,
         profile: selectedProfile || undefined,
-        skills: selectedSkills.length > 0 ? selectedSkills : undefined,
+        specialties: selectedSpecialties.length > 0 ? selectedSpecialties : undefined,
         agents: selectedAgents.length > 0 ? selectedAgents : undefined,
         security: includeSecurity,
       });
@@ -56,8 +56,8 @@ export default function Deploy() {
     }
   };
 
-  const toggleSkill = (name: string) => {
-    setSelectedSkills((prev) =>
+  const toggleSpecialty = (name: string) => {
+    setSelectedSpecialties((prev) =>
       prev.includes(name) ? prev.filter((s) => s !== name) : [...prev, name]
     );
   };
@@ -155,15 +155,15 @@ export default function Deploy() {
             ))}
           </div>
 
-          {/* Skills */}
-          <h4 className="text-gray-400 text-sm mb-2">Skills ({selectedSkills.length} selected)</h4>
+          {/* Specialties */}
+          <h4 className="text-gray-400 text-sm mb-2">Specialties ({selectedSpecialties.length} selected)</h4>
           <div className="flex flex-wrap gap-2 mb-4">
-            {skills.map((s) => (
+            {specialties.map((s) => (
               <button
                 key={s.name}
-                onClick={() => toggleSkill(s.name)}
+                onClick={() => toggleSpecialty(s.name)}
                 className={`px-3 py-1.5 rounded text-xs transition-colors ${
-                  selectedSkills.includes(s.name)
+                  selectedSpecialties.includes(s.name)
                     ? 'bg-emerald text-white'
                     : 'bg-gray-800 text-gray-400 hover:text-white'
                 }`}

@@ -5,3 +5,10 @@ dist/
 .env
 .env.local
 .env.*.local
+
+# License server
+license-server/node_modules/
+license-server/dist/
+
+# SpecKit CLI cache
+.speckit/

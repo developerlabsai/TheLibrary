@@ -4,16 +4,16 @@ const navItems = [
   { path: '/', label: 'Dashboard', icon: '~' },
   { path: '/assets', label: 'Assets', icon: '#' },
   { path: '/deploy', label: 'Deploy', icon: '>' },
-  { path: '/packages', label: 'Packages', icon: '=' },
+  { path: '/teams', label: 'Teams', icon: '=' },
   { path: '/projects', label: 'Projects', icon: '@' },
 ];
 
 const wizardItems = [
   { path: '/create/agent', label: 'Agent', icon: '+' },
-  { path: '/create/skill', label: 'Skill', icon: '+' },
+  { path: '/create/specialty', label: 'Specialty', icon: '+' },
   { path: '/create/mcp', label: 'MCP Server', icon: '+' },
   { path: '/create/feature', label: 'Feature', icon: '+' },
-  { path: '/create/package', label: 'Package', icon: '+' },
+  { path: '/create/team', label: 'Team', icon: '+' },
 ];
 
 export default function Layout() {

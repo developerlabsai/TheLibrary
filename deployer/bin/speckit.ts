@@ -2,7 +2,7 @@
 /**
  * TheLibrary - SpecKit Deployer CLI
  *
- * Uniform deployment of SpecKit, Beads, Agents, Skills, MCP Servers,
+ * Uniform deployment of SpecKit, Beads, Agents, Specialties, MCP Servers,
  * and Templates into any project.
  */
 
@@ -17,7 +17,7 @@ const program = new Command();
 
 program
   .name('speckit')
-  .description('TheLibrary - SpecKit Deployer. Uniform deployment of agents, skills, MCP servers, and templates.')
+  .description('TheLibrary - SpecKit Deployer. Uniform deployment of agents, specialties, MCP servers, and templates.')
   .version('1.0.0');
 
 // ── analyze ──────────────────────────────────────────────────────────
@@ -36,7 +36,7 @@ program
   .command('deploy <target-path>')
   .description('Deploy SpecKit + Beads into a target project')
   .option('--profile <profile>', 'Constitution profile (web-app-typescript, web-app-python, slack-bot, api-service, cli-tool, minimal)')
-  .option('--skills <skills>', 'Comma-separated list of skills to deploy')
+  .option('--specialties <specialties>', 'Comma-separated list of specialties to deploy')
   .option('--agents <agents>', 'Comma-separated list of agents to deploy')
   .option('--templates <templates>', 'Comma-separated list of templates to deploy')
   .option('--features <features>', 'Comma-separated list of feature specs to deploy')
@@ -44,9 +44,10 @@ program
   .option('--dry-run', 'Preview what would be deployed without making changes')
   .option('--force', 'Force overwrite existing files')
   .option('--scaffold', 'Scaffold a fresh project (equivalent to deploy into empty directory)')
+  .option('--version <version>', 'Pin registry assets to a specific version')
   .action(async (targetPath: string, opts: {
     profile?: string;
-    skills?: string;
+    specialties?: string;
     agents?: string;
     templates?: string;
     features?: string;
@@ -54,11 +55,12 @@ program
     dryRun?: boolean;
     force?: boolean;
     scaffold?: boolean;
+    version?: string;
   }) => {
     const options: DeployOptions = {
       targetPath,
       profile: opts.profile as ConstitutionProfile | undefined,
-      skills: opts.skills?.split(',').map((s) => s.trim()),
+      specialties: opts.specialties?.split(',').map((s) => s.trim()),
       agents: opts.agents?.split(',').map((s) => s.trim()),
       templates: opts.templates?.split(',').map((s) => s.trim()),
       features: opts.features?.split(',').map((s) => s.trim()),
@@ -66,6 +68,7 @@ program
       dryRun: opts.dryRun,
       force: opts.force,
       scaffold: opts.scaffold,
+      version: opts.version,
     };
     await executeDeploy(options);
   });
@@ -86,33 +89,33 @@ program
 // ── bundle ───────────────────────────────────────────────────────────
 
 program
-  .command('bundle <target-path> <package-name>')
-  .description('Deploy an entire workforce package')
+  .command('bundle <target-path> <team-name>')
+  .description('Deploy an entire workforce team')
   .option('--dry-run', 'Preview without making changes')
-  .action(async (targetPath: string, packageName: string, opts: { dryRun?: boolean }) => {
-    await executeBundle(targetPath, packageName, opts.dryRun);
+  .action(async (targetPath: string, teamName: string, opts: { dryRun?: boolean }) => {
+    await executeBundle(targetPath, teamName, opts.dryRun);
   });
 
 // ── list ─────────────────────────────────────────────────────────────
 
 program
   .command('list [type]')
-  .description('List available assets (agents, skills, templates, packages, profiles, all)')
+  .description('List available assets (agents, specialties, templates, teams, profiles, all)')
   .action(async (type: string = 'all') => {
     await executeList(type as any);
   });
 
-// ── deploy-skill ─────────────────────────────────────────────────────
+// ── deploy-specialty ─────────────────────────────────────────────────
 
 program
-  .command('deploy-skill <target-path> <skill-name>')
-  .description('Deploy a single skill into a project')
+  .command('deploy-specialty <target-path> <specialty-name>')
+  .description('Deploy a single specialty into a project')
   .option('--force', 'Overwrite if exists')
-  .action(async (targetPath: string, skillName: string, opts: { force?: boolean }) => {
-    const { deploySkills } = await import('../src/deployers/skill-deployer.js');
-    const result = await deploySkills([skillName], { targetPath, force: opts.force });
+  .action(async (targetPath: string, specialtyName: string, opts: { force?: boolean }) => {
+    const { deploySpecialties } = await import('../src/deployers/specialty-deployer.js');
+    const result = await deploySpecialties([specialtyName], { targetPath, force: opts.force });
     if (result.deployed.length > 0) {
-      console.log(`Deployed skill: ${result.deployed.join(', ')}`);
+      console.log(`Deployed specialty: ${result.deployed.join(', ')}`);
     }
     if (result.skipped.length > 0) {
       console.log(`Skipped (already exists): ${result.skipped.join(', ')}`);
@@ -171,14 +174,14 @@ program
     await runAgentWizardCli();
   });
 
-// ── create-skill ────────────────────────────────────────────────────
+// ── create-specialty ────────────────────────────────────────────────
 
 program
-  .command('create-skill')
-  .description('Launch the Skill Creation Wizard')
+  .command('create-specialty')
+  .description('Launch the Specialty Creation Wizard')
   .action(async () => {
-    const { runSkillWizardCli } = await import('../src/wizards/skill-wizard.js');
-    await runSkillWizardCli();
+    const { runSpecialtyWizardCli } = await import('../src/wizards/specialty-wizard.js');
+    await runSpecialtyWizardCli();
   });
 
 // ── create-mcp ──────────────────────────────────────────────────────
@@ -201,14 +204,49 @@ program
     await runFeatureWizardCli();
   });
 
-// ── create-package ──────────────────────────────────────────────────
+// ── create-team ────────────────────────────────────────────────────
 
 program
-  .command('create-package')
-  .description('Launch the Workforce Package Creation Wizard')
+  .command('create-team')
+  .description('Launch the Workforce Team Creation Wizard')
   .action(async () => {
-    const { runPackageWizardCli } = await import('../src/wizards/package-wizard.js');
-    await runPackageWizardCli();
+    const { runTeamWizardCli } = await import('../src/wizards/team-wizard.js');
+    await runTeamWizardCli();
+  });
+
+// ── login ────────────────────────────────────────────────────────────
+
+program
+  .command('login')
+  .description('Authenticate with a license key')
+  .option('--key <key>', 'License key (or enter interactively)')
+  .action(async (opts: { key?: string }) => {
+    const { executeLogin } = await import('../src/commands/login.js');
+    await executeLogin(opts.key);
+  });
+
+// ── logout ───────────────────────────────────────────────────────────
+
+program
+  .command('logout')
+  .description('Remove stored license credentials')
+  .action(async () => {
+    const { executeLogout } = await import('../src/commands/logout.js');
+    await executeLogout();
+  });
+
+// ── license ──────────────────────────────────────────────────────────
+
+const licenseCmd = program
+  .command('license')
+  .description('License management commands');
+
+licenseCmd
+  .command('status')
+  .description('Show current license status, tier, and entitled assets')
+  .action(async () => {
+    const { executeLicenseStatus } = await import('../src/commands/license-status.js');
+    await executeLicenseStatus();
   });
 
 // ── generate-docs ───────────────────────────────────────────────────

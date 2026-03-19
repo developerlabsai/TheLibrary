@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
-import { api, type Agent, type Skill } from '../services/api';
+import { api, type Agent, type Specialty } from '../services/api';
 
-type Tab = 'agents' | 'skills' | 'templates';
+type Tab = 'agents' | 'specialties' | 'templates';
 
 export default function Assets() {
   const [tab, setTab] = useState<Tab>('agents');
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [skills, setSkills] = useState<Skill[]>([]);
+  const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [templates, setTemplates] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    Promise.all([api.getAgents(), api.getSkills(), api.getTemplates()])
+    Promise.all([api.getAgents(), api.getSpecialties(), api.getTemplates()])
       .then(([a, s, t]) => {
         setAgents(a);
-        setSkills(s);
+        setSpecialties(s);
         setTemplates(t);
       })
       .catch(console.error)
@@ -29,7 +29,7 @@ export default function Assets() {
       a.tags.some((t) => t.includes(search.toLowerCase()))
   );
 
-  const filteredSkills = skills.filter(
+  const filteredSpecialties = specialties.filter(
     (s) =>
       s.name.includes(search.toLowerCase()) ||
       s.displayName.toLowerCase().includes(search.toLowerCase()) ||
@@ -45,7 +45,7 @@ export default function Assets() {
   return (
     <div>
       <h2 className="text-2xl font-bold text-white mb-1">Assets</h2>
-      <p className="text-gray-500 text-sm mb-6">Browse all agents, skills, and templates in TheLibrary</p>
+      <p className="text-gray-500 text-sm mb-6">Browse all agents, specialties, and templates in TheLibrary</p>
 
       {/* Search */}
       <input
@@ -58,7 +58,7 @@ export default function Assets() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 border-b border-gray-800">
-        {(['agents', 'skills', 'templates'] as Tab[]).map((t) => (
+        {(['agents', 'specialties', 'templates'] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -68,7 +68,7 @@ export default function Assets() {
                 : 'text-gray-500 hover:text-white'
             }`}
           >
-            {t} ({t === 'agents' ? filteredAgents.length : t === 'skills' ? filteredSkills.length : filteredTemplates.length})
+            {t} ({t === 'agents' ? filteredAgents.length : t === 'specialties' ? filteredSpecialties.length : filteredTemplates.length})
           </button>
         ))}
       </div>
@@ -85,11 +85,11 @@ export default function Assets() {
                 </div>
                 <span className="text-xs text-gray-600 font-mono">v{agent.version}</span>
               </div>
-              {agent.requiredSkills.length > 0 && (
+              {agent.requiredSpecialties.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {agent.requiredSkills.map((skill) => (
-                    <span key={skill} className="px-2 py-0.5 rounded text-xs bg-accent/10 text-accent">
-                      {skill}
+                  {agent.requiredSpecialties.map((specialty) => (
+                    <span key={specialty} className="px-2 py-0.5 rounded text-xs bg-accent/10 text-accent">
+                      {specialty}
                     </span>
                   ))}
                 </div>
@@ -108,21 +108,21 @@ export default function Assets() {
         </div>
       )}
 
-      {tab === 'skills' && (
+      {tab === 'specialties' && (
         <div className="grid gap-3">
-          {filteredSkills.map((skill) => (
-            <div key={skill.name} className="bg-navy rounded-lg border border-gray-800 p-4">
+          {filteredSpecialties.map((specialty) => (
+            <div key={specialty.name} className="bg-navy rounded-lg border border-gray-800 p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-white font-medium text-sm">
-                    {skill.displayName}
-                    {skill.hasReference && (
+                    {specialty.displayName}
+                    {specialty.hasReference && (
                       <span className="ml-2 text-xs text-emerald opacity-60">+ref</span>
                     )}
                   </h3>
-                  <p className="text-gray-500 text-xs mt-1 line-clamp-2">{skill.description}</p>
+                  <p className="text-gray-500 text-xs mt-1 line-clamp-2">{specialty.description}</p>
                 </div>
-                <span className="text-xs text-gray-600 font-mono flex-shrink-0">v{skill.version}</span>
+                <span className="text-xs text-gray-600 font-mono flex-shrink-0">v{specialty.version}</span>
               </div>
             </div>
           ))}

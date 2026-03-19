@@ -21,11 +21,11 @@ export interface Agent {
   displayName: string;
   version: string;
   description: string;
-  requiredSkills: string[];
+  requiredSpecialties: string[];
   tags: string[];
 }
 
-export interface Skill {
+export interface Specialty {
   name: string;
   displayName: string;
   version: string;
@@ -33,21 +33,21 @@ export interface Skill {
   hasReference: boolean;
 }
 
-export interface WorkforcePackage {
+export interface WorkforceTeam {
   name: string;
   description: string;
   version: string;
   agents: string[];
-  skills: string[];
+  specialties: string[];
   templates: string[];
   security: boolean;
 }
 
 export interface Stats {
   agents: number;
-  skills: number;
+  specialties: number;
   templates: number;
-  packages: number;
+  teams: number;
   profiles: number;
 }
 
@@ -62,15 +62,15 @@ export interface ProjectProfile {
   hasClaude: boolean;
   hasMcpInfra: boolean;
   suggestedProfile: string;
-  existingSkills: string[];
+  existingSpecialties: string[];
 }
 
 export const api = {
   getStats: () => fetchJson<Stats>('/stats'),
   getAgents: () => fetchJson<{ agents: Agent[] }>('/agents').then((r) => r.agents),
-  getSkills: () => fetchJson<{ skills: Skill[] }>('/skills').then((r) => r.skills),
+  getSpecialties: () => fetchJson<{ specialties: Specialty[] }>('/specialties').then((r) => r.specialties),
   getTemplates: () => fetchJson<{ templates: string[] }>('/templates').then((r) => r.templates),
-  getPackages: () => fetchJson<{ packages: WorkforcePackage[] }>('/packages').then((r) => r.packages),
+  getTeams: () => fetchJson<{ teams: WorkforceTeam[] }>('/teams').then((r) => r.teams),
   getProfiles: () =>
     fetchJson<{ profiles: { name: string; description: string }[] }>('/profiles').then(
       (r) => r.profiles
@@ -85,7 +85,7 @@ export const api = {
   deploy: (options: {
     targetPath: string;
     profile?: string;
-    skills?: string[];
+    specialties?: string[];
     agents?: string[];
     templates?: string[];
     security?: boolean;
@@ -104,8 +104,8 @@ export const api = {
       body: JSON.stringify(input),
     }),
 
-  createSkill: (input: SkillWizardInput) =>
-    fetchJson<{ success: boolean; outputDir: string }>('/wizards/skill', {
+  createSpecialty: (input: SpecialtyWizardInput) =>
+    fetchJson<{ success: boolean; outputDir: string }>('/wizards/specialty', {
       method: 'POST',
       body: JSON.stringify(input),
     }),
@@ -122,8 +122,8 @@ export const api = {
       body: JSON.stringify(input),
     }),
 
-  createPackage: (input: PackageWizardInput) =>
-    fetchJson<{ success: boolean; outputDir: string }>('/wizards/package', {
+  createTeam: (input: TeamWizardInput) =>
+    fetchJson<{ success: boolean; outputDir: string }>('/wizards/team', {
       method: 'POST',
       body: JSON.stringify(input),
     }),
@@ -139,13 +139,13 @@ export interface AgentWizardInput {
   operatingPrinciples: string[];
   preferredOutputFormats: string[];
   tone: string;
-  requiredSkills: string[];
+  requiredSpecialties: string[];
   tags: string[];
   personalizationFields?: string[];
   standingInstructions?: string[];
 }
 
-export interface SkillWizardInput {
+export interface SpecialtyWizardInput {
   name: string;
   displayName: string;
   description: string;
@@ -196,11 +196,11 @@ export interface FeatureWizardInput {
   technicalApproach?: string;
 }
 
-export interface PackageWizardInput {
+export interface TeamWizardInput {
   name: string;
   description: string;
   agents: string[];
-  skills: string[];
+  specialties: string[];
   templates: string[];
   constitutionProfile: string;
   security: boolean;

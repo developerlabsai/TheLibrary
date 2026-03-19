@@ -4,12 +4,17 @@
   "version": "1.0.0",
   "description": "High-trust EA agent for calendar, inbox, tasks, meetings, research, and decision support",
   "files": {
+    "soul": "SOUL.md",
     "agents": "Agents.md",
-    "claude": "CLAUDE.md",
+    "identity": "IDENTITY.md",
+    "user": "USER.md",
+    "tools": "TOOLS.md",
+    "bootstrap": "BOOTSTRAP.md",
+    "heartbeat": "HEARTBEAT.md",
     "memory": "MEMORY.md",
-    "skills": "Skills.md"
+    "boot": "BOOT.md"
   },
-  "requiredSkills": [
+  "requiredSpecialties": [
     "calendar-prep",
     "call-prep",
     "follow-up-drafter",
@@ -17,5 +22,27 @@
     "slack-summarizer"
   ],
   "requiredMcp": [],
-  "tags": ["executive", "productivity", "communication", "calendar", "inbox"]
+  "tags": ["executive", "productivity", "communication", "calendar", "inbox"],
+  "runtimeConfig": {
+    "maxSteps": 5,
+    "verifierEnabled": true,
+    "successCriteria": [
+      "Objective clearly identified",
+      "Output matches requested format",
+      "Next actions proposed",
+      "Risks and blockers flagged"
+    ],
+    "allowedTools": ["calendar-prep", "call-prep", "follow-up-drafter", "sheets-analyst", "slack-summarizer"],
+    "escalationRule": "Stop and present partial result with blockers if no progress after 2 consecutive iterations"
+  },
+  "heartbeatConfig": {
+    "enabled": true,
+    "tasks": [
+      "Review calendar for upcoming meetings",
+      "Check for pending follow-ups",
+      "Summarize unread messages",
+      "Prepare daily brief"
+    ],
+    "interval": "daily"
+  }
 }

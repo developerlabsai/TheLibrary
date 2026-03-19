@@ -2,11 +2,11 @@
 
 ## Architecture
 
-- **TheLibrary** is a deployment platform for SpecKit, Beads, Agents, Skills, MCP Servers, and Templates
+- **TheLibrary** is a deployment platform for SpecKit, Beads, Agents, Specialties, MCP Servers, and Templates
 - `deployer/` contains the CLI (TypeScript, Commander.js)
 - `dashboard/` contains the web UI (React 19, Vite, Tailwind)
 - `library/` contains canonical source files deployed into target projects
-- `Agents/`, `Skills/`, `Templates/`, `Packages/` are the asset library
+- `Agents/`, `Specialties/`, `Templates/`, `Teams/` are the asset library
 
 ## Development Rules
 
@@ -33,7 +33,7 @@ When deploying into target projects:
 - **NEVER overwrite** `constitution.md` - offer merge
 - **NEVER remove** existing permissions from `settings.local.json` - only add
 - **NEVER touch** existing `specs/` content
-- **Skip** assets that already exist (skills, agents, beads)
+- **Skip** assets that already exist (specialties, agents, beads)
 
 ## Git Workflow
 - Use SpecKit feature workflow for new features

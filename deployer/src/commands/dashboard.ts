@@ -7,7 +7,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { getAllAgents, getAllSkills, getAllTemplates, getAllPackages } from '../registry/asset-registry.js';
+import { getAllAgents, getAllSpecialties, getAllTemplates, getAllTeams } from '../registry/asset-registry.js';
 import { analyzeProject } from '../analyzers/project-analyzer.js';
 import { executeDeploy } from './deploy.js';
 import { getProjectRoot } from '../utils/file-ops.js';
@@ -37,11 +37,11 @@ export async function startDashboard(port: number = 3847): Promise<void> {
     }
   });
 
-  /** List all skills */
-  app.get('/api/skills', async (_req, res) => {
+  /** List all specialties */
+  app.get('/api/specialties', async (_req, res) => {
     try {
-      const skills = await getAllSkills();
-      res.json({ skills });
+      const specialties = await getAllSpecialties();
+      res.json({ specialties });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -57,11 +57,11 @@ export async function startDashboard(port: number = 3847): Promise<void> {
     }
   });
 
-  /** List all workforce packages */
-  app.get('/api/packages', async (_req, res) => {
+  /** List all workforce teams */
+  app.get('/api/teams', async (_req, res) => {
     try {
-      const packages = await getAllPackages();
-      res.json({ packages });
+      const teams = await getAllTeams();
+      res.json({ teams });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -84,17 +84,17 @@ export async function startDashboard(port: number = 3847): Promise<void> {
   /** Get summary stats */
   app.get('/api/stats', async (_req, res) => {
     try {
-      const [agents, skills, templates, packages] = await Promise.all([
+      const [agents, specialties, templates, teams] = await Promise.all([
         getAllAgents(),
-        getAllSkills(),
+        getAllSpecialties(),
         getAllTemplates(),
-        getAllPackages(),
+        getAllTeams(),
       ]);
       res.json({
         agents: agents.length,
-        skills: skills.length,
+        specialties: specialties.length,
         templates: templates.length,
-        packages: packages.length,
+        teams: teams.length,
         profiles: 6,
       });
     } catch (error: any) {
@@ -123,7 +123,7 @@ export async function startDashboard(port: number = 3847): Promise<void> {
       const options: DeployOptions = {
         targetPath: req.body.targetPath,
         profile: req.body.profile as ConstitutionProfile,
-        skills: req.body.skills,
+        specialties: req.body.specialties,
         agents: req.body.agents,
         templates: req.body.templates,
         security: req.body.security,
@@ -181,13 +181,13 @@ export async function startDashboard(port: number = 3847): Promise<void> {
     }
   });
 
-  /** Create a skill via wizard input */
-  app.post('/api/wizards/skill', async (req, res) => {
+  /** Create a specialty via wizard input */
+  app.post('/api/wizards/specialty', async (req, res) => {
     try {
       const error = validateRequired(req.body, ['name', 'displayName', 'description', 'invocationCommand']);
       if (error) { res.status(400).json({ error }); return; }
-      const { generateSkill } = await import('../wizards/skill-wizard.js');
-      const outputDir = await generateSkill(req.body);
+      const { generateSpecialty } = await import('../wizards/specialty-wizard.js');
+      const outputDir = await generateSpecialty(req.body);
       res.json({ success: true, outputDir });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -228,13 +228,13 @@ export async function startDashboard(port: number = 3847): Promise<void> {
     }
   });
 
-  /** Create a workforce package via wizard input */
-  app.post('/api/wizards/package', async (req, res) => {
+  /** Create a workforce team via wizard input */
+  app.post('/api/wizards/team', async (req, res) => {
     try {
       const error = validateRequired(req.body, ['name', 'description']);
       if (error) { res.status(400).json({ error }); return; }
-      const { generatePackage } = await import('../wizards/package-wizard.js');
-      const outputDir = await generatePackage(req.body);
+      const { generateTeam } = await import('../wizards/team-wizard.js');
+      const outputDir = await generateTeam(req.body);
       res.json({ success: true, outputDir });
     } catch (error: any) {
       res.status(500).json({ error: error.message });

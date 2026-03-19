@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Financial operations agent for budgeting, forecasting, and financial analysis",
   "files": {},
-  "requiredSkills": [
+  "requiredSpecialties": [
     "sheets-analyst",
     "pipeline-review"
   ],

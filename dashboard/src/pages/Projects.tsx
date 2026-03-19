@@ -71,12 +71,12 @@ export default function Projects() {
             <StatusBadge label="MCP Infra" installed={profile.hasMcpInfra} />
           </div>
 
-          {/* Existing Skills */}
-          {profile.existingSkills.length > 0 && (
+          {/* Existing Specialties */}
+          {profile.existingSpecialties.length > 0 && (
             <div>
-              <h4 className="text-gray-400 text-sm mb-2">Existing Skills ({profile.existingSkills.length})</h4>
+              <h4 className="text-gray-400 text-sm mb-2">Existing Specialties ({profile.existingSpecialties.length})</h4>
               <div className="flex flex-wrap gap-1.5">
-                {profile.existingSkills.map((s) => (
+                {profile.existingSpecialties.map((s: string) => (
                   <span key={s} className="px-2 py-0.5 bg-gray-800 rounded text-xs text-gray-400">
                     {s}
                   </span>

@@ -19,9 +19,9 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
         <StatCard label="Agents" value={stats?.agents ?? 0} color="text-accent" />
-        <StatCard label="Skills" value={stats?.skills ?? 0} color="text-emerald" />
+        <StatCard label="Specialties" value={stats?.specialties ?? 0} color="text-emerald" />
         <StatCard label="Templates" value={stats?.templates ?? 0} color="text-purple-400" />
-        <StatCard label="Packages" value={stats?.packages ?? 0} color="text-amber-400" />
+        <StatCard label="Teams" value={stats?.teams ?? 0} color="text-amber-400" />
         <StatCard label="Profiles" value={stats?.profiles ?? 0} color="text-pink-400" />
       </div>
 
@@ -30,18 +30,18 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <ActionCard
           title="Deploy to Project"
-          description="Deploy SpecKit, agents, skills, and templates into a target project"
+          description="Deploy SpecKit, agents, specialties, and templates into a target project"
           href="/deploy"
         />
         <ActionCard
           title="Browse Assets"
-          description="View all available agents, skills, MCP servers, and templates"
+          description="View all available agents, specialties, MCP servers, and templates"
           href="/assets"
         />
         <ActionCard
-          title="Deploy Package"
+          title="Deploy Team"
           description="Deploy an entire workforce bundle in one operation"
-          href="/packages"
+          href="/teams"
         />
       </div>
 
@@ -50,7 +50,7 @@ export default function Dashboard() {
       <div className="bg-navy rounded-lg border border-gray-800 p-5 font-mono text-sm">
         <div className="space-y-2 text-gray-400">
           <p><span className="text-accent">speckit</span> analyze /path/to/project</p>
-          <p><span className="text-accent">speckit</span> deploy /path/to/project --skills playbook,sop</p>
+          <p><span className="text-accent">speckit</span> deploy /path/to/project --specialties playbook,sop</p>
           <p><span className="text-accent">speckit</span> bundle /path/to/project bdr-team</p>
           <p><span className="text-accent">speckit</span> scaffold /path/to/new-project</p>
           <p><span className="text-accent">speckit</span> list all</p>

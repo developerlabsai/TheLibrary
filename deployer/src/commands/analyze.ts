@@ -33,8 +33,8 @@ export async function executeAnalyze(targetPath: string, json: boolean = false):
   console.log('');
   console.log(`  ${chalk.dim('Suggested profile:')} ${chalk.bold(profile.suggestedProfile)}`);
 
-  if (profile.existingSkills.length > 0) {
-    console.log(`\n  ${chalk.dim('Existing skills:')} ${profile.existingSkills.join(', ')}`);
+  if (profile.existingSpecialties.length > 0) {
+    console.log(`\n  ${chalk.dim('Existing specialties:')} ${profile.existingSpecialties.join(', ')}`);
   }
   if (profile.existingMcpServers.length > 0) {
     console.log(`  ${chalk.dim('Existing MCP:')} ${profile.existingMcpServers.join(', ')}`);
