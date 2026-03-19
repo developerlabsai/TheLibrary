@@ -25,7 +25,7 @@ export interface ProjectProfile {
   hasBeads: boolean;
   hasClaude: boolean;
   hasMcpInfra: boolean;
-  existingSkills: string[];
+  existingSpecialties: string[];
   existingMcpServers: string[];
   testFramework: string | null;
   database: string | null;
@@ -41,13 +41,13 @@ export interface AgentManifest {
   version: string;
   description: string;
   files: Record<string, string>;
-  requiredSkills: string[];
+  requiredSpecialties: string[];
   requiredMcp: string[];
   tags: string[];
 }
 
-/** Skill manifest (derived from SKILL.md front matter) */
-export interface SkillInfo {
+/** Specialty manifest (derived from SPECIALTY.md front matter) */
+export interface SpecialtyInfo {
   name: string;
   displayName: string;
   version: string;
@@ -57,13 +57,13 @@ export interface SkillInfo {
   requiredMcp: string[];
 }
 
-/** Workforce package definition */
-export interface WorkforcePackage {
+/** Workforce team definition */
+export interface WorkforceTeam {
   name: string;
   description: string;
   version: string;
   agents: string[];
-  skills: string[];
+  specialties: string[];
   templates: string[];
   mcpServers: string[];
   constitutionProfile: ConstitutionProfile;
@@ -81,7 +81,7 @@ export interface VersionStamp {
     beads: string;
     constitution: string;
     mcpInfra?: string;
-    skills: Record<string, string>;
+    specialties: Record<string, string>;
     agents: Record<string, string>;
     templates: string[];
   };
@@ -91,13 +91,14 @@ export interface VersionStamp {
 export interface DeployOptions {
   targetPath: string;
   profile?: ConstitutionProfile;
-  skills?: string[];
+  specialties?: string[];
   agents?: string[];
   templates?: string[];
   security?: boolean;
   dryRun?: boolean;
   force?: boolean;
   scaffold?: boolean;
+  version?: string;
 }
 
 /** MCP creation options */
@@ -107,6 +108,77 @@ export interface McpCreateOptions {
   fromUrl?: string;
   fromManual?: boolean;
   outputDir?: string;
+}
+
+// ── License & Registry Types ─────────────────────────────────────────
+// Note: The existing codebase uses "specialties" (SpecialtyInfo, getAllSpecialties)
+// for what the spec calls "skills". Preserve "specialties" in deployer code;
+// map "skills" ↔ "specialties" in registry/asset-registry integration.
+
+/** Subscription tier levels. */
+export type LicenseTier = 'free' | 'pro' | 'enterprise';
+
+/** License status returned by the license server validation endpoint. */
+export interface LicenseStatus {
+  valid: boolean;
+  org_name: string;
+  tier: LicenseTier;
+  entitled_assets: string[];
+  expires_at: string | null;
+}
+
+/** Credential file stored at ~/.speckit/credentials. */
+export interface CredentialFile {
+  key: string;
+  registry_url: string;
+}
+
+/** Result of an entitlement check before deploy. */
+export interface EntitlementCheckResult {
+  allowed: boolean;
+  reason?: 'no_credentials' | 'invalid_key' | 'key_expired' | 'key_revoked' | 'tier_insufficient' | 'not_entitled';
+  message: string;
+  required_tier?: LicenseTier;
+  current_tier?: LicenseTier;
+}
+
+/** Catalog entry from the registry API. */
+export interface CatalogEntry {
+  name: string;
+  type: 'agent' | 'skill' | 'template' | 'package';
+  tier: LicenseTier;
+  description: string;
+  current_version: string;
+  entitled: boolean;
+}
+
+/** Asset metadata from the registry API. */
+export interface AssetMetadata {
+  name: string;
+  type: 'agent' | 'skill' | 'template' | 'package';
+  tier: LicenseTier;
+  description: string;
+  current_version: string;
+  available_versions: string[];
+  file_manifest: string[];
+}
+
+/** Stub file format deployed into target projects. */
+export interface StubFile {
+  speckit_stub: true;
+  asset: string;
+  version: string;
+  registry: string;
+  ttl: number;
+  deployed_at: string;
+}
+
+/** Result of resolving a stub (cache hit or registry fetch). */
+export interface CacheResult {
+  files: Record<string, Buffer>;
+  version: string;
+  checksum: string;
+  from_cache: boolean;
 }
 
 /** Constitution principle definition */

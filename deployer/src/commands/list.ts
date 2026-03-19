@@ -3,9 +3,11 @@
  */
 
 import chalk from 'chalk';
-import { getAllAgents, getAllSkills, getAllTemplates, getAllPackages } from '../registry/asset-registry.js';
+import { getAllAgents, getAllSpecialties, getAllTemplates, getAllTeams, getRemoteCatalog } from '../registry/asset-registry.js';
+import { getCredentials } from '../license/credential-store.js';
+import type { CatalogEntry } from '../types.js';
 
-type AssetType = 'agents' | 'skills' | 'templates' | 'packages' | 'profiles' | 'all';
+type AssetType = 'agents' | 'specialties' | 'templates' | 'teams' | 'profiles' | 'all';
 
 /**
  * Executes the list command.
@@ -14,10 +16,16 @@ export async function executeList(type: AssetType): Promise<void> {
   console.log(chalk.bold('\n  TheLibrary - Available Assets\n'));
 
   if (type === 'agents' || type === 'all') await listAgents();
-  if (type === 'skills' || type === 'all') await listSkills();
+  if (type === 'specialties' || type === 'all') await listSpecialties();
   if (type === 'templates' || type === 'all') await listTemplates();
-  if (type === 'packages' || type === 'all') await listPackages();
+  if (type === 'teams' || type === 'all') await listTeams();
   if (type === 'profiles' || type === 'all') listProfiles();
+
+  // Show licensed assets from registry if authenticated
+  const credentials = await getCredentials();
+  if (credentials) {
+    await listRegistryAssets();
+  }
 
   console.log('');
 }
@@ -31,8 +39,8 @@ async function listAgents(): Promise<void> {
   }
   for (const agent of agents) {
     console.log(`    ${chalk.bold(agent.name)} - ${agent.description}`);
-    if (agent.requiredSkills.length > 0) {
-      console.log(chalk.dim(`      Skills: ${agent.requiredSkills.join(', ')}`));
+    if (agent.requiredSpecialties.length > 0) {
+      console.log(chalk.dim(`      Specialties: ${agent.requiredSpecialties.join(', ')}`));
     }
     if (agent.tags.length > 0) {
       console.log(chalk.dim(`      Tags: ${agent.tags.join(', ')}`));
@@ -41,16 +49,16 @@ async function listAgents(): Promise<void> {
   console.log('');
 }
 
-async function listSkills(): Promise<void> {
-  const skills = await getAllSkills();
-  console.log(chalk.blue(`  Skills (${skills.length}):`));
-  if (skills.length === 0) {
-    console.log(chalk.dim('    No skills found'));
+async function listSpecialties(): Promise<void> {
+  const specialties = await getAllSpecialties();
+  console.log(chalk.blue(`  Specialties (${specialties.length}):`));
+  if (specialties.length === 0) {
+    console.log(chalk.dim('    No specialties found'));
     return;
   }
-  for (const skill of skills) {
-    const refTag = skill.hasReference ? chalk.dim(' [+ref]') : '';
-    console.log(`    ${chalk.bold(skill.name)} - ${skill.description || skill.displayName}${refTag}`);
+  for (const specialty of specialties) {
+    const refTag = specialty.hasReference ? chalk.dim(' [+ref]') : '';
+    console.log(`    ${chalk.bold(specialty.name)} - ${specialty.description || specialty.displayName}${refTag}`);
   }
   console.log('');
 }
@@ -68,16 +76,35 @@ async function listTemplates(): Promise<void> {
   console.log('');
 }
 
-async function listPackages(): Promise<void> {
-  const packages = await getAllPackages();
-  console.log(chalk.blue(`  Workforce Packages (${packages.length}):`));
-  if (packages.length === 0) {
-    console.log(chalk.dim('    No packages found'));
+async function listTeams(): Promise<void> {
+  const teams = await getAllTeams();
+  console.log(chalk.blue(`  Workforce Teams (${teams.length}):`));
+  if (teams.length === 0) {
+    console.log(chalk.dim('    No teams found'));
     return;
   }
-  for (const pkg of packages) {
+  for (const pkg of teams) {
     console.log(`    ${chalk.bold(pkg.name)} - ${pkg.description}`);
-    console.log(chalk.dim(`      Agents: ${pkg.agents.length} | Skills: ${pkg.skills.length} | Templates: ${pkg.templates.length}`));
+    console.log(chalk.dim(`      Agents: ${pkg.agents.length} | Specialties: ${pkg.specialties.length} | Templates: ${pkg.templates.length}`));
+  }
+  console.log('');
+}
+
+/**
+ * Lists assets available from the remote registry for authenticated users.
+ */
+async function listRegistryAssets(): Promise<void> {
+  const catalog = await getRemoteCatalog();
+  if (catalog.length === 0) return;
+
+  console.log(chalk.blue(`  Registry Assets (${catalog.length}):`));
+  for (const entry of catalog) {
+    const tierBadge = entry.tier === 'enterprise'
+      ? chalk.magenta(`[${entry.tier}]`)
+      : chalk.cyan(`[${entry.tier}]`);
+    const entitledTag = entry.entitled ? chalk.green(' [entitled]') : chalk.dim(' [not entitled]');
+    console.log(`    ${chalk.bold(entry.name)} ${tierBadge}${entitledTag} - ${entry.description}`);
+    console.log(chalk.dim(`      Type: ${entry.type} | Version: ${entry.current_version}`));
   }
   console.log('');
 }

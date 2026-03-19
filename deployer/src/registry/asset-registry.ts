@@ -1,12 +1,14 @@
 /**
- * Asset registry - central catalog of all available agents, skills,
+ * Asset registry - central catalog of all available agents, specialties,
  * MCP servers, and templates in TheLibrary.
  */
 
 import path from 'path';
 import fs from 'fs-extra';
 import { getProjectRoot, readJson, exists } from '../utils/file-ops.js';
-import type { AgentManifest, SkillInfo, WorkforcePackage } from '../types.js';
+import type { AgentManifest, SpecialtyInfo, WorkforceTeam, CatalogEntry } from '../types.js';
+import { getCredentials } from '../license/credential-store.js';
+import { fetchCatalog } from './registry-client.js';
 
 /**
  * Scans the library and returns all available agents.
@@ -30,34 +32,34 @@ export async function getAllAgents(): Promise<AgentManifest[]> {
 }
 
 /**
- * Scans the library and returns all available skills.
+ * Scans the library and returns all available specialties.
  */
-export async function getAllSkills(): Promise<SkillInfo[]> {
-  const skillsDir = path.join(getProjectRoot(), 'Skills');
-  if (!(await exists(skillsDir))) return [];
+export async function getAllSpecialties(): Promise<SpecialtyInfo[]> {
+  const specialtiesDir = path.join(getProjectRoot(), 'Specialties');
+  if (!(await exists(specialtiesDir))) return [];
 
-  const entries = await fs.readdir(skillsDir, { withFileTypes: true });
-  const skills: SkillInfo[] = [];
+  const entries = await fs.readdir(specialtiesDir, { withFileTypes: true });
+  const specialties: SpecialtyInfo[] = [];
 
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
 
-    const skillMdPath = path.join(skillsDir, entry.name, 'SKILL.md');
-    const hasSkillMd = await exists(skillMdPath);
-    const hasReference = await exists(path.join(skillsDir, entry.name, 'reference'));
+    const specialtyMdPath = path.join(specialtiesDir, entry.name, 'SPECIALTY.md');
+    const hasSpecialtyMd = await exists(specialtyMdPath);
+    const hasReference = await exists(path.join(specialtiesDir, entry.name, 'reference'));
 
-    skills.push({
+    specialties.push({
       name: entry.name.toLowerCase().replace(/\s+/g, '-'),
       displayName: entry.name,
       version: '1.0.0',
-      description: hasSkillMd ? await extractSkillDescription(skillMdPath) : '',
+      description: hasSpecialtyMd ? await extractSpecialtyDescription(specialtyMdPath) : '',
       directory: entry.name,
       hasReference,
       requiredMcp: [],
     });
   }
 
-  return skills;
+  return specialties;
 }
 
 /**
@@ -74,32 +76,47 @@ export async function getAllTemplates(): Promise<string[]> {
 }
 
 /**
- * Scans the Packages directory and returns all workforce packages.
+ * Scans the Teams directory and returns all workforce teams.
  */
-export async function getAllPackages(): Promise<WorkforcePackage[]> {
-  const packagesDir = path.join(getProjectRoot(), 'Packages');
-  if (!(await exists(packagesDir))) return [];
+export async function getAllTeams(): Promise<WorkforceTeam[]> {
+  const teamsDir = path.join(getProjectRoot(), 'Teams');
+  if (!(await exists(teamsDir))) return [];
 
-  const entries = await fs.readdir(packagesDir, { withFileTypes: true });
-  const packages: WorkforcePackage[] = [];
+  const entries = await fs.readdir(teamsDir, { withFileTypes: true });
+  const teams: WorkforceTeam[] = [];
 
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
-    const pkg = await readJson<WorkforcePackage>(
-      path.join(packagesDir, entry.name, 'package.json')
+    const pkg = await readJson<WorkforceTeam>(
+      path.join(teamsDir, entry.name, 'package.json')
     );
-    if (pkg) packages.push(pkg);
+    if (pkg) teams.push(pkg);
   }
 
-  return packages;
+  return teams;
 }
 
 /**
- * Extracts the description from a SKILL.md file (first non-empty paragraph).
+ * Gets remote assets from the registry catalog when credentials are present.
+ * Returns catalog entries merged with local assets, marked with source.
  */
-async function extractSkillDescription(skillMdPath: string): Promise<string> {
+export async function getRemoteCatalog(type?: string): Promise<CatalogEntry[]> {
+  const credentials = await getCredentials();
+  if (!credentials) return [];
+
   try {
-    const content = await fs.readFile(skillMdPath, 'utf-8');
+    return await fetchCatalog(type);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Extracts the description from a SPECIALTY.md file (first non-empty paragraph).
+ */
+async function extractSpecialtyDescription(specialtyMdPath: string): Promise<string> {
+  try {
+    const content = await fs.readFile(specialtyMdPath, 'utf-8');
     const lines = content.split('\n');
 
     // Look for the first line after YAML front matter or header

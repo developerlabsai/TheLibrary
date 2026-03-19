@@ -2,16 +2,35 @@
   "name": "chief-of-staff",
   "displayName": "Chief of Staff",
   "version": "1.0.0",
-  "description": "Strategic chief of staff for prioritization, decisions, stakeholder alignment, and execution",
+  "description": "Strategic operator agent bridging strategy and execution with clarity and coherence",
   "files": {
-    "agents": "Agents.md"
+    "soul": "SOUL.md",
+    "agents": "Agents.md",
+    "identity": "IDENTITY.md",
+    "user": "USER.md",
+    "tools": "TOOLS.md",
+    "bootstrap": "BOOTSTRAP.md",
+    "heartbeat": "HEARTBEAT.md",
+    "memory": "MEMORY.md"
   },
-  "requiredSkills": [
-    "account-research",
-    "pipeline-review",
-    "exa-research",
-    "playbook"
-  ],
+  "requiredSpecialties": ["account-research", "pipeline-review", "exa-research"],
   "requiredMcp": [],
-  "tags": ["executive", "strategy", "leadership", "operations"]
+  "tags": ["strategy", "operations", "leadership", "alignment"],
+  "runtimeConfig": {
+    "maxSteps": 5,
+    "verifierEnabled": true,
+    "successCriteria": [
+      "Strategic question clearly framed",
+      "Analysis includes supporting evidence",
+      "Recommendations are actionable with owners",
+      "Risks and trade-offs identified"
+    ],
+    "allowedTools": ["account-research", "pipeline-review", "exa-research"],
+    "escalationRule": "Stop and present structured options if no clear path forward after 2 iterations"
+  },
+  "heartbeatConfig": {
+    "enabled": true,
+    "tasks": ["Review initiative progress", "Check priority alignment", "Stakeholder pulse"],
+    "interval": "weekly"
+  }
 }

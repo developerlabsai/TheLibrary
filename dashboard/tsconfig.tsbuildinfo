@@ -1,0 +1,1 @@
+{"root":["./src/main.tsx","./src/components/layout.tsx","./src/pages/assets.tsx","./src/pages/createagent.tsx","./src/pages/createfeature.tsx","./src/pages/createmcp.tsx","./src/pages/createspecialty.tsx","./src/pages/createteam.tsx","./src/pages/dashboard.tsx","./src/pages/deploy.tsx","./src/pages/projects.tsx","./src/pages/teams.tsx","./src/services/api.ts"],"version":"5.9.3"}

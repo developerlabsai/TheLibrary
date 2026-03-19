@@ -1,0 +1,28 @@
+{
+  "name": "executive-ops",
+  "description": "Executive operations workforce - calendar, communications, and decision support",
+  "version": "1.0.0",
+  "agents": [
+    "executive-assistant",
+    "chief-of-staff",
+    "chief-financial-officer"
+  ],
+  "specialties": [
+    "calendar-prep",
+    "call-prep",
+    "follow-up-drafter",
+    "sheets-analyst",
+    "slack-summarizer",
+    "deck-generator",
+    "playbook",
+    "sop-generator"
+  ],
+  "templates": [
+    "template-meeting-recap.html",
+    "template-daily-action-manager.html",
+    "template-daily-action-employee.html"
+  ],
+  "mcpServers": [],
+  "constitutionProfile": "web-app-typescript",
+  "security": true
+}

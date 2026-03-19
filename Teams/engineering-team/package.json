@@ -1,0 +1,21 @@
+{
+  "name": "engineering-team",
+  "description": "Engineering team workforce - technical docs, migrations, runbooks, and release management",
+  "version": "1.0.0",
+  "agents": [],
+  "specialties": [
+    "migration-planner",
+    "runbook-creator",
+    "release-notes-generator",
+    "sop-generator",
+    "ref-lookup",
+    "exa-research",
+    "jira-workflow"
+  ],
+  "templates": [
+    "template-technical-docs.html"
+  ],
+  "mcpServers": [],
+  "constitutionProfile": "web-app-typescript",
+  "security": true
+}

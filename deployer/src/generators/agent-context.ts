@@ -66,10 +66,10 @@ function generateContextContent(profile: ProjectProfile): string {
   sections.push(`- **Constitution Profile**: ${profile.suggestedProfile}`);
 
   // Existing Configuration
-  if (profile.existingSkills.length > 0) {
-    sections.push('\n## Existing Skills\n');
-    for (const skill of profile.existingSkills) {
-      sections.push(`- ${skill}`);
+  if (profile.existingSpecialties.length > 0) {
+    sections.push('\n## Existing Specialties\n');
+    for (const specialty of profile.existingSpecialties) {
+      sections.push(`- ${specialty}`);
     }
   }
 
@@ -97,7 +97,7 @@ function generateContextContent(profile: ProjectProfile): string {
   sections.push('- `.specify/` - SpecKit configuration and templates');
   sections.push('- `.specify/memory/constitution.md` - Project governance');
   sections.push('- `.beads/` - Task tracking');
-  sections.push('- `.claude/skills/` - Available agent skills');
+  sections.push('- `.claude/skills/` - Available agent specialties');
 
   return sections.join('\n');
 }

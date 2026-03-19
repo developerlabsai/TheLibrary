@@ -1,5 +1,6 @@
 /**
  * Agent deployer - deploys agent definitions from the library into target projects.
+ * Supports the full OpenClaw-compatible workspace file set.
  */
 
 import path from 'path';
@@ -9,6 +10,7 @@ import {
   exists,
   readJson,
   copyIfNotExists,
+  writeText,
   getProjectRoot,
 } from '../utils/file-ops.js';
 import type { AgentManifest, DeployOptions } from '../types.js';
@@ -63,9 +65,9 @@ export async function deployAgents(
       }
     }
 
-    // Copy all agent files
+    // Copy all workspace files listed in manifest
     await ensureDir(destDir);
-    for (const [key, filename] of Object.entries(manifest.files)) {
+    for (const [_key, filename] of Object.entries(manifest.files)) {
       const srcFile = path.join(srcDir, filename);
       if (await exists(srcFile)) {
         await copyIfNotExists(srcFile, path.join(destDir, filename));
@@ -78,10 +80,41 @@ export async function deployAgents(
       path.join(destDir, 'manifest.json')
     );
 
-    // Copy Context directory if it exists
+    // Create memory/ directory for daily session logs
+    const destMemoryDir = path.join(destDir, 'memory');
+    await ensureDir(destMemoryDir);
+
+    // Copy memory/ directory from source if it has pre-populated content
+    const srcMemoryDir = path.join(srcDir, 'memory');
+    if (await exists(srcMemoryDir)) {
+      const memoryFiles = await fs.readdir(srcMemoryDir).catch(() => [] as string[]);
+      for (const memFile of memoryFiles) {
+        if (memFile.startsWith('.')) continue;
+        await copyIfNotExists(
+          path.join(srcMemoryDir, memFile),
+          path.join(destMemoryDir, memFile)
+        );
+      }
+    }
+
+    // Ensure .gitkeep in memory dir so it gets committed
+    const gitkeepPath = path.join(destMemoryDir, '.gitkeep');
+    if (!(await exists(gitkeepPath))) {
+      await writeText(gitkeepPath, '');
+    }
+
+    // Copy Context directory if it exists (backward compatibility)
     const contextDir = path.join(srcDir, 'Context');
     if (await exists(contextDir)) {
-      await ensureDir(path.join(destDir, 'Context'));
+      const destContextDir = path.join(destDir, 'Context');
+      await ensureDir(destContextDir);
+      const contextFiles = await fs.readdir(contextDir).catch(() => [] as string[]);
+      for (const ctxFile of contextFiles) {
+        await copyIfNotExists(
+          path.join(contextDir, ctxFile),
+          path.join(destContextDir, ctxFile)
+        );
+      }
     }
 
     result.deployed.push(agentName);

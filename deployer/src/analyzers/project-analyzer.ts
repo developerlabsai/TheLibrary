@@ -30,7 +30,7 @@ export async function analyzeProject(targetPath: string): Promise<ProjectProfile
     testFramework,
     database,
     cicd,
-    existingSkills,
+    existingSpecialties,
     existingMcpServers,
   ] = await Promise.all([
     detectGit(targetPath),
@@ -43,7 +43,7 @@ export async function analyzeProject(targetPath: string): Promise<ProjectProfile
     detectTestFramework(targetPath),
     detectDatabase(targetPath),
     detectCicd(targetPath),
-    detectExistingSkills(targetPath),
+    detectExistingSpecialties(targetPath),
     detectExistingMcpServers(targetPath),
   ]);
 
@@ -60,7 +60,7 @@ export async function analyzeProject(targetPath: string): Promise<ProjectProfile
     hasBeads,
     hasClaude,
     hasMcpInfra,
-    existingSkills,
+    existingSpecialties,
     existingMcpServers,
     testFramework,
     database,
@@ -193,7 +193,7 @@ async function detectCicd(targetPath: string): Promise<string | null> {
   return null;
 }
 
-async function detectExistingSkills(targetPath: string): Promise<string[]> {
+async function detectExistingSpecialties(targetPath: string): Promise<string[]> {
   const skillsDir = path.join(targetPath, '.claude', 'skills');
   if (!(await exists(skillsDir))) return [];
 

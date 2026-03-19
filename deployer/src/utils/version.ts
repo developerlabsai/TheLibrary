@@ -17,7 +17,7 @@ const MCP_INFRA_VERSION = '1.0.0';
  */
 export function createVersionStamp(
   profile: ConstitutionProfile,
-  skills: Record<string, string> = {},
+  specialties: Record<string, string> = {},
   agents: Record<string, string> = {},
   templates: string[] = [],
   hasMcpInfra: boolean = false
@@ -32,7 +32,7 @@ export function createVersionStamp(
       beads: BEADS_VERSION,
       constitution: CONSTITUTION_VERSION,
       ...(hasMcpInfra ? { mcpInfra: MCP_INFRA_VERSION } : {}),
-      skills,
+      specialties,
       agents,
       templates,
     },

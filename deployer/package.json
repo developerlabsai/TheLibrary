@@ -1,16 +1,28 @@
 {
-  "name": "speckit-deployer",
+  "name": "@devlabs/speckit-deployer",
   "version": "1.0.0",
-  "description": "SpecKit Deployer - Uniform deployment of SpecKit, Beads, Agents, Skills, MCP Servers, and Templates",
+  "description": "SpecKit Deployer - Uniform deployment of SpecKit, Beads, Agents, Specialties, MCP Servers, and Templates",
   "type": "module",
   "bin": {
     "speckit": "./dist/bin/speckit.js"
   },
+  "files": [
+    "dist/",
+    "library/",
+    "Agents/",
+    "Skills/",
+    "Specialties/",
+    "Templates/",
+    "Packages/",
+    "Teams/",
+    "dashboard/dist/"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx bin/speckit.ts",
     "start": "node dist/bin/speckit.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "cd ../dashboard && npm run build && cd ../deployer && tsc && node scripts/add-shebang.js"
   },
   "dependencies": {
     "chalk": "^5.3.0",

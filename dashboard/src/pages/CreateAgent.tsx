@@ -49,7 +49,7 @@ export default function CreateAgent() {
     responsibilities: [],
     operatingPrinciples: [],
     preferredOutputFormats: [],
-    requiredSkills: [],
+    requiredSpecialties: [],
     tags: [],
     personalizationFields: [],
     standingInstructions: [],
@@ -72,7 +72,7 @@ export default function CreateAgent() {
       operatingPrinciples: form.operatingPrinciples || [],
       preferredOutputFormats: form.preferredOutputFormats || [],
       tone: form.tone || 'calm, polished, efficient',
-      requiredSkills: form.requiredSkills || [],
+      requiredSpecialties: form.requiredSpecialties || [],
       tags: form.tags || [],
       personalizationFields: form.personalizationFields,
       standingInstructions: form.standingInstructions,
@@ -92,13 +92,13 @@ export default function CreateAgent() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-white mb-1">Agent Creation Wizard</h1>
-      <p className="text-sm text-gray-500 mb-6">Define a new agent with role, responsibilities, skills, and tone.</p>
+      <p className="text-sm text-gray-500 mb-6">Define a new agent with role, responsibilities, specialties, and tone.</p>
 
       {status === 'done' ? (
         <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-6">
           <p className="text-emerald-400 font-medium mb-2">Agent created successfully</p>
           <p className="text-sm text-gray-400">{result}</p>
-          <button onClick={() => { setStatus('idle'); setForm({ responsibilities: [], operatingPrinciples: [], preferredOutputFormats: [], requiredSkills: [], tags: [], personalizationFields: [], standingInstructions: [] }); }} className="mt-4 px-4 py-2 bg-white/5 text-gray-300 rounded text-sm hover:bg-white/10">Create Another</button>
+          <button onClick={() => { setStatus('idle'); setForm({ responsibilities: [], operatingPrinciples: [], preferredOutputFormats: [], requiredSpecialties: [], tags: [], personalizationFields: [], standingInstructions: [] }); }} className="mt-4 px-4 py-2 bg-white/5 text-gray-300 rounded text-sm hover:bg-white/10">Create Another</button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -121,7 +121,7 @@ export default function CreateAgent() {
           <ListEditor label="Responsibilities" items={form.responsibilities || []} onChange={(v) => set('responsibilities', v)} placeholder="e.g. Strategic prioritization" />
           <ListEditor label="Operating Principles" items={form.operatingPrinciples || []} onChange={(v) => set('operatingPrinciples', v)} placeholder="e.g. Be proactive, not passive" />
           <ListEditor label="Preferred Output Formats" items={form.preferredOutputFormats || []} onChange={(v) => set('preferredOutputFormats', v)} placeholder="e.g. Daily brief" />
-          <ListEditor label="Required Skills" items={form.requiredSkills || []} onChange={(v) => set('requiredSkills', v)} placeholder="e.g. account-research" />
+          <ListEditor label="Required Specialties" items={form.requiredSpecialties || []} onChange={(v) => set('requiredSpecialties', v)} placeholder="e.g. account-research" />
           <ListEditor label="Tags" items={form.tags || []} onChange={(v) => set('tags', v)} placeholder="e.g. executive, productivity" />
           <ListEditor label="Personalization Fields" items={form.personalizationFields || []} onChange={(v) => set('personalizationFields', v)} placeholder="e.g. Principal name" />
           <ListEditor label="Standing Instructions" items={form.standingInstructions || []} onChange={(v) => set('standingInstructions', v)} placeholder="e.g. Always cc the team lead" />
